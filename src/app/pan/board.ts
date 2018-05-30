@@ -1,5 +1,7 @@
 import { Card } from "./card"
 import { Player } from "./player"
+import { Figure } from "./figure";
+import { Color } from "./color";
 
 export class Board {
     private stack : Card[]
@@ -9,6 +11,7 @@ export class Board {
     public constructor() {
         this.stack = []
         this.players = []
+        this.token = -1
     }
 
     public addPlayer(player : Player) {
@@ -16,16 +19,23 @@ export class Board {
     }
 
     public dealingCards(deck: Card[]) {
+        var startCard = new Card(Figure.f9, Color.Kier)
         while(deck.length && this.players.length) {
-            for(const player of this.players) {
+            for(let i = 0; i < this.players.length; i++) {
                 if(!deck.length) break
-                player.cards.push(deck.pop())
+                var card = deck.pop()
+                if(card.isEqual(startCard)) this.token = i
+                this.players[i].cards.push(card)
             }
         }
     }
 
     public getPlayers() : Player[] {
         return this.players
+    }
+
+    public getToken() : Number {
+        return this.token
     }
     
 }

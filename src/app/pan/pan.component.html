@@ -1,6 +1,6 @@
 Deck: <span *ngFor="let card of deck" [ngClass]=card.getColorStyle()>{{card.toString()}} </span>
 <br>
-Players:
+Token: Player {{board.getToken() + 1}}
 <ol>
     <li *ngFor="let player of board.getPlayers()">
         <span *ngFor="let card of player.cards" [ngClass]=card.getColorStyle()>{{card.toString()}} </span>

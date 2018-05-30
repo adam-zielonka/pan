@@ -48,6 +48,10 @@ export class Card {
         return `${this.numberToFigure()}${this.numberToColor()}`
     }
 
+    public isEqual(card : Card) : Boolean {
+        return this.value == card.getValue() && this.color == card.getColor()
+    }
+
     public static generateDeck() : Card[] {
         var deck : Card[] = []
         for (let i = 9; i <= 14; i++) {
