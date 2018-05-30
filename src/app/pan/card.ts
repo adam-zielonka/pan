@@ -52,6 +52,12 @@ export class Card {
         return this.value == card.getValue() && this.color == card.getColor()
     }
 
+    public compare(card : Card) : number {
+        if(this.value < card.getValue()) return -1
+        if(this.value > card.getValue()) return 1
+        return 0
+    }
+
     public static generateDeck() : Card[] {
         var deck : Card[] = []
         for (let i = 9; i <= 14; i++) {
@@ -68,4 +74,5 @@ export class Card {
         }
         return deck
     }
+
 }

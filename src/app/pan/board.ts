@@ -28,6 +28,9 @@ export class Board {
                 this.players[i].cards.push(card)
             }
         }
+        for (const player of this.players) {
+            player.sortCards()
+        }
     }
 
     public getPlayers() : Player[] {

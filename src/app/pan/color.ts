@@ -1,6 +1,6 @@
 export enum Color {
-    Trefl = 1,
+    Kier = 1,
     Karo,
-    Kier,
+    Trefl,
     Pik
 }

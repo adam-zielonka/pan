@@ -18,12 +18,12 @@ export class PanComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.deck = Card.shuffleDeck(Card.generateDeck())
+    this.deck = Card.generateDeck()
     this.board = new Board()
     this.board.addPlayer(new Player())
     this.board.addPlayer(new Player())
     this.board.addPlayer(new Player())
-    this.board.dealingCards(this.deck.map(card => card))
+    this.board.dealingCards(Card.shuffleDeck(this.deck.map(card => card)))
   }
 
 }
