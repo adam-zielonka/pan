@@ -48,8 +48,12 @@ export class Card {
         return `${this.numberToFigure()}${this.numberToColor()}`
     }
 
-    public isEqual(card : Card) : Boolean {
+    public isEqual(card : Card) : boolean {
         return this.value == card.getValue() && this.color == card.getColor()
+    }
+
+    public isPik() : boolean {
+        return this.color == Color.Pik
     }
 
     public compare(card : Card) : number {
