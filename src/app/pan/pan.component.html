@@ -1,2 +1,8 @@
-Deck: 
-<span *ngFor="let card of deck" [ngClass]=card.getColorStyle()>{{card.toString()}} </span>
+Deck: <span *ngFor="let card of deck" [ngClass]=card.getColorStyle()>{{card.toString()}} </span>
+<br>
+Players:
+<ol>
+    <li *ngFor="let player of board.getPlayers()">
+        <span *ngFor="let card of player.cards" [ngClass]=card.getColorStyle()>{{card.toString()}} </span>
+    </li>
+</ol>
