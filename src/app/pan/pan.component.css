@@ -5,3 +5,13 @@
 .black {
     color: black;
 }
+
+button {
+    margin: 1px;
+}
+
+button:enabled {
+    border-style: solid;
+    border-color: black;
+}
+

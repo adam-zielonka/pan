@@ -5,8 +5,9 @@ Token: Player {{board.getToken() + 1}}
     <li *ngFor="let player of board.getPlayers()">
         <button 
             *ngFor="let card of player.cards" 
-            (click)=board.action(card) 
-            [ngClass]=card.getColorStyle() 
+            (click)=board.action(card)
+            class="btn btn-light"
+            [ngClass]=card.getColorStyle()
             [disabled]="!board.isActionAvalible(card, player.id)" >
             {{card.toString()}} 
         </button>
@@ -15,6 +16,7 @@ Token: Player {{board.getToken() + 1}}
 Stack: <span *ngFor="let card of board.getStack()" [ngClass]=card.getColorStyle()>{{card.toString()}} </span>
 <button 
     (click)=board.getFromStack()
+    class="btn btn-light"
     [hidden]="!(board.getStack().length > 1)">
     Get cards
 </button>
