@@ -2,10 +2,12 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
+import { PanComponent } from './pan/pan.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    PanComponent
   ],
   imports: [
     BrowserModule
