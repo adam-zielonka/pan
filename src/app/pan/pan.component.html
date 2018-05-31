@@ -1,22 +1,44 @@
-Deck: <span *ngFor="let card of deck" [ngClass]=card.getColorStyle()>{{card.toString()}} </span>
-<br>
-Token: Player {{board.getToken() + 1}}
-<ol>
-    <li *ngFor="let player of board.getPlayers()">
-        <button 
-            *ngFor="let card of player.cards" 
-            (click)=board.action(card)
-            class="btn btn-light"
-            [ngClass]=card.getColorStyle()
-            [disabled]="!board.isActionAvalible(card, player.id)" >
-            {{card.toString()}} 
-        </button>
-    </li>
-</ol>
-Stack: <span *ngFor="let card of board.getStack()" [ngClass]=card.getColorStyle()>{{card.toString()}} </span>
-<button 
-    (click)=board.getFromStack()
-    class="btn btn-light"
-    [hidden]="!(board.getStack().length > 1)">
-    Get cards
-</button>
+<div class="deck">
+    Deck: 
+    <span 
+        *ngFor="let card of deck"
+        class="btn btn-light disabled onecard"
+        [ngClass]=card.getColorStyle()>
+        {{card.toString()}} 
+    </span>
+</div>
+
+<div>
+    Token: Player {{board.getToken() + 1}}
+</div>
+
+<div class="players">
+    <ol>
+        <li *ngFor="let player of board.getPlayers()">
+            <button 
+                *ngFor="let card of player.cards" 
+                (click)=board.action(card)
+                class="btn btn-light onecard"
+                [ngClass]=card.getColorStyle()
+                [disabled]="!board.isActionAvalible(card, player.id)" >
+                {{card.toString()}} 
+            </button>
+        </li>
+    </ol>
+</div>
+
+<div class="stack">
+    Stack: 
+    <span 
+        *ngFor="let card of board.getStack()" 
+        class="btn btn-light disabled onecard"
+        [ngClass]=card.getColorStyle()>
+        {{card.toString()}}
+    </span>
+    <button 
+        (click)=board.getFromStack()
+        class="btn btn-light onecard"
+        [hidden]="!(board.getStack().length > 1)">
+        Get cards
+    </button>
+</div>

@@ -6,7 +6,8 @@
     color: black;
 }
 
-button {
+.onecard {
+    opacity: 1 !important;
     margin: 1px;
 }
 

@@ -81,7 +81,7 @@ export class Board {
     }
 
     public nextPlayer() {
-        if(this.sitllPlay) {
+        if(this.sitllPlay > 0) {
             if(this.stack[this.stack.length - 1].isPik()) this.token--
             else this.token++
             if(this.token < 0) this.token = this.players.length - 1
