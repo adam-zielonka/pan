@@ -18,4 +18,21 @@ export class Player {
         }
         return undefined
     }
+
+    public getFigureActions(isStackEmpty) : Figure[] {
+        this.sortCards()
+        var figureActions : Figure[] = []
+        var figure : Figure = Figure.f9
+        var count = isStackEmpty ? 1 : 0
+        for (const card of this.cards) {
+            if(card.getValue() == figure) {
+                count++
+                if(count == 4) figureActions.push(figure)
+            } else {
+                figure = card.getValue()
+                count = 1
+            }
+        }
+        return figureActions
+    }
 }

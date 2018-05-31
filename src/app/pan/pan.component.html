@@ -1,3 +1,9 @@
+<div class="form-group row newGame">
+    <label class="form-label">Players: </label>
+    <input class="form-control players-input" type="number" value={{players}} min=1 max=24 [(ngModel)]=players >
+    <button class="btn btn-light onecard" (click)=newGameClick() >New Game</button>
+</div>
+
 <div class="deck">
     Deck: 
     <span 
@@ -22,6 +28,13 @@
                 [ngClass]=card.getColorStyle()
                 [disabled]="!board.isActionAvalible(card, player.id)" >
                 {{card.toString()}} 
+            </button>
+            <button
+                *ngFor="let figure of player.getFigureActions(board.getStack().length)" 
+                class="btn btn-light onecard" 
+                (click)=board.comboMode(figure)
+                [disabled]="!board.isComboActionAvalible(figure, player.id)" >
+                {{numberToFigure(figure)}} 
             </button>
         </li>
     </ol>

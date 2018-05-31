@@ -16,3 +16,11 @@ button:enabled {
     border-color: black;
 }
 
+.players-input {
+    width: 70px;
+}
+
+.newGame {
+    margin: 10px;
+}
+

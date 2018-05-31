@@ -7,11 +7,11 @@ export class Card {
         private color : Color
     ){}
 
-    public getValue() : Number {
+    public getValue() : number {
         return this.value
     }
 
-    public getColor() : Number {
+    public getColor() : number {
         return this.color
     }
 
@@ -25,23 +25,11 @@ export class Card {
     }
 
     private numberToColor() : String {
-        switch (this.color) {
-            case Color.Karo: return "♦"
-            case Color.Kier: return "♥"
-            case Color.Trefl: return "♣"
-            case Color.Pik: return "♠"
-        }
+        return Card.numberToColor(this.color)
     }
 
     private numberToFigure() : String {
-        switch (this.value) {
-            case Figure.f9: return "9"
-            case Figure.f10: return "10"
-            case Figure.J: return "J"
-            case Figure.Q: return "Q"
-            case Figure.K: return "K"
-            case Figure.A: return "A"
-        }
+        return Card.numberToFigure(this.value)
     }
 
     public toString(): String {
@@ -77,6 +65,26 @@ export class Card {
             [deck[i], deck[j]] = [deck[j], deck[i]]
         }
         return deck
+    }
+
+    public static numberToColor(color : Color) : String {
+        switch (color) {
+            case Color.Karo: return "♦"
+            case Color.Kier: return "♥"
+            case Color.Trefl: return "♣"
+            case Color.Pik: return "♠"
+        }
+    }
+
+    public static numberToFigure(figure : Figure) : String {
+        switch (figure) {
+            case Figure.f9: return "9"
+            case Figure.f10: return "10"
+            case Figure.J: return "J"
+            case Figure.Q: return "Q"
+            case Figure.K: return "K"
+            case Figure.A: return "A"
+        }
     }
 
 }
