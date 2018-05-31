@@ -1,9 +1,14 @@
-<div class="form-group row newGame">
-    <label class="form-label">Players: </label>
-    <input class="form-control players-input" type="number" value={{players}} min=1 max=24 [(ngModel)]=players >
+<div>
+    <div class="form-groupe">
+            <label for="formControlRange">Players: {{players}}</label>
+            <input type="range" class="col-sm-2 form-control-range" id="formControlRange" value={{players}} min=1 max=24 [(ngModel)]=players>
+    </div>
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="checkbox" id="inlineCheckboxAI" value={{ai}} [(ngModel)]=ai>
+        <label class="form-check-label" for="inlineCheckboxAI">AI</label>
+    </div>
     <button class="btn btn-light onecard" (click)=newGameClick() >New Game</button>
 </div>
-
 <div class="deck">
     Deck: 
     <span 
