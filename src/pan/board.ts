@@ -1,5 +1,14 @@
 import { Card, Figure, Color } from "./card"
-import { Player } from "./player"
+
+export interface IPlayer {
+    getID() : number
+    setID(id : number)
+    getCards() : Card[]
+    sortCards()
+    action(actionCard: Card) : Card
+    getFigureActions(isStackEmpty) : Figure[]
+    play(board: Board)
+}
 
 export class Stack extends Array<Card> {
     public getLastCard() : Card {
@@ -9,7 +18,7 @@ export class Stack extends Array<Card> {
 
 export class Board {
     private stack : Stack
-    private players : Player[]
+    private players : IPlayer[]
     private token : number
     private startCard : Card
     private sitllPlay : number
@@ -24,9 +33,9 @@ export class Board {
         this.startCard = new Card(Figure.f9, Color.Kier)
     }
 
-    public addPlayer(player : Player) {
+    public addPlayer(player : IPlayer) {
         this.sitllPlay++
-        player.id = this.players.length
+        player.setID(this.players.length)
         this.players.push(player)
     }
 
@@ -36,17 +45,17 @@ export class Board {
                 if(!deck.length) break
                 var card = deck.pop()
                 if(card.isEqual(this.startCard)) this.token = i
-                this.players[i].cards.push(card)
+                this.players[i].getCards().push(card)
             }
         }
         this.players.forEach(player => player.sortCards())
     }
 
-    public getPlayers() : Player[] {
+    public getPlayers() : IPlayer[] {
         return this.players
     }
 
-    public getCurrentPlayer() : Player {
+    public getCurrentPlayer() : IPlayer {
         if(this.token > -1) return this.players[this.token]
     }
 
@@ -77,7 +86,7 @@ export class Board {
         var card = this.players[this.token].action(actionCard)
         if(card) {
             this.stack.push(card)
-            if(!this.getCurrentPlayer().cards.length) this.sitllPlay--
+            if(!this.getCurrentPlayer().getCards().length) this.sitllPlay--
             if(!this.comboMode) this.nextPlayer()
             else {
                 if(!--this.comboCounter) {
@@ -96,7 +105,7 @@ export class Board {
     public getFromStack() {
         var counter = 3
         while(this.stack.length > 1 && counter--) 
-            this.getCurrentPlayer().cards.push(this.stack.pop())
+            this.getCurrentPlayer().getCards().push(this.stack.pop())
         this.getCurrentPlayer().sortCards()
         this.nextPlayer()
     }
@@ -107,7 +116,7 @@ export class Board {
             else this.token++
             if(this.token < 0) this.token = this.players.length - 1
             if(this.token >= this.players.length) this.token = 0
-            if(!this.getCurrentPlayer().cards.length) this.nextPlayer()
+            if(!this.getCurrentPlayer().getCards().length) this.nextPlayer()
             else this.getCurrentPlayer().play(this)
         }
     }

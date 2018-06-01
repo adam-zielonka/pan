@@ -1,12 +1,22 @@
 import { Card, Figure } from "./card"
-import { Board } from "./board";
+import { Board, IPlayer } from "./board";
 
-export class Player {
-    public cards: Card[] = []
-    public id
+export class Player implements IPlayer {
+    private cards: Card[] = []
+    private id : number
 
     constructor(private ai : boolean) {
 
+    }
+    
+    public getID(): number {
+        return this.id
+    }
+    public setID(id: number) {
+        this.id = id
+    }
+    public getCards(): Card[] {
+        return this.cards
     }
 
     public sortCards() {
