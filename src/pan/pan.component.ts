@@ -1,9 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core'
-import { Card } from './card'
+import { Card, Figure, Deck } from './card'
 import { Board } from './board'
 import { Player } from './player'
-import { Figure } from './figure'
-import { Color } from './color'
 
 @Component({
   selector: 'pan-game',
@@ -30,8 +28,8 @@ export class PanComponent implements OnInit {
   }
 
   public newGame(players : number) {
-    this.deck = Card.generateDeck()
-    this.deck = Card.shuffleDeck(this.deck)
+    this.deck = Deck.generate()
+    this.deck = Deck.shuffle(this.deck)
     this.board = new Board()
     for (let i = 0; i < players; i++)
       this.board.addPlayer(new Player(this.ai))

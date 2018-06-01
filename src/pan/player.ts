@@ -1,6 +1,4 @@
-import { Card } from "./card"
-import { Figure } from "./figure"
-import { Color } from "./color"
+import { Card, Figure } from "./card"
 import { Board } from "./board";
 
 export class Player {

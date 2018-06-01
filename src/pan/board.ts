@@ -1,19 +1,23 @@
-import { Card } from "./card"
+import { Card, Figure, Color } from "./card"
 import { Player } from "./player"
-import { Figure } from "./figure"
-import { Color } from "./color"
+
+export class Stack extends Array<Card> {
+    public getLastCard() : Card {
+        return this.length ? this[this.length - 1] : undefined
+    }
+}
 
 export class Board {
-    private stack : Card[]
+    private stack : Stack
     private players : Player[]
     private token : number
     private startCard : Card
     private sitllPlay : number
-    public comboModeOnFigure : Figure
+    private comboMode : Figure
     private comboCounter : number
 
     public constructor() {
-        this.stack = []
+        this.stack = new Stack()
         this.players = []
         this.token = -1
         this.sitllPlay = 0
@@ -54,22 +58,17 @@ export class Board {
         return this.stack
     }
 
-    public getLastCard() : Card {
-        return this.stack.length ? this.stack[this.stack.length - 1] : undefined
-    }
-
     public isActionAvalible(actionCard : Card, playerID) : boolean {
-        if(this.comboModeOnFigure) return this.stack.length ? this.comboModeOnFigure == actionCard.getValue() : this.startCard.isEqual(actionCard)
-        var lastCard = this.getLastCard()
-        if(lastCard)
-            return (this.getToken() == playerID) && (this.getLastCard().compare(actionCard) != 1)
+        if(this.comboMode) return this.stack.length ? this.comboMode == actionCard.getValue() : this.startCard.isEqual(actionCard)
+        if(this.stack.getLastCard())
+            return (this.getToken() == playerID) && (this.stack.getLastCard().compare(actionCard) != 1)
         return this.startCard.isEqual(actionCard)
     }
 
     public isComboActionAvalible(figure : Figure, playerID) : boolean {
-        if(this.comboModeOnFigure) return false
+        if(this.comboMode) return false
         if(this.getToken() != playerID) return false
-        if(this.getStack().length) return this.getLastCard().compare(new Card(figure, null)) != 1
+        if(this.stack.length) return this.stack.getLastCard().compare(new Card(figure, null)) != 1
         return figure == 9
         
     }
@@ -79,18 +78,18 @@ export class Board {
         if(card) {
             this.stack.push(card)
             if(!this.getCurrentPlayer().cards.length) this.sitllPlay--
-            if(!this.comboModeOnFigure) this.nextPlayer()
+            if(!this.comboMode) this.nextPlayer()
             else {
                 if(!--this.comboCounter) {
-                    this.comboModeOnFigure = undefined
+                    this.comboMode = undefined
                     this.nextPlayer()
                 }
             }
         }
     }
 
-    public comboMode(figure : Figure) {
-        this.comboModeOnFigure = figure
+    public setComboMode(figure : Figure) {
+        this.comboMode = figure
         this.comboCounter = figure == Figure.f9 && this.stack.length ? 3 : 4
     }
 

@@ -37,7 +37,7 @@
             <button
                 *ngFor="let figure of player.getFigureActions(board.getStack().length)" 
                 class="btn btn-light onecard" 
-                (click)=board.comboMode(figure)
+                (click)=board.setComboMode(figure)
                 [disabled]="!board.isComboActionAvalible(figure, player.id)" >
                 {{numberToFigure(figure)}} 
             </button>

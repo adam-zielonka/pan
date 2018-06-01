@@ -1,5 +1,28 @@
-import { Figure } from "./figure"
-import { Color } from "./color"
+export enum Figure {
+    f9 = 9, f10, J, Q, K, A
+}
+
+export enum Color {
+    Kier = 1, Karo, Trefl, Pik
+}
+
+export class Deck {
+    public static generate() : Card[] {
+        var deck : Card[] = []
+        for (let i = 9; i <= 14; i++)
+          for (let j = 1; j <= 4; j++) 
+            deck.push(new Card(i,j))
+        return deck
+    }
+
+    public static shuffle(deck : Card[]) : Card[] {
+        for (let i = deck.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [deck[i], deck[j]] = [deck[j], deck[i]]
+        }
+        return deck
+    }
+}
 
 export class Card {
     public constructor(
@@ -48,23 +71,6 @@ export class Card {
         if(this.value < card.getValue()) return -1
         if(this.value > card.getValue()) return 1
         return 0
-    }
-
-    public static generateDeck() : Card[] {
-        var deck : Card[] = []
-        for (let i = 9; i <= 14; i++) {
-          for (let j = 1; j <= 4; j++) 
-            deck.push(new Card(i,j))
-        }
-        return deck
-    }
-
-    public static shuffleDeck(deck : Card[]) : Card[] {
-        for (let i = deck.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [deck[i], deck[j]] = [deck[j], deck[i]]
-        }
-        return deck
     }
 
     public static numberToColor(color : Color) : String {
