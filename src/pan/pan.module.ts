@@ -1,20 +1,21 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
-import { PanModule } from '../pan/pan.module';
 
-import { AppComponent } from './app.component';
+import { PanComponent } from './pan.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    PanComponent
   ],
   imports: [
     BrowserModule,
-    FormsModule,
-    PanModule
+    FormsModule
+  ],
+  exports: [
+    PanComponent
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [PanComponent]
 })
-export class AppModule { }
+export class PanModule { }

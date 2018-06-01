@@ -6,7 +6,7 @@ import { Figure } from './figure'
 import { Color } from './color'
 
 @Component({
-  selector: 'app-pan',
+  selector: 'pan-game',
   templateUrl: './pan.component.html',
   styleUrls: ['./pan.component.css']
 })
