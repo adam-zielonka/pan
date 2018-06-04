@@ -1,13 +1,9 @@
-import { Card, Figure } from "./card"
-import { Board, IPlayer } from "./board";
+import { Card, Figure } from "../card"
+import { Board, IPlayer } from "../board"
 
 export class Player implements IPlayer {
-    private cards: Card[] = []
-    private id : number
-
-    constructor(private ai : boolean) {
-
-    }
+    protected cards: Card[] = []
+    protected id : number
     
     public getID(): number {
         return this.id
@@ -50,18 +46,6 @@ export class Player implements IPlayer {
     }
 
     public play(board: Board) {
-        if(this.ai) setTimeout(() => {
-            var sucess = false
-            if(board.isActionAvalible(this.cards[0], this.id)) {
-                board.action(this.cards[0])
-                sucess = true
-            } else if(board.isActionAvalible(this.cards[this.cards.length - 1], this.id)){
-                if(this.cards[this.cards.length - 1].getValue() < this.cards[0].getValue() + 4) {
-                    board.action(this.cards[this.cards.length - 1])
-                    sucess = true
-                }
-            }
-            if(!sucess) board.getFromStack()
-        }, 100)
+
     }
 }

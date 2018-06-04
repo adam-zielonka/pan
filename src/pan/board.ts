@@ -117,7 +117,7 @@ export class Board {
             if(this.token < 0) this.token = this.players.length - 1
             if(this.token >= this.players.length) this.token = 0
             if(!this.getCurrentPlayer().getCards().length) this.nextPlayer()
-            else this.getCurrentPlayer().play(this)
+            else setTimeout(() => this.getCurrentPlayer().play(this), 200)
         }
     }
     
