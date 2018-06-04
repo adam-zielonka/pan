@@ -1,0 +1,20 @@
+<div *ngIf="student">
+ 
+    <h2>Informacje o: {{ student.name | uppercase }}</h2>
+    <div>
+      <span>Index: </span>
+      <input [(ngModel)]="student.index" placeholder="index">
+    </div>
+    <div>
+      <label>Imie i nazwisko:
+        <input [(ngModel)]="student.name" placeholder="name">
+      </label>
+      <br>
+      <label>
+        Średnia ocen: {{ avg }}, Liczba przedmiotów {{ this.student.grades.length }}
+      </label>
+    </div>
+
+    <app-student-grades [student]="student"></app-student-grades>
+   
+</div>

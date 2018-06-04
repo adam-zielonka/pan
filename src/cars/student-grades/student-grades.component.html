@@ -1,0 +1,7 @@
+<label *ngFor="let grade of student.grades">
+  <input type="text" value="{{grade.value}}" [(ngModel)]="grade.value">
+  {{grade.subject}} 
+  <button (click)="usun(grade)">USUŃ</button>
+  <br>
+</label>
+
