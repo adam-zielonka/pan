@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, Input } from '@angular/core';
 import { Student } from '../student';
 import { StudentService } from '../student.service';
 
@@ -10,13 +10,18 @@ import { StudentService } from '../student.service';
 export class StudentsComponent implements OnInit {
   students: Student[]
   selectedStudent: Student
-  avg = 0
+  avg
 
   onSelect(studnent: Student): void {
     this.selectedStudent = studnent
+    this.updateAvg()
+  }
+
+  updateAvg() {
     this.avg = 0
     this.selectedStudent.grades.forEach(e => this.avg += e.value)
     this.avg /= this.selectedStudent.grades.length
+    console.log(this.selectedStudent)
   }
 
   constructor(private studentService: StudentService) {

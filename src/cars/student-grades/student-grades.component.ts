@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Student } from '../student';
 
 @Component({
@@ -8,16 +8,19 @@ import { Student } from '../student';
 })
 export class StudentGradesComponent implements OnInit {
   @Input() student: Student
+  @Input() avg
+  @Output() updateAvg : EventEmitter<any> = new EventEmitter();
 
   usun(ocena){
     for(let i=0; i<this.student.grades.length; i++)
       if(this.student.grades[i] === ocena){
-        this.student.grades.splice(i,1);
-        // i = this.student.grades.length+1
-        // ocena = null
-        break;
+        this.student.grades.splice(i,1)
+        break
       }
+      this.updateAvg.emit(null)
   }
+
+
 
   constructor() { }
 

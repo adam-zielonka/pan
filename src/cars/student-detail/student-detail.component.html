@@ -11,10 +11,10 @@
       </label>
       <br>
       <label>
-        Średnia ocen: {{ avg }}, Liczba przedmiotów {{ this.student.grades.length }}
+        Średnia ocen: {{ this.avg }}, Liczba przedmiotów {{ this.student.grades.length }}
       </label>
     </div>
 
-    <app-student-grades [student]="student"></app-student-grades>
+    <app-student-grades [student]="student" [avg]=avg (updateAvg)="updateAvg()"></app-student-grades>
    
 </div>
