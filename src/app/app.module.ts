@@ -5,6 +5,7 @@ import { PanModule } from '../pan/pan.module';
 
 import { AppComponent } from './app.component';
 import { CarsModule } from '../cars/cars.module';
+import { AppRoutingModule } from './/app-routing.module';
 
 @NgModule({
   declarations: [
@@ -14,7 +15,8 @@ import { CarsModule } from '../cars/cars.module';
     BrowserModule,
     FormsModule,
     PanModule,
-    CarsModule
+    CarsModule,
+    AppRoutingModule
   ],
   providers: [],
   bootstrap: [AppComponent]
