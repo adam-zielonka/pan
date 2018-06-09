@@ -7,13 +7,17 @@ import { CarsComponent } from './cars.component';
 import { PlaceComponent } from './place/place.component';
 import { PlaceDetailComponent } from './place-detail/place-detail.component';
 import { RegisterComponent } from './register/register.component';
+import { CarComponent } from './car/car.component';
+import { CarDetailComponent } from './car-detail/car-detail.component';
 
 @NgModule({
   declarations: [
     CarsComponent,
     PlaceComponent,
     PlaceDetailComponent,
-    RegisterComponent
+    RegisterComponent,
+    CarComponent,
+    CarDetailComponent
   ],
   imports: [
     BrowserModule,

@@ -10,7 +10,7 @@
     <tr *ngFor="let w of register">
       <td>{{printDate(w.przyjazd)}}</td>
       <td>{{printDate(w.odjazd)}}</td>
-      <td>{{w.id_samochodu}}</td>
+      <td><a href="/cars/{{w.id_samochodu}}">{{w.id_samochodu}}</a></td>
     </tr>
   </tbody>
 </table>
