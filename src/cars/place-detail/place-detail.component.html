@@ -1,0 +1,15 @@
+<div *ngIf="place">
+ 
+    <h2>Miejsce {{getName(place.miejsce)}}</h2>
+    <div>
+      <span>Dla niepełnosprawnych: </span>
+      <input type="checkbox" [(ngModel)]="place.dla_niepelnosprawnych" disabled>
+    </div>
+    <div>
+      <span>Remont: </span>
+      <input type="checkbox" [(ngModel)]="place.remont" disabled>
+    </div>
+
+    <car-register [register]=place.rejestr ></car-register>
+   
+</div>

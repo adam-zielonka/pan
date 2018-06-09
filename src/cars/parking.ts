@@ -4,7 +4,7 @@ export class Miejsce {
     pozycja : number
 }
 
-class Rejestr {
+export class Rejestr {
     id_samochodu
     przyjazd
     odjazd?
