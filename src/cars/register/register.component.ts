@@ -11,6 +11,11 @@ export class RegisterComponent implements OnInit {
 
   constructor() { }
 
+  printDate(date) : String {
+    if(date) return new Date(date).toString()
+    else return ""
+  }
+
   ngOnInit() {
   }
 

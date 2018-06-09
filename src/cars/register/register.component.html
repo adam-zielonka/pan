@@ -1,5 +1,16 @@
-<li *ngFor="let w of register">
-  Przyjazd: {{w.przyjazd}} <br>
-  Odjazd: {{w.odjazd}} <br>
-  Pojazd: {{w.id_samochodu}} <br>
-</li>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Przyjazd</th>
+      <th scope="col">Odjazd</th>
+      <th scope="col">Pojazd</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let w of register">
+      <td>{{printDate(w.przyjazd)}}</td>
+      <td>{{printDate(w.odjazd)}}</td>
+      <td>{{w.id_samochodu}}</td>
+    </tr>
+  </tbody>
+</table>

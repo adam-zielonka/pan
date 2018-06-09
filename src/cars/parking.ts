@@ -17,3 +17,14 @@ export class Parking {
     rejestr : Rejestr[]
     remont? : boolean
 }
+
+export class Pojazd {
+    _id
+    rejestracja
+    marka
+    model
+    kolor
+    drzwi : number
+    pojemnosc : number
+    rabat : boolean
+}
