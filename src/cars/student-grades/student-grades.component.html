@@ -1,6 +1,0 @@
-<li *ngFor="let grade of student.grades">
-  <input type="number" value="{{grade.value}}" [(ngModel)]="grade.value" (change)="updateAvg.emit(null)">
-  {{grade.subject}} 
-  <button (click)="usun(grade)">USUŃ</button>
-</li>
-

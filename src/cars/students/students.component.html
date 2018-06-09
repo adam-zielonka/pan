@@ -1,9 +1,0 @@
-<ul class="heroes">
-  <li *ngFor="let s of students" [class.selected]="selectedStudent === s" (click)="onSelect(s)">
-  <span class="badge">{{s.index}}</span> {{s.name}}
-  </li>
-</ul>
-
-<hr>
-
-<app-student-detail [student]="selectedStudent" [(avg)]="avg"></app-student-detail>
