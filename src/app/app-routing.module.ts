@@ -6,6 +6,7 @@ import { CarComponent } from '../cars/car/car.component';
 import { CarDetailComponent } from '../cars/car-detail/car-detail.component';
 
 const routes: Routes = [
+  { path: '', redirectTo: '/parking', pathMatch: 'full' },
   { path: 'pan', component: PanComponent },
   { path: 'parking', component: CarsComponent },
   { path: 'cars', component: CarComponent },
