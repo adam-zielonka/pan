@@ -1,18 +1,84 @@
-<table class="table">
+<table class="table table-sm">
     <thead>
       <tr>
+        <th scope="col">Rejestracja</th>
         <th scope="col">Marka</th>
         <th scope="col">Model</th>
         <th scope="col">Kolor</th>
-        <th scope="col">Link</th>
+        <th scope="col">Drzwi</th>
+        <th scope="col">Pojemnosc</th>
+        <th scope="col">Rabat</th>
+        <th scope="col">Opcje</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let car of cars">
-        <td>{{car.marka}}</td>
-        <td>{{car.model}}</td>
-        <td>{{car.kolor}}</td>
-        <td><a href="/cars/{{car._id}}">Więcej</a></td>
+        <td style="width: 10%">
+          <input *ngIf=isEdit(car) [(ngModel)]=editCar.rejestracja>
+          <span *ngIf=!isEdit(car)>{{car.rejestracja}}</span>
+        </td>
+        <td style="width: 10%">
+          <input *ngIf=isEdit(car) [(ngModel)]=editCar.marka>
+          <span *ngIf=!isEdit(car)>{{car.marka}}</span>
+        </td>
+        <td style="width: 15%">
+            <input *ngIf=isEdit(car) [(ngModel)]=editCar.model>
+            <span *ngIf=!isEdit(car)>{{car.model}}</span>
+        </td>
+        <td style="width: 10%">
+            <input *ngIf=isEdit(car) [(ngModel)]=editCar.kolor>
+            <span *ngIf=!isEdit(car)>{{car.kolor}}</span>
+        </td>
+        <td style="width: 10%">
+            <input class="small" type="number" *ngIf=isEdit(car) [(ngModel)]=editCar.drzwi>
+            <span *ngIf=!isEdit(car)>{{car.drzwi}}</span>
+        </td>
+        <td style="width: 10%">
+            <input class="small" type="number" *ngIf=isEdit(car) [(ngModel)]=editCar.pojemnosc>
+            <span *ngIf=!isEdit(car)>{{car.pojemnosc}}</span>
+        </td>
+        <td style="width: 5%">
+            <input class="small" type="checkbox" *ngIf=!isEdit(car) disabled [(ngModel)]=car.rabat>
+            <input type="checkbox" *ngIf=isEdit(car) [(ngModel)]=editCar.rabat>
+        </td>
+        <td style="width: 35%">
+          <div>
+            <button *ngIf=!isEdit(car) type="button" class="btn btn-primary m-1" (click)=editMode(car)>Edytuj</button>
+            <button *ngIf=isEdit(car) type="button" class="btn btn-success m-1" (click)=save(car)>Zapisz</button>
+            <button *ngIf=isEdit(car) type="button" class="btn btn-warning m-1" (click)=cancel()>Anuluj</button>
+            <button *ngIf=isEdit(car) type="button" class="btn btn-danger m-1" (click)=delete(car)>Usuń</button>
+            <a *ngIf=!isEdit(car) class="btn btn-info m-1" role="button" href="/cars/{{car._id}}">Więcej</a>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td><input #carRejestracja placeholder="rejestracja" ></td>
+        <td><input #carMarka placeholder="marka"></td>
+        <td><input #carModel placeholder="model"></td>
+        <td><input #carKolor placeholder="kolor"></td>
+        <td><input type="number" #carDrzwi placeholder="drzwi"></td>
+        <td><input type="number" #carPojemnosc placeholder="pojemnosc"></td>
+        <td><input type="checkbox" #carRabat ></td>
+        <td>
+          <button type="button" class="btn btn-success m-1" (click)="
+          add({ 
+            rejestracja : carRejestracja.value.trim(),
+            marka : carMarka.value.trim(),
+            model : carModel.value.trim(),
+            kolor : carKolor.value.trim(),
+            drzwi : carDrzwi.valueAsNumber,
+            pojemnosc : carPojemnosc.valueAsNumber,
+            rabat : carRabat.checked
+          }); 
+          carRejestracja.value = '';
+          carMarka.value = '';
+          carModel.value = '';
+          carKolor.value = '';
+          carDrzwi.value = '';
+          carPojemnosc.value = '';
+          carRabat.checked = false;
+          ">Dodaj</button>
+        </td>
       </tr>
     </tbody>
   </table>
