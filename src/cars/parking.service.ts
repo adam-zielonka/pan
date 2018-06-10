@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { Parking, Pojazd } from './parking';
+import { Parking, Pojazd, Miejsce } from './parking';
 import { HttpClient, HttpHeaders } from '@angular/common/http'
 import { catchError, map, tap } from 'rxjs/operators'
 
@@ -23,6 +23,13 @@ export class ParkingService {
 
   getParking() : Observable<Parking[]> {
     return this.http.get<Parking[]>(this.parkingURL)
+  }
+
+  updatePlace(place : Parking) : Observable<any> {
+    return this.http.put(this.parkingURL + place._id, place, { headers : this.headers }).pipe(
+      tap(_ => console.log(`aktualizacja mejsca parkingowego o id=${place._id}`)),
+      catchError(this.handleError<any>('updatePlace'))
+    )
   }
 
   getCars() : Observable<Pojazd[]> {
@@ -49,7 +56,7 @@ export class ParkingService {
 
   deleteCar(car : Pojazd): Observable<Pojazd> {
     return this.http.delete<Pojazd>(this.carsURL + car._id, { headers : this.headers }).pipe(
-      tap(_ => console.log(`deleted hero id=${car._id}`)),
+      tap(_ => console.log(`usunięcie pojazdu id=${car._id}`)),
       catchError(this.handleError<Pojazd>('deletePojazd'))
     )
   }

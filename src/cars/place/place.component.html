@@ -4,6 +4,7 @@
       <li *ngFor="let s of parking" class="list-group-item list-group-item-action" [class.active]="selectedPlace === s" (click)="onSelect(s)">
         <span class="badge badge-secondary badge-info">{{getName(s.miejsce)}}</span>
         <span *ngIf="s.dla_niepelnosprawnych" class="dla_niepelnosprawnych">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+        <span *ngIf="s.remont" class="remont">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
       </li>
     </ul>
   </div>
