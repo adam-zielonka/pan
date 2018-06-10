@@ -59,7 +59,7 @@ export class Board {
         if(this.token > -1) return this.players[this.token]
     }
 
-    public getToken() : Number {
+    public getToken() : number {
         return this.token
     }
 
