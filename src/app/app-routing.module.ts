@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { PanComponent } from '../pan/pan.component';
-import { CarsComponent } from '../cars/cars.component';
-import { CarComponent } from '../cars/car/car.component';
-import { CarDetailComponent } from '../cars/car-detail/car-detail.component';
+import { PanComponent } from './pan/pan.component';
+import { CarsComponent } from './cars/cars.component';
+import { CarComponent } from './cars/car/car.component';
+import { CarDetailComponent } from './cars/car-detail/car-detail.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/parking', pathMatch: 'full' },

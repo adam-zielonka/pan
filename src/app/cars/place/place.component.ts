@@ -1,6 +1,6 @@
 import { Component, OnInit, Output, Input } from '@angular/core';
 import { Parking, Miejsce } from '../parking';
-import { ParkingService } from 'src/cars/parking.service';
+import { ParkingService } from '../parking.service';
 
 @Component({
   selector: 'parking-place',
