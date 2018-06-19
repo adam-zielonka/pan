@@ -1,0 +1,26 @@
+.red {
+    color: red !important;
+}
+
+.black {
+    color: black !important;
+}
+
+.onecard {
+    opacity: 1 !important;
+    margin: 1px;
+}
+
+button:enabled {
+    border-style: solid;
+    border-color: black;
+}
+
+.players-input {
+    width: 70px;
+}
+
+.newGame {
+    margin: 10px;
+}
+
