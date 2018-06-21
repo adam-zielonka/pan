@@ -8,10 +8,9 @@
 
 .onecard {
     opacity: 1 !important;
-    margin: 1px;
 }
 
-button:enabled {
+.onecard:enabled {
     border-style: solid;
     border-color: black;
 }

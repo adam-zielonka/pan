@@ -1,6 +1,7 @@
 import * as React from 'react'
 import './Pan.css'
 
+import { Button } from 'reactstrap'
 import { Board } from './board'
 import { Card, Figure } from './card'
 import { Deck } from './deck'
@@ -43,7 +44,9 @@ export default class Pan extends React.Component {
     return (
       <div>
         <div className="deck">
-          Deck: <Cards deck={this.deck} />
+          Deck: {this.deck.map(card => ( 
+            <DrawCard card={card} />
+          ))}
         </div>
         <div>
             Token: Player {this.board.getToken() + 1}
@@ -51,12 +54,23 @@ export default class Pan extends React.Component {
         <ol className="players">
           {this.board.getPlayers().map(player => (
             <li>
-               <Cards deck={player.getCards()} playerID={player.getID()} board={this.board}/>
+              {player.getCards().map(card => (
+                <DrawCard 
+                  card={card} 
+                  active={this.board.isActionAvalible(card, player.getID())} 
+                />
+              ))}
             </li>
           ))}
         </ol>
         <div className="stack">
-          Stack: <Cards deck={this.board.getStack()} />
+          Stack: {this.board.getStack().map(card => ( 
+            <DrawCard card={card} />
+          ))}
+            <Button color="light" hidden={!(this.board.getStack().length > 1)} 
+              className={"onecard ml-1 mt-1"} >
+              Get cards
+            </Button>
         </div>
       </div>
     )
@@ -64,36 +78,16 @@ export default class Pan extends React.Component {
 
 }
 
-interface ICardsProps {
-  deck : Card[],
-  playerID? : number,
-  board? : Board
+interface ICardProps {
+  active? : boolean
+  card : Card
 }
 
-class Cards extends React.Component<ICardsProps> {
-  public render() {
-    const deck = this.props.deck
-    const playerID = this.props.playerID
-    const board = this.props.board
-    if(playerID && board) {
-      return (
-        <span>
-          {deck.map(card => ( 
-            <button className={"btn btn-light onecard " + (card.getColorStyle())}>
-              {card.toString()}
-            </button>
-          )) }
-        </span>
-      )
-    }
-    return (
-      <span>
-        {deck.map(card => ( 
-          <span className={"btn btn-light disabled onecard " + (card.getColorStyle())}>
-            {card.toString()}
-          </span>
-        )) }
-      </span>
-    )
-  }
+function DrawCard(props : ICardProps) {
+  return (
+    <Button color="light" disabled={!props.active} 
+      className={"onecard ml-1 mt-1 " + (props.card.getColorStyle())} >
+      {props.card.toString()}
+    </Button>
+  )
 }

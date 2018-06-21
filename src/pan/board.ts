@@ -1,5 +1,4 @@
 import { Card, Color, Figure } from "./card"
-import { Stack } from "./stack"
 
 export interface IPlayer {
     getID() : number
@@ -12,7 +11,7 @@ export interface IPlayer {
 }
 
 export class Board {
-    private stack : Stack
+    private stack : Card[]
     private players : IPlayer[]
     private token : number
     private startCard : Card
@@ -21,7 +20,7 @@ export class Board {
     private comboCounter : number
 
     public constructor() {
-        this.stack = new Stack()
+        this.stack = []
         this.players = []
         this.token = -1
         this.sitllPlay = 0
@@ -67,9 +66,13 @@ export class Board {
         return this.stack
     }
 
+    public getLastCard() : Card | undefined {
+        return this.stack.length ? this[this.stack.length - 1] : undefined
+    }
+
     public isActionAvalible(actionCard : Card, playerID : number) : boolean {
         if(this.comboMode) { return this.stack.length ? this.comboMode === actionCard.getValue() : this.startCard.isEqual(actionCard) }
-        const lastCard = this.stack.getLastCard()
+        const lastCard = this.getLastCard()
         if(lastCard) {
             return (this.getToken() === playerID) && (lastCard.compare(actionCard) !== 1)
         }
@@ -79,7 +82,7 @@ export class Board {
     public isComboActionAvalible(figure : Figure, playerID : number) : boolean {
         if(this.comboMode) { return false }
         if(this.getToken() !== playerID) { return false }
-        const lastCard = this.stack.getLastCard()
+        const lastCard = this.getLastCard()
         if(lastCard) { return lastCard.compare(new Card(figure)) !== 1 }
         return figure === 9
         
