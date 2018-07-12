@@ -7,19 +7,26 @@ import { Card, Figure } from './card'
 import { Deck } from './deck'
 import { Player, PlayerAI } from './players'
 
+interface IPanState {
+  deck : Card[]
+  board : Board
+  players : number
+  ai : boolean
+}
 
-export default class Pan extends React.Component {
-
-  public deck : Card[]
-  public board : Board
-  public players : number
-  public ai : boolean
+export default class Pan extends React.Component<any,IPanState> {
 
   public constructor(props : {}) {
     super(props)
-    this.players = 3
-    this.ai = true
-    this.newGame(this.players)
+
+    this.state = {
+      ai : true,
+      board : new Board(),
+      deck : [],
+      players : 3
+    }
+
+    this.newGame(this.state.players)
   }
 
   public numberToFigure(figure : Figure) : string {
@@ -27,47 +34,51 @@ export default class Pan extends React.Component {
   }
 
   public newGameClick() {
-    this.newGame(this.players)
+    this.newGame(this.state.players)
   }
 
   public newGame(players : number) {
-    this.deck = Deck.generate()
-    this.deck = Deck.shuffle(this.deck)
-    this.board = new Board()
+    this.setState({
+      deck : Deck.shuffle(Deck.generate()),
+      board : new Board()
+    })
+
     for (let i = 0; i < players; i++) {
-      this.board.addPlayer(this.ai ? new PlayerAI() : new Player())
+      this.state.board.addPlayer(this.state.ai ? new PlayerAI() : new Player())
     }
-    this.board.dealingCards(this.deck.map(card => card))
+    this.state.board.dealingCards(this.state.deck.map(card => card))
   }
 
   public render() {
     return (
       <div>
         <div className="deck">
-          Deck: {this.deck.map(card => ( 
+          Deck: {this.state.deck.map(card => ( 
             <DrawCard card={card} />
           ))}
         </div>
         <div>
-            Token: Player {this.board.getToken() + 1}
+            Token: Player {this.state.board.getToken() + 1}
         </div>
         <ol className="players">
-          {this.board.getPlayers().map(player => (
+          {this.state.board.getPlayers().map(player => (
             <li>
               {player.getCards().map(card => (
                 <DrawCard 
                   card={card} 
-                  active={this.board.isActionAvalible(card, player.getID())} 
+                  active={this.state.board.isActionAvalible(card, player.getID())}
+                  // tslint:disable-next-line:jsx-no-lambda
+                  onClick={() => this.state.board.action(card)}
                 />
               ))}
             </li>
           ))}
         </ol>
         <div className="stack">
-          Stack: {this.board.getStack().map(card => ( 
+          Stack: {this.state.board.getStack().map(card => ( 
             <DrawCard card={card} />
           ))}
-            <Button color="light" hidden={!(this.board.getStack().length > 1)} 
+            <Button color="light" hidden={!(this.state.board.getStack().length > 1)} 
               className={"onecard ml-1 mt-1"} >
               Get cards
             </Button>
@@ -81,12 +92,14 @@ export default class Pan extends React.Component {
 interface ICardProps {
   active? : boolean
   card : Card
+  onClick? : any
 }
 
 function DrawCard(props : ICardProps) {
   return (
     <Button color="light" disabled={!props.active} 
-      className={"onecard ml-1 mt-1 " + (props.card.getColorStyle())} >
+      className={"onecard ml-1 mt-1 " + (props.card.getColorStyle())} 
+      onClick={props.onClick}>
       {props.card.toString()}
     </Button>
   )
