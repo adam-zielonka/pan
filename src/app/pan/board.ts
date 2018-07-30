@@ -1,4 +1,5 @@
 import { Card, Figure, Color } from './card'
+import { Player } from './players/player'
 
 export interface IPlayer {
     getID(): number
@@ -10,14 +11,8 @@ export interface IPlayer {
     play(board: Board)
 }
 
-export class Stack extends Array<Card> {
-    public getLastCard(): Card {
-        return this.length ? this[this.length - 1] : undefined
-    }
-}
-
 export class Board {
-    private stack: Stack
+    private stack: Card[]
     private players: IPlayer[]
     private token: number
     private startCard: Card
@@ -25,12 +20,28 @@ export class Board {
     private comboMode: Figure
     private comboCounter: number
 
-    public constructor() {
-        this.stack = new Stack()
-        this.players = []
-        this.token = -1
-        this.sitllPlay = 0
-        this.startCard = new Card(Figure.f9, Color.Kier)
+    public constructor(board: Board = null) {
+        if (board) {
+          this.stack = board.stack.map(a => a)// new Card(a.getValue(), a.getColor()))
+          this.players = []
+          for (const player of board.players) {
+            const newPlayer = new Player()
+            newPlayer.setID(player.getID())
+            newPlayer.setCards(player.getCards().map(a => a))// new Card(a.getValue(), a.getColor())))
+            this.players.push(newPlayer)
+          }
+          this.token = board.token
+          this.sitllPlay = board.sitllPlay
+          this.startCard = board.startCard
+          this.comboMode = board.comboMode
+          this.comboCounter = board.comboCounter
+        } else {
+          this.stack = []
+          this.players = []
+          this.token = -1
+          this.sitllPlay = 0
+          this.startCard = new Card(Figure.f9, Color.Kier)
+        }
     }
 
     public addPlayer(player: IPlayer) {
@@ -57,6 +68,7 @@ export class Board {
 
     public getCurrentPlayer(): IPlayer {
         if (this.token > -1) { return this.players[this.token] }
+        return null
     }
 
     public getToken(): number {
@@ -67,14 +79,18 @@ export class Board {
         return this.stack
     }
 
+    public getLastCard(): Card {
+      return this.stack.length ? this.stack[this.stack.length - 1] : undefined
+  }
+
     public isActionAvalible(actionCard: Card, playerID = this.getToken()): boolean {
         if (this.comboMode) {
           return this.stack.length
             ? this.comboMode === actionCard.getValue()
             : this.startCard.isEqual(actionCard)
         }
-        if (this.stack.getLastCard()) {
-            return (this.getToken() === playerID) && (this.stack.getLastCard().compare(actionCard) !== 1)
+        if (this.getLastCard()) {
+            return (this.getToken() === playerID) && (this.getLastCard().compare(actionCard) !== 1)
         }
         return this.startCard.isEqual(actionCard)
     }
@@ -82,11 +98,12 @@ export class Board {
     public isComboActionAvalible(figure: Figure, playerID = this.getToken()): boolean {
         if (this.comboMode) { return false }
         if (this.getToken() !== playerID) { return false }
-        if (this.stack.length) { return this.stack.getLastCard().compare(new Card(figure, null)) !== 1 }
+        if (this.stack.length) { return this.getLastCard().compare(new Card(figure, null)) !== 1 }
         return figure === 9
     }
 
     public action(actionCard: Card) {
+        if (this.sitllPlay < 2) { return }
         const card = this.players[this.token].action(actionCard)
         if (card) {
             this.stack.push(card)
@@ -103,15 +120,16 @@ export class Board {
     public playersStillPlay(): Number {
       let count = 0
       for (const player of this.players) {
-        if (player.getCards.length) { count++ }
+        if (player.getCards().length) { count++ }
       }
       return count
     }
 
-    public setComboMode(figure: Figure) {
+    public setComboMode(figure: Figure, auto = false) {
+        if (this.sitllPlay < 2) { return }
         this.comboMode = figure
         this.comboCounter = figure === Figure.f9 && this.stack.length ? 3 : 4
-        if (this.players.length <= 2 || this.playersStillPlay() <= 2) {
+        if (auto || this.players.length <= 2 || this.playersStillPlay() <= 2) {
           for (let color: Color = 5 - this.comboCounter; color <= 4; ++color) {
             this.action(new Card(figure, color))
           }
@@ -119,6 +137,7 @@ export class Board {
     }
 
     public getFromStack() {
+        if (this.sitllPlay < 2) { return }
         let counter = 3
         while (this.stack.length > 1 && counter--) {
             this.getCurrentPlayer().getCards().push(this.stack.pop())
@@ -128,14 +147,16 @@ export class Board {
     }
 
     public nextPlayer() {
-        if (this.sitllPlay > 0) {
-            if (this.stack[this.stack.length - 1].isPik()) { this.token--
-            } else { this.token++ }
-            if (this.token < 0) { this.token = this.players.length - 1 }
-            if (this.token >= this.players.length) { this.token = 0 }
-            if (!this.getCurrentPlayer().getCards().length) { this.nextPlayer()
-            } else { setTimeout(() => this.getCurrentPlayer().play(this), 200) }
+      if (this.stack[this.stack.length - 1].isPik()) { this.token--
+      } else { this.token++ }
+      if (this.token < 0) { this.token = this.players.length - 1 }
+      if (this.token >= this.players.length) { this.token = 0 }
+      if (!this.getCurrentPlayer().getCards().length) { this.nextPlayer()
+      } else {
+        if (this.sitllPlay > 1) {
+          setTimeout(() => this.getCurrentPlayer().play(this), 200)
         }
+      }
     }
 
     public getPosibleActions(): Card[] {

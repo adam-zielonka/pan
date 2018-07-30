@@ -15,6 +15,10 @@ export class Player implements IPlayer {
         return this.cards
     }
 
+    public setCards(cards: Card[]) {
+      this.cards = cards
+    }
+
     public sortCards() {
         this.cards.sort((a, b) => a.compare(b))
     }
