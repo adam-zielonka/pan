@@ -67,7 +67,7 @@ export class Board {
         return this.stack
     }
 
-    public isActionAvalible(actionCard: Card, playerID): boolean {
+    public isActionAvalible(actionCard: Card, playerID = this.getToken()): boolean {
         if (this.comboMode) {
           return this.stack.length
             ? this.comboMode === actionCard.getValue()
@@ -79,7 +79,7 @@ export class Board {
         return this.startCard.isEqual(actionCard)
     }
 
-    public isComboActionAvalible(figure: Figure, playerID): boolean {
+    public isComboActionAvalible(figure: Figure, playerID = this.getToken()): boolean {
         if (this.comboMode) { return false }
         if (this.getToken() !== playerID) { return false }
         if (this.stack.length) { return this.stack.getLastCard().compare(new Card(figure, null)) !== 1 }
@@ -136,6 +136,20 @@ export class Board {
             if (!this.getCurrentPlayer().getCards().length) { this.nextPlayer()
             } else { setTimeout(() => this.getCurrentPlayer().play(this), 200) }
         }
+    }
+
+    public getPosibleActions(): Card[] {
+      const cards: Card[] = []
+      for (const card of this.getCurrentPlayer().getCards()) {
+        if (this.isActionAvalible(card)) {
+          cards.push(card)
+        }
+      }
+      return cards
+    }
+
+    public getPosibleComboActions(): Figure[] {
+      return this.getCurrentPlayer().getFigureActions(this.getStack().length)
     }
 
 }

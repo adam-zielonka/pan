@@ -1,10 +1,10 @@
-import { Card, Figure } from "../card"
-import { Board, IPlayer } from "../board"
+import { Card, Figure } from '../card'
+import { Board, IPlayer } from '../board'
 
 export class Player implements IPlayer {
     protected cards: Card[] = []
-    protected id : number
-    
+    protected id: number
+
     public getID(): number {
         return this.id
     }
@@ -16,27 +16,27 @@ export class Player implements IPlayer {
     }
 
     public sortCards() {
-        this.cards.sort((a,b) => a.compare(b))
+        this.cards.sort((a, b) => a.compare(b))
     }
 
-    public action(actionCard: Card) : Card {
+    public action(actionCard: Card): Card {
         for (let i = 0; i < this.cards.length; i++) {
-            if(actionCard.isEqual(this.cards[i])){
+            if (actionCard.isEqual(this.cards[i])) {
                 return this.cards.splice(i, 1)[0]
             }
         }
         return undefined
     }
 
-    public getFigureActions(isStackEmpty) : Figure[] {
+    public getFigureActions(isStackEmpty): Figure[] {
         this.sortCards()
-        var figureActions : Figure[] = []
-        var figure : Figure = Figure.f9
-        var count = isStackEmpty ? 1 : 0
+        const figureActions: Figure[] = []
+        let figure: Figure = Figure.f9
+        let count = isStackEmpty ? 1 : 0
         for (const card of this.cards) {
-            if(card.getValue() == figure) {
+            if (card.getValue() === figure) {
                 count++
-                if(count == 4) figureActions.push(figure)
+                if (count === 4) { figureActions.push(figure) }
             } else {
                 figure = card.getValue()
                 count = 1
