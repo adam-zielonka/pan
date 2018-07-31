@@ -96,6 +96,14 @@ export class Board {
         return this.stack
     }
 
+    public getComboMode(): Figure {
+      return this.comboMode
+    }
+
+    public getStartedCard(): Card {
+      return this.startCard
+    }
+
     public getLastCard(): Card {
       return this.stack.length ? this.stack[this.stack.length - 1] : undefined
   }

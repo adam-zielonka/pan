@@ -12,7 +12,7 @@
 <div class="deck">
     Deck: 
     <span 
-        *ngFor="let card of deck"
+        *ngFor="let card of data.deck"
         class="btn btn-light disabled onecard"
         [ngClass]=card.getColorStyle()>
         {{card.toString()}} 
@@ -20,25 +20,25 @@
 </div>
 
 <div>
-    Token: Player {{board.getToken() + 1}}
+    Token: Player {{data.token + 1}}
 </div>
 
 <div class="players">
     <ol>
-        <li *ngFor="let player of board.getPlayers()">
+        <li *ngFor="let cards of data.players; let i = index">
             <button 
-                *ngFor="let card of player.cards" 
-                (click)=board.action(card)
+                *ngFor="let card of cards"
+                (click)=action(card)
                 class="btn btn-light onecard"
                 [ngClass]=card.getColorStyle()
-                [disabled]="!board.isActionAvalible(card, player.id)" >
+                [disabled]="!isActionAvalible(card, i)" >
                 {{card.toString()}} 
             </button>
             <button
-                *ngFor="let figure of player.getFigureActions(board.getStack().length)" 
+                *ngFor="let figure of getFigureActions(cards)" 
                 class="btn btn-light onecard" 
-                (click)=board.setComboMode(figure)
-                [disabled]="!board.isComboActionAvalible(figure, player.id)" >
+                (click)=setComboMode(figure)
+                [disabled]="!isComboActionAvalible(figure, i)" >
                 {{numberToFigure(figure)}} 
             </button>
         </li>
@@ -48,15 +48,15 @@
 <div class="stack">
     Stack: 
     <span 
-        *ngFor="let card of board.getStack()" 
+        *ngFor="let card of data.stack" 
         class="btn btn-light disabled onecard"
         [ngClass]=card.getColorStyle()>
         {{card.toString()}}
     </span>
     <button 
-        (click)=board.getFromStack()
+        (click)=getFromStack()
         class="btn btn-light onecard"
-        [hidden]="!(board.getStack().length > 1)">
+        [hidden]="!(data.stack.length > 1)">
         Get cards
     </button>
 </div>
