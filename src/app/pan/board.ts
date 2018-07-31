@@ -22,20 +22,20 @@ export class Board {
     private comboCounter: number
     private time = 0
 
-    public update(board: Board) {
-      this.stack = board.stack
-      for (const player of board.players) {
-        this.players[player.getID()].setCards(player.getCards())
-      }
-      this.token = board.token
-      this.sitllPlay = board.sitllPlay
-      this.startCard = board.startCard
-      this.comboMode = board.comboMode
-      this.comboCounter = board.comboCounter
-      if (this.sitllPlay > 1) {
-        setTimeout(() => this.getCurrentPlayer().play(this), this.time)
-      }
-    }
+    // public update(board: Board) {
+    //   this.stack = board.stack
+    //   for (const player of board.players) {
+    //     this.players[player.getID()].setCards(player.getCards())
+    //   }
+    //   this.token = board.token
+    //   this.sitllPlay = board.sitllPlay
+    //   this.startCard = board.startCard
+    //   this.comboMode = board.comboMode
+    //   this.comboCounter = board.comboCounter
+    //   if (this.sitllPlay > 1) {
+    //     setTimeout(() => this.getCurrentPlayer().play(this), this.time)
+    //   }
+    // }
 
     public constructor(board: Board = null) {
         if (board) {

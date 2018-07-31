@@ -1,13 +1,15 @@
 import { Board } from '../board'
 import { Player } from './player'
-import { Card } from '../card'
-import { count } from 'rxjs/operators';
+import { Card, Figure } from '../card'
 
 class State {
   board: Board
   playerNo: number
   visitCount: number
   winScore: number
+  actionName: string
+  actionParam: Card
+
 
   constructor(board: Board) {
     this.board = new Board(board)
@@ -21,16 +23,21 @@ class State {
     for (const card of this.board.getPosibleActions()) {
       const state = new State(this.board)
       state.board.action(card)
+      state.actionName = 'action'
+      state.actionParam = card
       states.push(state)
     }
     for (const figure of this.board.getPosibleComboActions()) {
       const state = new State(this.board)
       state.board.setComboMode(figure, true)
+      state.actionName = 'setComboMode'
+      state.actionParam = new Card(figure, null)
       states.push(state)
     }
     if (this.board.getStack().length > 1) {
       const state = new State(this.board)
       state.board.getFromStack()
+      state.actionName = 'getFromStack'
       states.push(state)
     }
     return states
@@ -141,13 +148,13 @@ export class MCTS extends Player {
     }
   }
 
-  public play(board: Board) {
+  public getResult(board: Board): Result {
     const tree = new Tree(board)
 
-    let iter = 2
+    let iter = 10
     while (iter--) {
       // 1. Select promising node
-      console.log('Loop ' + iter)
+      console.log('Loop')
       const promisingNode = this.selectPromisingNode(tree.root)
       if (promisingNode.state.board.playersStillPlay() > 1) {
         this.expandNode(promisingNode)
@@ -163,8 +170,30 @@ export class MCTS extends Player {
     }
     const winnerNode = tree.root.getChildWithMaxScore()
     tree.root = winnerNode
-    // return winnerNode.state.board
-    console.log(board.getToken() + ' END')
-    board.update(winnerNode.state.board)
+    return {'name' : winnerNode.state.actionName, 'card' : winnerNode.state.actionParam}
   }
+
+  public play(board: Board) {
+
+    const result = this.getResult(board)
+    console.log(board.getToken() + ' END')
+
+    switch (result.name) {
+      case 'action':
+        board.action(result.card)
+        break
+      case 'setComboMode':
+        board.setComboMode(result.card.getValue(), true)
+        break
+      default:
+        board.getFromStack()
+        break
+    }
+    console.log(board.getToken() + ' START')
+  }
+}
+
+class Result {
+  name: String
+  card: Card
 }

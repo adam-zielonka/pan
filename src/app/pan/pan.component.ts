@@ -1,26 +1,23 @@
 import { Component, OnInit, Input, PlatformRef } from '@angular/core'
 import { Card, Figure, Deck } from './card'
 import { Board } from './board'
-import { Player, PlayerAI } from './players'
-import { MCTS } from './players/mcts'
+import { Player, PlayerAI, MCTS } from './players'
 
 @Component({
-  selector: 'pan-game',
+  selector: 'app-pan-game',
   templateUrl: './pan.component.html',
   styleUrls: ['./pan.component.css']
 })
 export class PanComponent implements OnInit {
 
-  public deck : Card[]
-  public board : Board
-  @Input() players : number
-  @Input() ai : boolean
+  public deck: Card[]
+  public board: Board
+  @Input() players: number
+  @Input() ai: boolean
 
-  constructor() { 
-    
-  }
+  constructor() {}
 
-  public numberToFigure(figure : Figure) : String {
+  public numberToFigure(figure: Figure): String {
     return Card.numberToFigure(figure)
   }
 
@@ -28,12 +25,13 @@ export class PanComponent implements OnInit {
     this.newGame(this.players)
   }
 
-  public newGame(players : number) {
+  public newGame(players: number) {
     this.deck = Deck.generate()
     this.deck = Deck.shuffle(this.deck)
     this.board = new Board()
-    for (let i = 0; i < players; i++)
+    for (let i = 0; i < players; i++) {
       this.board.addPlayer(this.ai ? new MCTS() : new Player())
+    }
     this.board.dealingCards(this.deck.map(card => card))
   }
 
