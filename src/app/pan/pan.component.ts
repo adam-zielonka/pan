@@ -46,7 +46,7 @@ export class PanComponent implements OnInit {
         : this.data.startCard.isEqual(card)
     }
     if (this.data.stack[this.data.stack.length - 1]) {
-        return (this.data.token === playerID) && (this.data.stack[this.data.stack.length - 1].compare(card) !== 1)
+        return (this.data.data.token === playerID) && (this.data.stack[this.data.stack.length - 1].compare(card) !== 1)
     }
     return this.data.startCard.isEqual(card)
   }
@@ -69,7 +69,7 @@ export class PanComponent implements OnInit {
 
   public isComboActionAvalible(figure: Figure, playerID: number) {
     if (this.data.comboMode) { return false }
-    if (this.data.token !== playerID) { return false }
+    if (this.data.data.token !== playerID) { return false }
     if (this.data.stack.length) { return this.data.stack[this.data.stack.length - 1].compare(new Card(figure, null)) !== 1 }
     return figure === 9
   }

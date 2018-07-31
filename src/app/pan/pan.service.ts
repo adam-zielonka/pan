@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core'
 import { Card, Deck, Figure } from './card'
-import { Board } from './board'
+import { Board, PanData } from './board'
 import { MCTS, Player } from './players'
 import { Observable, of } from 'rxjs'
 
@@ -8,7 +8,7 @@ export class GameData {
   public deck: Card[]
   public stack: Card[]
   public players: Card[][]
-  public token: number
+  public data: PanData
   public comboMode: Figure
   public startCard: Card
 }
@@ -38,13 +38,13 @@ export class PanService {
       this.board.addPlayer(this.ai ? new MCTS() : new Player())
     }
     this.board.dealingCards(this.data.deck.map(card => card))
-    this.data.stack = this.board.getStack().map(m => m)
-    this.data.token = this.board.getToken()
+    this.data.stack = this.board.getStack()
+    this.data.data = this.board.data
     this.data.players = []
     this.data.comboMode = this.board.getComboMode()
     this.data.startCard = this.board.getStartedCard()
     this.board.getPlayers().forEach(player => {
-      this.data.players.push(player.getCards().map(m => m))
+      this.data.players.push(player.getCards())
     })
     return of(this.data)
   }

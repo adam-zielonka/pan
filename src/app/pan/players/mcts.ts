@@ -18,27 +18,50 @@ class State {
     this.winScore = 0
   }
 
-  public getAllPossibleStates(): State[] {
-    const states: State[] = []
+  public getAllPossibleStates() {
+    const states = []
     for (const card of this.board.getPosibleActions()) {
-      const state = new State(this.board)
-      state.board.action(card)
-      state.actionName = 'action'
-      state.actionParam = card
-      states.push(state)
+      const fun = () => {
+        const state = new State(this.board)
+        state.board.action(card)
+        state.actionName = 'action'
+        state.actionParam = card
+        return state
+      }
+      states.push(fun)
+      // const state = new State(this.board)
+      // state.board.action(card)
+      // state.actionName = 'action'
+      // state.actionParam = card
+      // states.push(state)
     }
     for (const figure of this.board.getPosibleComboActions()) {
-      const state = new State(this.board)
-      state.board.setComboMode(figure, true)
-      state.actionName = 'setComboMode'
-      state.actionParam = new Card(figure, null)
-      states.push(state)
+      const fun = () => {
+        const state = new State(this.board)
+        state.board.setComboMode(figure, true)
+        state.actionName = 'setComboMode'
+        state.actionParam = new Card(figure, null)
+        return state
+      }
+      states.push(fun)
+      // const state = new State(this.board)
+      // state.board.setComboMode(figure, true)
+      // state.actionName = 'setComboMode'
+      // state.actionParam = new Card(figure, null)
+      // states.push(state)
     }
     if (this.board.getStack().length > 1) {
-      const state = new State(this.board)
-      state.board.getFromStack()
-      state.actionName = 'getFromStack'
-      states.push(state)
+      const fun = () => {
+        const state = new State(this.board)
+        state.board.getFromStack()
+        state.actionName = 'getFromStack'
+        return state
+      }
+      states.push(fun)
+      // const state = new State(this.board)
+      // state.board.getFromStack()
+      // state.actionName = 'getFromStack'
+      // states.push(state)
     }
     return states
   }
@@ -46,7 +69,7 @@ class State {
   public randomPlay() {
     const states = this.getAllPossibleStates()
     const random = Math.floor(Math.random() * states.length)
-    this.board = states[random].board
+    this.board = states[random]().board
     this.playerNo = this.board.getToken()
   }
 }
@@ -117,7 +140,7 @@ export class MCTS extends Player {
   public expandNode(node: Node) {
     const possibleStates = node.state.getAllPossibleStates()
     possibleStates.forEach(state => {
-        const newNode = new Node(state)
+        const newNode = new Node(state())
         newNode.parent = node
         node.childArray.push(newNode)
     })
@@ -129,7 +152,7 @@ export class MCTS extends Player {
       return node.state.board.getToken()
     }
     const state = new State(node.state.board)
-    let counter = 100
+    let counter = 20
     while (!status && counter--) {
         state.randomPlay()
         status = state.board.playersStillPlay() <= 1
@@ -151,10 +174,10 @@ export class MCTS extends Player {
   public getResult(board: Board): Result {
     const tree = new Tree(board)
 
-    let iter = 10
+    let iter = 100
     while (iter--) {
       // 1. Select promising node
-      console.log('Loop')
+      // console.log('Loop')
       const promisingNode = this.selectPromisingNode(tree.root)
       if (promisingNode.state.board.playersStillPlay() > 1) {
         this.expandNode(promisingNode)
@@ -166,6 +189,7 @@ export class MCTS extends Player {
       }
       // 3. Back propagation
       const playoutResult = this.simulateRandomPlayout(nodeToExplore)
+      console.log(playoutResult)
       this.backPropogation(nodeToExplore, playoutResult)
     }
     const winnerNode = tree.root.getChildWithMaxScore()
@@ -174,9 +198,8 @@ export class MCTS extends Player {
   }
 
   public play(board: Board) {
-
+    console.log('START ' + board.getToken())
     const result = this.getResult(board)
-    console.log(board.getToken() + ' END')
 
     switch (result.name) {
       case 'action':
@@ -189,7 +212,7 @@ export class MCTS extends Player {
         board.getFromStack()
         break
     }
-    console.log(board.getToken() + ' START')
+    console.log('END')
   }
 }
 

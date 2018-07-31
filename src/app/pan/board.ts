@@ -12,15 +12,19 @@ export interface IPlayer {
     play(board: Board)
 }
 
+export class PanData {
+  public token: number
+}
+
 export class Board {
     private stack: Card[]
     private players: IPlayer[]
-    private token: number
     private startCard: Card
     private sitllPlay: number
     private comboMode: Figure
     private comboCounter: number
     private time = 0
+    public data: PanData
 
     // public update(board: Board) {
     //   this.stack = board.stack
@@ -47,15 +51,17 @@ export class Board {
             newPlayer.setCards(player.getCards().map(a => a))// new Card(a.getValue(), a.getColor())))
             this.players.push(newPlayer)
           }
-          this.token = board.token
+          this.data = new PanData()
+          this.data.token = board.data.token
           this.sitllPlay = board.sitllPlay
           this.startCard = board.startCard
           this.comboMode = board.comboMode
           this.comboCounter = board.comboCounter
         } else {
+          this.data = new PanData()
           this.stack = []
           this.players = []
-          this.token = -1
+          this.data.token = -1
           this.sitllPlay = 0
           this.startCard = new Card(Figure.f9, Color.Kier)
         }
@@ -72,7 +78,7 @@ export class Board {
             for (let i = 0; i < this.players.length; i++) {
                 if (!deck.length) { break }
                 const card = deck.pop()
-                if (card.isEqual(this.startCard)) { this.token = i }
+                if (card.isEqual(this.startCard)) { this.data.token = i }
                 this.players[i].getCards().push(card)
             }
         }
@@ -84,12 +90,12 @@ export class Board {
     }
 
     public getCurrentPlayer(): IPlayer {
-        if (this.token > -1) { return this.players[this.token] }
+        if (this.data.token > -1) { return this.players[this.data.token] }
         return null
     }
 
     public getToken(): number {
-        return this.token
+        return this.data.token
     }
 
     public getStack(): Card[] {
@@ -129,7 +135,7 @@ export class Board {
 
     public action(actionCard: Card) {
         if (this.sitllPlay < 2) { return }
-        const card = this.players[this.token].action(actionCard)
+        const card = this.players[this.data.token].action(actionCard)
         if (card) {
             this.stack.push(card)
             if (!this.getCurrentPlayer().getCards().length) { this.sitllPlay-- }
@@ -173,10 +179,10 @@ export class Board {
     }
 
     public nextPlayer() {
-      if (this.stack[this.stack.length - 1].isPik()) { this.token--
-      } else { this.token++ }
-      if (this.token < 0) { this.token = this.players.length - 1 }
-      if (this.token >= this.players.length) { this.token = 0 }
+      if (this.stack[this.stack.length - 1].isPik()) { this.data.token--
+      } else { this.data.token++ }
+      if (this.data.token < 0) { this.data.token = this.players.length - 1 }
+      if (this.data.token >= this.players.length) { this.data.token = 0 }
       if (!this.getCurrentPlayer().getCards().length) { this.nextPlayer()
       } else {
         if (this.sitllPlay > 1) {
