@@ -2,6 +2,7 @@ import { Component, OnInit, Input, PlatformRef } from '@angular/core'
 import { Card, Figure, Deck } from './card'
 import { Board } from './board'
 import { Player, PlayerAI } from './players'
+import { MCTS } from './players/mcts'
 
 @Component({
   selector: 'pan-game',
@@ -32,7 +33,7 @@ export class PanComponent implements OnInit {
     this.deck = Deck.shuffle(this.deck)
     this.board = new Board()
     for (let i = 0; i < players; i++)
-      this.board.addPlayer(this.ai ? new PlayerAI() : new Player())
+      this.board.addPlayer(this.ai ? new MCTS() : new Player())
     this.board.dealingCards(this.deck.map(card => card))
   }
 

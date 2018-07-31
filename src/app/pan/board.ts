@@ -5,6 +5,7 @@ export interface IPlayer {
     getID(): number
     setID(id: number)
     getCards(): Card[]
+    setCards(cards: Card[])
     sortCards()
     action(actionCard: Card): Card
     getFigureActions(isStackEmpty): Figure[]
@@ -19,6 +20,22 @@ export class Board {
     private sitllPlay: number
     private comboMode: Figure
     private comboCounter: number
+    private time = 0
+
+    public update(board: Board) {
+      this.stack = board.stack
+      for (const player of board.players) {
+        this.players[player.getID()].setCards(player.getCards())
+      }
+      this.token = board.token
+      this.sitllPlay = board.sitllPlay
+      this.startCard = board.startCard
+      this.comboMode = board.comboMode
+      this.comboCounter = board.comboCounter
+      if (this.sitllPlay > 1) {
+        setTimeout(() => this.getCurrentPlayer().play(this), this.time)
+      }
+    }
 
     public constructor(board: Board = null) {
         if (board) {
@@ -117,12 +134,13 @@ export class Board {
         }
     }
 
-    public playersStillPlay(): Number {
-      let count = 0
-      for (const player of this.players) {
-        if (player.getCards().length) { count++ }
-      }
-      return count
+    public playersStillPlay(): number {
+      // let count = 0
+      // for (const player of this.players) {
+      //   if (player.getCards().length) { count++ }
+      // }
+      // return count
+      return this.sitllPlay
     }
 
     public setComboMode(figure: Figure, auto = false) {
@@ -154,7 +172,7 @@ export class Board {
       if (!this.getCurrentPlayer().getCards().length) { this.nextPlayer()
       } else {
         if (this.sitllPlay > 1) {
-          setTimeout(() => this.getCurrentPlayer().play(this), 200)
+          setTimeout(() => this.getCurrentPlayer().play(this), this.time)
         }
       }
     }

@@ -1,16 +1,19 @@
 import { Board } from '../board'
 import { Player } from './player'
 import { Card } from '../card'
+import { count } from 'rxjs/operators';
 
 class State {
   board: Board
   playerNo: number
   visitCount: number
   winScore: number
-  states: State[]
 
   constructor(board: Board) {
     this.board = new Board(board)
+    this.playerNo = this.board.getToken()
+    this.visitCount = 0
+    this.winScore = 0
   }
 
   public getAllPossibleStates(): State[] {
@@ -29,15 +32,15 @@ class State {
       const state = new State(this.board)
       state.board.getFromStack()
       states.push(state)
-      console.log(state.board)
     }
     return states
   }
 
   public randomPlay() {
-    // if (!this.states) { this.states = this.getAllPossibleStates() }
-    // const random = Math.floor(Math.random() * this.states.length)
-
+    const states = this.getAllPossibleStates()
+    const random = Math.floor(Math.random() * states.length)
+    this.board = states[random].board
+    this.playerNo = this.board.getToken()
   }
 }
 
@@ -46,13 +49,14 @@ class Node {
   parent: Node
   childArray: Node[]
 
-  constructor(board: Board) {
-    this.state = new State(board)
+  constructor(state: State) {
+    this.state = state
     this.childArray = []
   }
 
   getRandomChildNode(): Node {
-    return null
+    const random = Math.floor(Math.random() * this.childArray.length)
+    return this.childArray[random]
   }
 
   compare(node: Node, parentVisit): number {
@@ -64,13 +68,19 @@ class Node {
       default: return 0
     }
   }
+
+  getChildWithMaxScore(): Node {
+    return this.childArray.reduce((a, b) => {
+      return a.state.visitCount >= b.state.visitCount ? a : b
+    })
+  }
 }
 
 class Tree {
   root: Node
 
   constructor(board: Board) {
-    this.root = new Node(board)
+    this.root = new Node(new State(board))
   }
 }
 
@@ -83,9 +93,7 @@ class UCT {
   public static findBestNodeWithUCT(node: Node): Node {
       const parentVisit = node.state.visitCount
       node.childArray.sort((a, b) => a.compare(b, parentVisit))
-      if (node.childArray.length) {
-        return node.childArray[0]
-      }
+      return node.childArray[0]
   }
 }
 
@@ -100,24 +108,46 @@ export class MCTS extends Player {
   }
 
   public expandNode(node: Node) {
-    // TODO
+    const possibleStates = node.state.getAllPossibleStates()
+    possibleStates.forEach(state => {
+        const newNode = new Node(state)
+        newNode.parent = node
+        node.childArray.push(newNode)
+    })
   }
 
   public simulateRandomPlayout(node: Node): number {
-    // TODO
-    return null
+    let status = node.state.board.playersStillPlay() <= 1
+    if (status) {
+      return node.state.board.getToken()
+    }
+    const state = new State(node.state.board)
+    let counter = 100
+    while (!status && counter--) {
+        state.randomPlay()
+        status = state.board.playersStillPlay() <= 1
+    }
+    return counter ? state.board.getToken() : -1
   }
 
   public backPropogation(node: Node, playerID: number) {
-    // TODO
+    let tempNode = node
+    while (tempNode) {
+        tempNode.state.visitCount++
+        if (tempNode.state.playerNo !== playerID) {
+            tempNode.state.winScore++
+        }
+        tempNode = tempNode.parent
+    }
   }
 
   public play(board: Board) {
     const tree = new Tree(board)
 
-    let count = 1000
-    while (count--) {
+    let iter = 2
+    while (iter--) {
       // 1. Select promising node
+      console.log('Loop ' + iter)
       const promisingNode = this.selectPromisingNode(tree.root)
       if (promisingNode.state.board.playersStillPlay() > 1) {
         this.expandNode(promisingNode)
@@ -131,7 +161,10 @@ export class MCTS extends Player {
       const playoutResult = this.simulateRandomPlayout(nodeToExplore)
       this.backPropogation(nodeToExplore, playoutResult)
     }
-
-    // TODO
+    const winnerNode = tree.root.getChildWithMaxScore()
+    tree.root = winnerNode
+    // return winnerNode.state.board
+    console.log(board.getToken() + ' END')
+    board.update(winnerNode.state.board)
   }
 }
