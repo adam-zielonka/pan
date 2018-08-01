@@ -142,7 +142,7 @@ export class MCTS extends Player {
       return node.state.board.getToken()
     }
     const state = new State(node.state.board)
-    let counter = 50
+    let counter = 100
     while (!status && --counter) {
         state.randomPlay()
         status = state.board.playersStillPlay() <= 1
@@ -168,8 +168,8 @@ export class MCTS extends Player {
   public getResult(board: Board): Result {
     const tree = new Tree(board)
 
-    let iter = 500
-    while (iter--) {
+    let iter = 200
+    while (--iter) {
       // 1. Select promising node
       // console.log('Loop')
       const promisingNode = this.selectPromisingNode(tree.root)
