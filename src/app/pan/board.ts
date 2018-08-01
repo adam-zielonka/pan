@@ -25,24 +25,11 @@ export class Board {
     private comboCounter: number
     private time = 0
     public data: PanData
-
-    // public update(board: Board) {
-    //   this.stack = board.stack
-    //   for (const player of board.players) {
-    //     this.players[player.getID()].setCards(player.getCards())
-    //   }
-    //   this.token = board.token
-    //   this.sitllPlay = board.sitllPlay
-    //   this.startCard = board.startCard
-    //   this.comboMode = board.comboMode
-    //   this.comboCounter = board.comboCounter
-    //   if (this.sitllPlay > 1) {
-    //     setTimeout(() => this.getCurrentPlayer().play(this), this.time)
-    //   }
-    // }
+    private symulation: boolean
 
     public constructor(board: Board = null) {
         if (board) {
+          this.symulation = true
           this.stack = board.stack.map(a => a)// new Card(a.getValue(), a.getColor()))
           this.players = []
           for (const player of board.players) {
@@ -58,6 +45,7 @@ export class Board {
           this.comboMode = board.comboMode
           this.comboCounter = board.comboCounter
         } else {
+          this.symulation = false
           this.data = new PanData()
           this.stack = []
           this.players = []
@@ -65,6 +53,10 @@ export class Board {
           this.sitllPlay = 0
           this.startCard = new Card(Figure.f9, Color.Kier)
         }
+    }
+
+    public stop() {
+      this.sitllPlay = 1
     }
 
     public addPlayer(player: IPlayer) {
@@ -185,7 +177,7 @@ export class Board {
       if (this.data.token >= this.players.length) { this.data.token = 0 }
       if (!this.getCurrentPlayer().getCards().length) { this.nextPlayer()
       } else {
-        if (this.sitllPlay > 1) {
+        if (this.sitllPlay > 1 && !this.symulation) {
           setTimeout(() => this.getCurrentPlayer().play(this), this.time)
         }
       }

@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core'
 import { Card, Deck, Figure } from './card'
 import { Board, PanData } from './board'
-import { MCTS, Player } from './players'
 import { Observable, of } from 'rxjs'
+import { MCTS } from './players/mcts'
+import { Player } from './players/player'
 
 export class GameData {
   public deck: Card[]
@@ -18,24 +19,22 @@ export class GameData {
 })
 export class PanService {
 
-  players: number
-  ai: boolean
   public board: Board
   public data: GameData
 
   constructor() {
-    this.players = 3
-    this.ai = true
     this.data = new GameData()
-    this.newGame(this.players)
   }
 
-  public newGame(players: number): Observable<GameData> {
+  public newGame(players: number, ai: boolean): Observable<GameData> {
+    if (this.board) {
+      this.board.stop()
+    }
     this.data.deck = Deck.generate()
     this.data.deck = Deck.shuffle(this.data.deck)
     this.board = new Board()
     for (let i = 0; i < players; i++) {
-      this.board.addPlayer(this.ai ? new MCTS() : new Player())
+      this.board.addPlayer(ai ? new MCTS() : new Player())
     }
     this.board.dealingCards(this.data.deck.map(card => card))
     this.data.stack = this.board.getStack()

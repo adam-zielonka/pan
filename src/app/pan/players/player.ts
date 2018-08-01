@@ -50,6 +50,6 @@ export class Player implements IPlayer {
     }
 
     public play(board: Board) {
-
+      console.log('Human')
     }
 }

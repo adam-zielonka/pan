@@ -29,11 +29,6 @@ class State {
         return state
       }
       states.push(fun)
-      // const state = new State(this.board)
-      // state.board.action(card)
-      // state.actionName = 'action'
-      // state.actionParam = card
-      // states.push(state)
     }
     for (const figure of this.board.getPosibleComboActions()) {
       const fun = () => {
@@ -44,11 +39,6 @@ class State {
         return state
       }
       states.push(fun)
-      // const state = new State(this.board)
-      // state.board.setComboMode(figure, true)
-      // state.actionName = 'setComboMode'
-      // state.actionParam = new Card(figure, null)
-      // states.push(state)
     }
     if (this.board.getStack().length > 1) {
       const fun = () => {
@@ -58,10 +48,6 @@ class State {
         return state
       }
       states.push(fun)
-      // const state = new State(this.board)
-      // state.board.getFromStack()
-      // state.actionName = 'getFromStack'
-      // states.push(state)
     }
     return states
   }
@@ -112,6 +98,10 @@ class Tree {
   constructor(board: Board) {
     this.root = new Node(new State(board))
   }
+
+  print() {
+    console.log(this.root)
+  }
 }
 
 class UCT {
@@ -152,10 +142,14 @@ export class MCTS extends Player {
       return node.state.board.getToken()
     }
     const state = new State(node.state.board)
-    let counter = 20
-    while (!status && counter--) {
+    let counter = 50
+    while (!status && --counter) {
         state.randomPlay()
         status = state.board.playersStillPlay() <= 1
+    }
+    // console.log('counter: ' + counter)
+    if (counter) {
+      console.log(state.board)
     }
     return counter ? state.board.getToken() : -1
   }
@@ -174,7 +168,7 @@ export class MCTS extends Player {
   public getResult(board: Board): Result {
     const tree = new Tree(board)
 
-    let iter = 100
+    let iter = 500
     while (iter--) {
       // 1. Select promising node
       // console.log('Loop')
@@ -189,9 +183,12 @@ export class MCTS extends Player {
       }
       // 3. Back propagation
       const playoutResult = this.simulateRandomPlayout(nodeToExplore)
-      console.log(playoutResult)
+      if (playoutResult > -1) {
+        console.log(playoutResult)
+      }
       this.backPropogation(nodeToExplore, playoutResult)
     }
+    // tree.print()
     const winnerNode = tree.root.getChildWithMaxScore()
     tree.root = winnerNode
     return {'name' : winnerNode.state.actionName, 'card' : winnerNode.state.actionParam}

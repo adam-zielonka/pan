@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, PlatformRef } from '@angular/core'
-import { Card, Figure, Deck } from './card'
+import { Card, Figure, Deck, Color } from './card'
 import { GameData, PanService } from './pan.service'
 
 @Component({
@@ -20,15 +20,19 @@ export class PanComponent implements OnInit {
   }
 
   public newGameClick() {
-    this.newGame(this.players)
+    this.newGame()
   }
 
-  public newGame(players: number) {
-    this.panService.newGame(players).subscribe(data => this.data = data)
+  public newGame() {
+    this.panService.newGame(this.players, this.ai).subscribe(data => this.data = data)
   }
 
   public action(card: Card) {
     this.panService.action(card)
+  }
+
+  public actionStart() {
+    this.panService.action(new Card(Figure.f10, Color.Kier))
   }
 
   public getFromStack() {
@@ -77,7 +81,7 @@ export class PanComponent implements OnInit {
   ngOnInit() {
     this.players = 3
     this.ai = true
-    this.newGame(this.players)
+    this.newGame()
   }
 
 }
