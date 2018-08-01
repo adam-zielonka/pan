@@ -23,7 +23,7 @@ export class Board {
     private sitllPlay: number
     private comboMode: Figure
     private comboCounter: number
-    private time = 0
+    private time = 200
     public data: PanData
     private symulation: boolean
 

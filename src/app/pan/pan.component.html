@@ -1,14 +1,28 @@
 <div>
-  <div class="form-groupe">
+  <div class="form-group">
           <label for="formControlRange">Players: {{players}}</label>
-          <input type="range" class="col-sm-2 form-control-range" id="formControlRange" value={{players}} min=1 max=24 [(ngModel)]=players>
+          <input type="range" class="col-sm-2 form-control-range" id="formControlRange" value={{players}} min=1 max=24 [(ngModel)]=players >
   </div>
-  <div class="form-check form-check-inline">
+  <!-- <div class="form-check form-check-inline">
       <input class="form-check-input" type="checkbox" id="inlineCheckboxAI" value={{ai}} [(ngModel)]=ai>
       <label class="form-check-label" for="inlineCheckboxAI">AI</label>
-  </div>
+  </div> -->
   <button class="btn btn-light onecard" (click)=newGameClick() >New Game</button>
 </div>
+
+<div class="players">
+  <ol>
+      <li *ngFor="let playerElement of playersList; let i = index" [hidden]="i >= players">
+        <div class="form-group">
+            <div class="form-check form-check-inline" *ngFor="let type of playersTypes; let n = index">
+                <input class="form-check-input" type="radio" name="inlineRadioOptions{{i}}" id="inlineRadio{{n}}-{{i}}" value={{type}} [(ngModel)]=playerElement.type>
+                <label class="form-check-label" for="inlineRadio{{n}}-{{i}}">{{type}}</label>
+            </div>
+          </div>
+      </li>
+  </ol>
+</div>  
+
 <div class="deck">
   Deck: 
   <span 
