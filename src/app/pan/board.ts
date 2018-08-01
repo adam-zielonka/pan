@@ -30,12 +30,12 @@ export class Board {
     public constructor(board: Board = null) {
         if (board) {
           this.symulation = true
-          this.stack = board.stack.map(a => a)// new Card(a.getValue(), a.getColor()))
+          this.stack = board.stack.map(card => card)
           this.players = []
           for (const player of board.players) {
             const newPlayer = new Player()
             newPlayer.setID(player.getID())
-            newPlayer.setCards(player.getCards().map(a => a))// new Card(a.getValue(), a.getColor())))
+            newPlayer.setCards(player.getCards().map(card => card))
             this.players.push(newPlayer)
           }
           this.data = new PanData()
@@ -56,7 +56,7 @@ export class Board {
     }
 
     public stop() {
-      this.sitllPlay = 1
+      this.symulation = true
     }
 
     public addPlayer(player: IPlayer) {
@@ -141,11 +141,6 @@ export class Board {
     }
 
     public playersStillPlay(): number {
-      // let count = 0
-      // for (const player of this.players) {
-      //   if (player.getCards().length) { count++ }
-      // }
-      // return count
       return this.sitllPlay
     }
 
@@ -171,11 +166,19 @@ export class Board {
     }
 
     public nextPlayer() {
-      if (this.stack[this.stack.length - 1].isPik()) { this.data.token--
-      } else { this.data.token++ }
-      if (this.data.token < 0) { this.data.token = this.players.length - 1 }
-      if (this.data.token >= this.players.length) { this.data.token = 0 }
-      if (!this.getCurrentPlayer().getCards().length) { this.nextPlayer()
+      if (this.stack[this.stack.length - 1].isPik()) {
+        this.data.token--
+        if (this.data.token < 0) {
+          this.data.token = this.players.length - 1
+        }
+      } else {
+        this.data.token++
+        if (this.data.token >= this.players.length) {
+          this.data.token = 0
+        }
+      }
+      if (!this.getCurrentPlayer().getCards().length) {
+        this.nextPlayer()
       } else {
         if (this.sitllPlay > 1 && !this.symulation) {
           setTimeout(() => this.getCurrentPlayer().play(this), this.time)

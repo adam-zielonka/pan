@@ -1,62 +1,62 @@
 <div>
-    <div class="form-groupe">
-            <label for="formControlRange">Players: {{players}}</label>
-            <input type="range" class="col-sm-2 form-control-range" id="formControlRange" value={{players}} min=1 max=24 [(ngModel)]=players>
-    </div>
-    <div class="form-check form-check-inline">
-        <input class="form-check-input" type="checkbox" id="inlineCheckboxAI" value={{ai}} [(ngModel)]=ai>
-        <label class="form-check-label" for="inlineCheckboxAI">AI</label>
-    </div>
-    <button class="btn btn-light onecard" (click)=newGameClick() >New Game</button>
+  <div class="form-groupe">
+          <label for="formControlRange">Players: {{players}}</label>
+          <input type="range" class="col-sm-2 form-control-range" id="formControlRange" value={{players}} min=1 max=24 [(ngModel)]=players>
+  </div>
+  <div class="form-check form-check-inline">
+      <input class="form-check-input" type="checkbox" id="inlineCheckboxAI" value={{ai}} [(ngModel)]=ai>
+      <label class="form-check-label" for="inlineCheckboxAI">AI</label>
+  </div>
+  <button class="btn btn-light onecard" (click)=newGameClick() >New Game</button>
 </div>
 <div class="deck">
-    Deck: 
-    <span 
-        *ngFor="let card of data.deck"
-        class="btn btn-light disabled onecard"
-        [ngClass]=card.getColorStyle()>
-        {{card.toString()}} 
-    </span>
+  Deck: 
+  <span 
+      *ngFor="let card of deck"
+      class="btn btn-light disabled onecard"
+      [ngClass]=card.getColorStyle()>
+      {{card.toString()}} 
+  </span>
 </div>
 
 <div>
-    Token: Player {{data.data.token + 1}}
+  Token: Player {{board.getToken() + 1}}
 </div>
 
 <div class="players">
-    <ol>
-        <li *ngFor="let cards of data.players; let i = index">
-            <button 
-                *ngFor="let card of cards"
-                (click)=action(card)
-                class="btn btn-light onecard"
-                [ngClass]=card.getColorStyle()
-                [disabled]="!isActionAvalible(card, i)" >
-                {{card.toString()}} 
-            </button>
-            <button
-                *ngFor="let figure of getFigureActions(cards)" 
-                class="btn btn-light onecard" 
-                (click)=setComboMode(figure)
-                [disabled]="!isComboActionAvalible(figure, i)" >
-                {{numberToFigure(figure)}} 
-            </button>
-        </li>
-    </ol>
+  <ol>
+      <li *ngFor="let player of board.getPlayers()">
+          <button 
+              *ngFor="let card of player.cards" 
+              (click)=board.action(card)
+              class="btn btn-light onecard"
+              [ngClass]=card.getColorStyle()
+              [disabled]="!board.isActionAvalible(card, player.id)" >
+              {{card.toString()}} 
+          </button>
+          <button
+              *ngFor="let figure of player.getFigureActions(board.getStack().length)" 
+              class="btn btn-light onecard" 
+              (click)=board.setComboMode(figure)
+              [disabled]="!board.isComboActionAvalible(figure, player.id)" >
+              {{numberToFigure(figure)}} 
+          </button>
+      </li>
+  </ol>
 </div>
 
 <div class="stack">
-    Stack: 
-    <span 
-        *ngFor="let card of data.stack" 
-        class="btn btn-light disabled onecard"
-        [ngClass]=card.getColorStyle()>
-        {{card.toString()}}
-    </span>
-    <button 
-        (click)=getFromStack()
-        class="btn btn-light onecard"
-        [hidden]="!(data.stack.length > 1)">
-        Get cards
-    </button>
+  Stack: 
+  <span 
+      *ngFor="let card of board.getStack()" 
+      class="btn btn-light disabled onecard"
+      [ngClass]=card.getColorStyle()>
+      {{card.toString()}}
+  </span>
+  <button 
+      (click)=board.getFromStack()
+      class="btn btn-light onecard"
+      [hidden]="!(board.getStack().length > 1)">
+      Get cards
+  </button>
 </div>
