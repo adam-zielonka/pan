@@ -2,14 +2,28 @@ import { Board } from '../board'
 import { Player } from './player'
 import { Card, Figure } from '../card'
 
+enum Action {
+  play1 = 'action',
+  play4 = 'setComboMode',
+  getFromStack = 'getFromStack'
+}
+
+class Result {
+  type: Action
+  card: Card
+
+  constructor(type: Action, card: Card = null) {
+    this.type = type
+    this.card = card
+  }
+}
+
 class State {
   board: Board
   playerNo: number
   visitCount: number
   winScore: number
-  actionName: string
-  actionParam: Card
-
+  action: Result
 
   constructor(board: Board) {
     this.board = new Board(board)
@@ -24,8 +38,7 @@ class State {
       const fun = () => {
         const state = new State(this.board)
         state.board.action(card)
-        state.actionName = 'action'
-        state.actionParam = card
+        state.action = new Result(Action.play1, card)
         return state
       }
       states.push(fun)
@@ -34,8 +47,7 @@ class State {
       const fun = () => {
         const state = new State(this.board)
         state.board.setComboMode(figure, true)
-        state.actionName = 'setComboMode'
-        state.actionParam = new Card(figure, null)
+        state.action = new Result(Action.play4, new Card(figure, null))
         return state
       }
       states.push(fun)
@@ -44,7 +56,7 @@ class State {
       const fun = () => {
         const state = new State(this.board)
         state.board.getFromStack()
-        state.actionName = 'getFromStack'
+        state.action = new Result(Action.getFromStack)
         return state
       }
       states.push(fun)
@@ -75,14 +87,8 @@ class Node {
     return this.childArray[random]
   }
 
-  compare(node: Node, parentVisit): number {
-    const a = UCT.uctValue(parentVisit, this.state.winScore, this.state.visitCount)
-    const b = UCT.uctValue(parentVisit, node.state.winScore, node.state.visitCount)
-    switch (true) {
-      case a > b: return 1
-      case a < b: return -1
-      default: return 0
-    }
+  getUTC(parentVisit): number {
+    return UCT.uctValue(parentVisit, this.state.winScore, this.state.visitCount)
   }
 
   getChildWithMaxScore(): Node {
@@ -90,7 +96,16 @@ class Node {
       return a.state.visitCount >= b.state.visitCount ? a : b
     })
   }
+
+  printPoints() {
+    for (const node of this.childArray) {
+      console.log(node)
+      const card = node.state.action.card
+      console.log(`${card ? card.toString() : 'Stack'} ${node.state.winScore / 10}/${node.state.visitCount}`)
+    }
+  }
 }
+
 
 class Tree {
   root: Node
@@ -106,14 +121,15 @@ class Tree {
 
 class UCT {
   public static uctValue(totalVisit: number, nodeWinScore: number, nodeVisit: number): number {
-      if (nodeVisit === 0) { return Number.MAX_SAFE_INTEGER }
+      if (nodeVisit === 0) { return Number.MAX_VALUE }
       return nodeWinScore / nodeVisit + 1.41 * Math.sqrt(Math.log(totalVisit) / nodeVisit)
   }
 
   public static findBestNodeWithUCT(node: Node): Node {
       const parentVisit = node.state.visitCount
-      node.childArray.sort((a, b) => a.compare(b, parentVisit))
-      return node.childArray[0]
+      return node.childArray.reduce((a, b) => {
+        return a.getUTC(parentVisit) > b.getUTC(parentVisit) ? a : b
+      })
   }
 }
 
@@ -139,7 +155,7 @@ export class MCTS extends Player {
   public simulateRandomPlayout(node: Node): number {
     let status = node.state.board.playersStillPlay() <= 1
     if (status) {
-      return node.state.board.getToken()
+      return node.state.board.getToken() !== this.getID() ? 10 : 0
     }
     const state = new State(node.state.board)
     let counter = 100
@@ -147,20 +163,33 @@ export class MCTS extends Player {
         state.randomPlay()
         status = state.board.playersStillPlay() <= 1
     }
-    // console.log('counter: ' + counter)
-    if (counter) {
-      console.log(state.board)
+    if (!counter) {
+      //  && state.board.getPlayers().length === 2
+      // let points = 0
+      // for (const card of state.board.getPlayers()[this.getID()].getCards()) {
+      //   points += (14 - card.getValue()) ** 2
+      // }
+      // let oponet = 0
+      // for (const card of state.board.getPlayers()[this.getID() ? 0 : 1].getCards()) {
+      //   oponet += (14 - card.getValue()) ** 2
+      // }
+      // if (points < oponet) {
+      //   return 10
+      // } else {
+      //   return 0
+      // }
+      return 5
+    } else {
+      return state.board.getToken() !== this.getID() ? 10 : 0
     }
-    return counter ? state.board.getToken() : -1
   }
 
-  public backPropogation(node: Node, playerID: number) {
+  public backPropogation(node: Node, score: number) {
+    if (score < 0) { return }
     let tempNode = node
     while (tempNode) {
         tempNode.state.visitCount++
-        if (tempNode.state.playerNo !== playerID) {
-            tempNode.state.winScore++
-        }
+        tempNode.state.winScore += score
         tempNode = tempNode.parent
     }
   }
@@ -168,8 +197,8 @@ export class MCTS extends Player {
   public getResult(board: Board): Result {
     const tree = new Tree(board)
 
-    let iter = 200
-    while (--iter) {
+    let iter = 1000
+    while (iter--) {
       // 1. Select promising node
       // console.log('Loop')
       const promisingNode = this.selectPromisingNode(tree.root)
@@ -183,37 +212,46 @@ export class MCTS extends Player {
       }
       // 3. Back propagation
       const playoutResult = this.simulateRandomPlayout(nodeToExplore)
-      if (playoutResult > -1) {
-        console.log(playoutResult)
-      }
+      // if (playoutResult === -1) {
+      //   console.log(playoutResult)
+      // }
       this.backPropogation(nodeToExplore, playoutResult)
     }
     // tree.print()
     const winnerNode = tree.root.getChildWithMaxScore()
+    tree.root.printPoints()
     tree.root = winnerNode
-    return {'name' : winnerNode.state.actionName, 'card' : winnerNode.state.actionParam}
+    return winnerNode.state.action
   }
 
   public play(board: Board) {
-    console.log('START ' + board.getToken())
-    const result = this.getResult(board)
+    // let sucess = false
+    // if (board.isActionAvalible(this.cards[0], this.id)) {
+    //   const comboActions = this.getFigureActions(board.getStack().length)
+    //     if (comboActions.length && comboActions[0] === this.cards[0].getValue() &&
+    //       board.isComboActionAvalible(this.cards[0].getValue(), this.id)) {
+    //       board.setComboMode(this.cards[0].getValue(), true)
+    //     } else {
+    //       board.action(this.cards[0])
+    //     }
+    //     sucess = true
+    // }
+    // if (!sucess) {
+      console.log('START ' + board.getToken())
+      const result = this.getResult(board)
 
-    switch (result.name) {
-      case 'action':
-        board.action(result.card)
-        break
-      case 'setComboMode':
-        board.setComboMode(result.card.getValue(), true)
-        break
-      default:
-        board.getFromStack()
-        break
-    }
-    console.log('END')
+      switch (result.type) {
+        case Action.play1:
+          board.action(result.card)
+          break
+        case Action.play4:
+          board.setComboMode(result.card.getValue(), true)
+          break
+        default:
+          board.getFromStack()
+          break
+      }
+      console.log('END')
+    // }
   }
-}
-
-class Result {
-  name: String
-  card: Card
 }

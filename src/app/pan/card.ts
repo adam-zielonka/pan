@@ -78,7 +78,7 @@ export class Card {
   }
 
   public toString(): String {
-      return `${this.numberToFigure()}${this.numberToColor()}`
+      return this.color ? `${this.numberToFigure()}${this.numberToColor()}` : this.numberToFigure()
   }
 
   public isEqual(card: Card): boolean {

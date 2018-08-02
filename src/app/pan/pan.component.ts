@@ -12,7 +12,11 @@ enum PlayersTypes {
 }
 
 class CPlayersTypes {
-  type: PlayersTypes = PlayersTypes.SimpleAI
+  type: PlayersTypes
+
+  constructor(type: PlayersTypes = PlayersTypes.SimpleAI) {
+    this.type = type
+  }
 }
 
 @Component({
@@ -50,7 +54,6 @@ export class PanComponent implements OnInit {
     this.deck = Deck.generate()
     this.deck = Deck.shuffle(this.deck)
     this.board = new Board()
-    console.log(this.playersList)
     for (let i = 0; i < players; i++) {
       switch (this.playersList[i].type) {
         case PlayersTypes.SimpleAI:
@@ -60,7 +63,7 @@ export class PanComponent implements OnInit {
           this.board.addPlayer(new MCTS())
           break
         default:
-        this.board.addPlayer(new Player())
+          this.board.addPlayer(new Player())
           break
       }
     }
@@ -69,13 +72,15 @@ export class PanComponent implements OnInit {
 
   public setPlayersTypes() {
     this.playersList = []
-    for (let i = 0; i < 24; i++) {
+    this.playersList.push(new CPlayersTypes(PlayersTypes.Human))
+    this.playersList.push(new CPlayersTypes(PlayersTypes.MCTS))
+    for (let i = 2; i < 24; i++) {
       this.playersList.push(new CPlayersTypes())
     }
   }
 
   ngOnInit() {
-    this.players = 3
+    this.players = 2
     this.setPlayersTypes()
     this.ai = true
     this.newGame(this.players, this.ai)

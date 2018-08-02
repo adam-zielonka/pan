@@ -197,7 +197,10 @@ export class Board {
     }
 
     public getPosibleComboActions(): Figure[] {
-      return this.getCurrentPlayer().getFigureActions(this.getStack().length)
+      return this.getCurrentPlayer().getFigureActions(this.getStack().length).reduce((actions, figure) => {
+        if (this.isComboActionAvalible(figure)) { actions.push(figure) }
+        return actions
+      }, [])
     }
 
 }

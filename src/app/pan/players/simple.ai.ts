@@ -15,10 +15,10 @@ export class PlayerAI extends Player {
             }
             sucess = true
         } else if (board.isActionAvalible(this.cards[this.cards.length - 1], this.id)) {
-            // if(this.cards[this.cards.length - 1].getValue() < this.cards[0].getValue() + 4) {
-            //     board.action(this.cards[this.cards.length - 1])
-            //     sucess = true
-            // }
+            if (this.cards[this.cards.length - 1].getValue() < this.cards[0].getValue() + 4) {
+                board.action(this.cards[this.cards.length - 1])
+                sucess = true
+            }
         }
         if (!sucess) { board.getFromStack() }
     }
