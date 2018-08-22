@@ -1,17 +1,11 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { PanComponent } from './pan/pan.component';
-import { CarsComponent } from './cars/cars.component';
-import { CarComponent } from './cars/car/car.component';
-import { CarDetailComponent } from './cars/car-detail/car-detail.component';
+import { NgModule } from '@angular/core'
+import { RouterModule, Routes } from '@angular/router'
+import { PanComponent } from './pan/pan.component'
 
 const routes: Routes = [
-  { path: '', redirectTo: '/parking', pathMatch: 'full' },
-  { path: 'pan', component: PanComponent },
-  { path: 'parking', component: CarsComponent },
-  { path: 'cars', component: CarComponent },
-  { path: 'cars/:id', component: CarDetailComponent }
-];
+  { path: '', redirectTo: '/pan', pathMatch: 'full' },
+  { path: 'pan', component: PanComponent }
+]
 
 @NgModule({
   imports: [ RouterModule.forRoot(routes) ],
