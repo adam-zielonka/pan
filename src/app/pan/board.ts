@@ -209,4 +209,25 @@ export class Board {
       }, [])
     }
 
+    public playersPoints(player: IPlayer): number {
+      const cards = player.getCards()
+      let points = 0
+      cards.forEach(card => points += 15 - card.getValue())
+      return points
+    }
+
+    public procentComplate(): number {
+      let oponnentsPoints = 0
+      let points = 0
+      this.players.forEach(player => {
+        if (player.getID() !== this.getToken()) {
+          oponnentsPoints += this.playersPoints(player)
+        } else {
+          points += this.playersPoints(player)
+        }
+      })
+      return 1 - (points / (points + oponnentsPoints))
+    }
+
+
 }

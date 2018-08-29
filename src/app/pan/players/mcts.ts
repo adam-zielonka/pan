@@ -99,9 +99,9 @@ class Node {
 
   printPoints() {
     for (const node of this.childArray) {
-      console.log(node)
+      // console.log(node)
       const card = node.state.action.card
-      console.log(`${card ? card.toString() : 'Stack'} ${node.state.winScore / 10}/${node.state.visitCount}`)
+      console.log(`${card ? card.toString() : 'Stack'} ${Math.round(node.state.winScore * 100 / 10) / 100 }/${node.state.visitCount}`)
     }
   }
 }
@@ -164,21 +164,7 @@ export class MCTS extends Player {
         status = state.board.playersStillPlay() <= 1
     }
     if (!counter) {
-      //  && state.board.getPlayers().length === 2
-      // let points = 0
-      // for (const card of state.board.getPlayers()[this.getID()].getCards()) {
-      //   points += (14 - card.getValue()) ** 2
-      // }
-      // let oponet = 0
-      // for (const card of state.board.getPlayers()[this.getID() ? 0 : 1].getCards()) {
-      //   oponet += (14 - card.getValue()) ** 2
-      // }
-      // if (points < oponet) {
-      //   return 10
-      // } else {
-      //   return 0
-      // }
-      return 5
+      return 10 * state.board.procentComplate()
     } else {
       return state.board.getToken() !== this.getID() ? 10 : 0
     }
@@ -197,7 +183,11 @@ export class MCTS extends Player {
   public getResult(board: Board): Result {
     const tree = new Tree(board)
 
-    let iter = 1000
+    let countOfaction = 0
+    countOfaction += board.getPosibleActions().length
+    countOfaction += board.getPosibleComboActions().length
+    countOfaction += board.getStack().length > 1 ? 1 : 0
+    let iter = 50 * countOfaction
     while (iter--) {
       // 1. Select promising node
       // console.log('Loop')
@@ -237,7 +227,7 @@ export class MCTS extends Player {
     //     sucess = true
     // }
     // if (!sucess) {
-      console.log('START ' + board.getToken())
+      console.log('START ' + board.getToken() + ' - ' + (Math.round(board.procentComplate() * 10000) / 100) + '%')
       const result = this.getResult(board)
 
       switch (result.type) {
