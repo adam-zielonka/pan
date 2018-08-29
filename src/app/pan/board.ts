@@ -55,6 +55,12 @@ export class Board {
         }
     }
 
+    public start() {
+      if (this.sitllPlay > 1 && !this.symulation) {
+        setTimeout(() => this.getCurrentPlayer().play(this), this.time)
+      }
+    }
+
     public stop() {
       this.symulation = true
     }
@@ -166,7 +172,7 @@ export class Board {
     }
 
     public nextPlayer() {
-      if (this.stack[this.stack.length - 1].isPik()) {
+      if (this.stack.length && this.stack[this.stack.length - 1].isPik()) {
         this.data.token--
         if (this.data.token < 0) {
           this.data.token = this.players.length - 1

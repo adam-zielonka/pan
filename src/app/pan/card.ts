@@ -94,4 +94,11 @@ export class Card {
       if (this.value > card.getValue()) { return 1 }
       return 0
   }
+
+  public compareColors(card: Card): number {
+    if (this.value < card.getValue()) { return -1 }
+    if (this.value > card.getValue()) { return 1 }
+    if (this.color > card.getColor()) { return 1 }
+    return 0
+  }
 }

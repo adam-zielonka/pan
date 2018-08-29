@@ -20,7 +20,7 @@ export class Player implements IPlayer {
     }
 
     public sortCards() {
-        this.cards.sort((a, b) => a.compare(b))
+        this.cards.sort((a, b) => a.compareColors(b))
     }
 
     public action(actionCard: Card): Card {

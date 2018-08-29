@@ -4,11 +4,13 @@ import { Board } from './board'
 import { MCTS } from './players/mcts'
 import { Player } from './players/player'
 import { PlayerAI } from './players/simple.ai'
+import { PlayerAZ } from './players/playerAZ'
 
 enum PlayersTypes {
   Human = 'Human',
   SimpleAI = 'Simple.AI',
-  MCTS = 'MCTS'
+  MCTS = 'MCTS',
+  AZ = 'AZ'
 }
 
 class CPlayersTypes {
@@ -34,7 +36,8 @@ export class PanComponent implements OnInit {
   public playersTypes = [
     PlayersTypes.Human,
     PlayersTypes.SimpleAI,
-    PlayersTypes.MCTS
+    PlayersTypes.MCTS,
+    PlayersTypes.AZ
   ]
 
   constructor() {}
@@ -45,6 +48,10 @@ export class PanComponent implements OnInit {
 
   public newGameClick() {
     this.newGame(this.players, this.ai)
+  }
+
+  public startGameClick() {
+    this.board.start()
   }
 
   public newGame(players: number, ai: boolean) {
@@ -61,6 +68,9 @@ export class PanComponent implements OnInit {
           break
         case PlayersTypes.MCTS:
           this.board.addPlayer(new MCTS())
+          break
+        case PlayersTypes.AZ:
+          this.board.addPlayer(new PlayerAZ())
           break
         default:
           this.board.addPlayer(new Player())
