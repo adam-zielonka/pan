@@ -26,6 +26,7 @@ export class Board {
     private time = 200
     public data: PanData
     private symulation: boolean
+    private movesCount: number
 
     public constructor(board: Board = null) {
         if (board) {
@@ -44,6 +45,7 @@ export class Board {
           this.startCard = board.startCard
           this.comboMode = board.comboMode
           this.comboCounter = board.comboCounter
+          this.movesCount = board.movesCount
         } else {
           this.symulation = false
           this.data = new PanData()
@@ -52,6 +54,7 @@ export class Board {
           this.data.token = -1
           this.sitllPlay = 0
           this.startCard = new Card(Figure.f9, Color.Kier)
+          this.movesCount = 0
         }
     }
 
@@ -187,6 +190,7 @@ export class Board {
         this.nextPlayer()
       } else {
         if (this.sitllPlay > 1 && !this.symulation) {
+          this.movesCount++
           setTimeout(() => this.getCurrentPlayer().play(this), this.time)
         }
       }
@@ -227,6 +231,10 @@ export class Board {
         }
       })
       return 1 - (points / (points + oponnentsPoints))
+    }
+
+    public getMovesCount() {
+      return this.movesCount
     }
 
 

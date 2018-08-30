@@ -101,7 +101,9 @@ class Node {
     for (const node of this.childArray) {
       // console.log(node)
       const card = node.state.action.card
-      console.log(`${card ? card.toString() : 'Stack'} ${Math.round(node.state.winScore * 100 / 10) / 100 }/${node.state.visitCount}`)
+      console.log(`%c ${card ? card.toString() : 'Stack'} ${Math.round(node.state.winScore * 100 / 10) / 100 }/${node.state.visitCount}`,
+        `color: ${card && card.getColorStyle()}`
+      )
     }
   }
 }
