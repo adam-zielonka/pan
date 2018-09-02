@@ -2,24 +2,89 @@ import { Board } from '../board'
 import { Player } from './player'
 import { Card } from '../card'
 
+const LEVEL = 2
+
+enum Action {
+  play1 = 'action',
+  play4 = 'setComboMode',
+  getFromStack = 'getFromStack'
+}
+
+class Result {
+  type: Action
+  card: Card
+  points: number
+
+  constructor(points: number, type: Action, card: Card = null) {
+    this.type = type
+    this.card = card
+    this.points = points
+  }
+}
+
 export class PlayerAZ extends Player {
-    public play(board: Board) {
-        let sucess = false
-        if (board.isActionAvalible(this.cards[0], this.id)) {
-          const comboActions = this.getFigureActions(board.getStack().length)
-            if (comboActions.length && comboActions[0] === this.cards[0].getValue() &&
-              board.isComboActionAvalible(this.cards[0].getValue(), this.id)) {
-              board.setComboMode(this.cards[0].getValue(), true)
-            } else {
-              board.action(this.cards[0])
-            }
-            sucess = true
-        } else if (board.isActionAvalible(this.cards[this.cards.length - 1], this.id)) {
-            if (this.cards[this.cards.length - 1].getValue() < this.cards[0].getValue() + 4) {
-                board.action(this.cards[this.cards.length - 1])
-                sucess = true
-            }
-        }
-        if (!sucess) { board.getFromStack() }
+
+  public getAllPossibleStates(board: Board, level: number = 0): Result[] {
+    const states: Result[] = []
+    for (const card of board.getPosibleActions()) {
+      const testBoard = new Board(board)
+      testBoard.action(card)
+      let procent = testBoard.procentComplate()
+      if (level === LEVEL) {
+        procent = testBoard.procentComplate()
+      } else {
+        procent = this.getAllPossibleStates(testBoard, level + 1)[0].points
+      }
+      states.push(new Result(procent, Action.play1, card))
     }
+    for (const figure of board.getPosibleComboActions()) {
+      const testBoard = new Board(board)
+      testBoard.setComboMode(figure, true)
+      let procent = testBoard.procentComplate()
+      if (level === LEVEL) {
+        procent = testBoard.procentComplate()
+      } else {
+        procent = this.getAllPossibleStates(testBoard, level + 1)[0].points
+      }
+      states.push(new Result(procent, Action.play4, new Card(figure, null)))
+    }
+    if (board.getStack().length > 1) {
+      const testBoard = new Board(board)
+      testBoard.getFromStack()
+      let procent = testBoard.procentComplate()
+      if (level === LEVEL) {
+        procent = testBoard.procentComplate()
+      } else {
+        procent = this.getAllPossibleStates(testBoard, level + 1)[0].points
+      }
+      states.push(new Result(procent, Action.getFromStack))
+    }
+    // if (level === 0) {
+      return states.sort((a, b) => {
+        switch (true) {
+          case a.points > b.points: return 1
+          case a.points < b.points: return -1
+          default: return 0
+        }
+      })
+    // } else {
+    //   return [states.reduce((a, b) => a.points < b.points ? a : b)]
+    // }
+  }
+
+  public play(board: Board) {
+    const result = this.getAllPossibleStates(board)
+    // console.log(result)
+    switch (result[0].type) {
+      case Action.play1:
+        board.action(result[0].card)
+        break
+      case Action.play4:
+        board.setComboMode(result[0].card.getValue(), true)
+        break
+      default:
+        board.getFromStack()
+        break
+    }
+  }
 }

@@ -166,7 +166,7 @@ export class MCTS extends Player {
         status = state.board.playersStillPlay() <= 1
     }
     if (!counter) {
-      return 10 * state.board.procentComplate()
+      return 10 * (1 - state.board.procentComplate())
     } else {
       return state.board.getToken() !== this.getID() ? 10 : 0
     }
