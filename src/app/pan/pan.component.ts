@@ -5,10 +5,12 @@ import { MCTS } from './players/mcts'
 import { Player } from './players/player'
 import { PlayerAI } from './players/simple.ai'
 import { PlayerAZ } from './players/playerAZ'
+import { PlayerRandom } from './players/random'
 
 enum PlayersTypes {
   Human = 'Human',
   SimpleAI = 'Simple.AI',
+  Random = 'Random',
   MCTS = 'MCTS',
   AZ = 'AZ'
 }
@@ -36,6 +38,7 @@ export class PanComponent implements OnInit {
   public playersTypes = [
     PlayersTypes.Human,
     PlayersTypes.SimpleAI,
+    PlayersTypes.Random,
     PlayersTypes.MCTS,
     PlayersTypes.AZ
   ]
@@ -65,6 +68,9 @@ export class PanComponent implements OnInit {
       switch (this.playersList[i].type) {
         case PlayersTypes.SimpleAI:
           this.board.addPlayer(new PlayerAI())
+          break
+        case PlayersTypes.Random:
+          this.board.addPlayer(new PlayerRandom())
           break
         case PlayersTypes.MCTS:
           this.board.addPlayer(new MCTS())
