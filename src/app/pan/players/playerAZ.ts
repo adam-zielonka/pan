@@ -2,7 +2,7 @@ import { Board } from '../board'
 import { Player } from './player'
 import { Card } from '../card'
 
-const LEVEL = 2
+const LEVEL = 4
 
 enum Action {
   play1 = 'action',
@@ -29,52 +29,52 @@ export class PlayerAZ extends Player {
     for (const card of board.getPosibleActions()) {
       const testBoard = new Board(board)
       testBoard.action(card)
-      let procent = testBoard.procentComplate()
+      let procent
       if (level === LEVEL) {
-        procent = testBoard.procentComplate()
+        procent = testBoard.procentComplate(this.getID())
       } else {
-        procent = this.getAllPossibleStates(testBoard, level + 1)[0].points
+        procent = 1 - this.getAllPossibleStates(testBoard, level + 1)[0].points
       }
       states.push(new Result(procent, Action.play1, card))
     }
     for (const figure of board.getPosibleComboActions()) {
       const testBoard = new Board(board)
       testBoard.setComboMode(figure, true)
-      let procent = testBoard.procentComplate()
+      let procent
       if (level === LEVEL) {
-        procent = testBoard.procentComplate()
+        procent = testBoard.procentComplate(this.getID())
       } else {
-        procent = this.getAllPossibleStates(testBoard, level + 1)[0].points
+        procent = 1 - this.getAllPossibleStates(testBoard, level + 1)[0].points
       }
       states.push(new Result(procent, Action.play4, new Card(figure, null)))
     }
     if (board.getStack().length > 1) {
       const testBoard = new Board(board)
       testBoard.getFromStack()
-      let procent = testBoard.procentComplate()
+      let procent
       if (level === LEVEL) {
-        procent = testBoard.procentComplate()
+        procent = 1 - testBoard.procentComplate(this.getID())
       } else {
         procent = this.getAllPossibleStates(testBoard, level + 1)[0].points
       }
       states.push(new Result(procent, Action.getFromStack))
     }
-    // if (level === 0) {
+    if (level === 0) {
       return states.sort((a, b) => {
         switch (true) {
-          case a.points > b.points: return 1
-          case a.points < b.points: return -1
+          case a.points > b.points: return -1
+          case a.points < b.points: return 1
           default: return 0
         }
       })
-    // } else {
-    //   return [states.reduce((a, b) => a.points < b.points ? a : b)]
-    // }
+    } else {
+      return [states.reduce((a, b) => a.points < b.points ? a : b)]
+    }
   }
 
   public play(board: Board) {
     const result = this.getAllPossibleStates(board)
-    // console.log(result)
+    console.log(result)
     switch (result[0].type) {
       case Action.play1:
         board.action(result[0].card)

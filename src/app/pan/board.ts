@@ -220,17 +220,20 @@ export class Board {
       return points
     }
 
-    public procentComplate(): number {
+    public procentComplate(playerID: number = null): number {
       let oponnentsPoints = 0
       let points = 0
+      const token = playerID ? playerID : this.getToken()
       this.players.forEach(player => {
-        if (player.getID() !== this.getToken()) {
+        if (player.getID() !== token) {
           oponnentsPoints += this.playersPoints(player)
         } else {
           points += this.playersPoints(player)
         }
       })
-      return 1 - (points / (points + oponnentsPoints))
+      let points3 = 0
+      this.stack.forEach(card => points3 += 15 - card.getValue())
+      return 1 - (points / (points + oponnentsPoints + points3 ))
     }
 
     public getMovesCount() {
