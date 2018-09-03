@@ -35,6 +35,7 @@ export class PanComponent implements OnInit {
   @Input() players: number
   @Input() ai: boolean
   @Input() playersList: CPlayersTypes[]
+  @Input() playerDelay: number
   public playersTypes = [
     PlayersTypes.Human,
     PlayersTypes.SimpleAI,
@@ -88,6 +89,11 @@ export class PanComponent implements OnInit {
       }
     }
     this.board.dealingCards(this.deck.map(card => card))
+    this.board.setPlayerDelay(this.playerDelay)
+  }
+
+  public updatePlayerDelay() {
+    this.board.setPlayerDelay(this.playerDelay)
   }
 
   public setPlayersTypes() {
@@ -100,6 +106,7 @@ export class PanComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.playerDelay = 50
     this.players = 2
     this.setPlayersTypes()
     this.ai = true

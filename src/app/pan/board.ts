@@ -23,7 +23,7 @@ export class Board {
     private sitllPlay: number
     private comboMode: Figure
     private comboCounter: number
-    private time = 200
+    private time = 0
     public data: PanData
     private symulation: boolean
     private movesCount: number
@@ -56,6 +56,10 @@ export class Board {
           this.startCard = new Card(Figure.f9, Color.Kier)
           this.movesCount = 0
         }
+    }
+
+    public setPlayerDelay(playerDelay: number) {
+      this.time = playerDelay
     }
 
     public start() {
