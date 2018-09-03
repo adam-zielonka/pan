@@ -223,7 +223,7 @@ export class Board {
     public procentComplate(playerID: number = null): number {
       let oponnentsPoints = 0
       let points = 0
-      const token = playerID ? playerID : this.getToken()
+      const token = playerID !== null ? playerID : this.getToken()
       this.players.forEach(player => {
         if (player.getID() !== token) {
           oponnentsPoints += this.playersPoints(player)

@@ -71,6 +71,7 @@
                             [disabled]="!board.isComboActionAvalible(figure, player.id)" >
                             {{numberToFigure(figure)}} 
                         </button>
+                        {{player.id}} {{round(board.procentComplate(player.id)*10000)/100}}%
                     </li>
                 </ol>
                 </div>

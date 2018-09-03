@@ -57,6 +57,10 @@ export class PanComponent implements OnInit {
     this.board.start()
   }
 
+  public round(number: number): number {
+    return Math.round(number)
+  }
+
   public newGame(players: number, ai: boolean) {
     if (this.board) {
       this.board.stop()
