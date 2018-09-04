@@ -54,7 +54,11 @@
                 Board
                 </h4>
                 Token: Player {{board.getToken() + 1}};
-                Moves: {{board.getMovesCount()}}
+                Moves: {{board.getMovesCount()}}<br />
+                <span [hidden]="!(2 > board.playersStillPlay())">
+                {{board.getMovesCount()}};<span *ngFor="let player of board.getPlayers()"
+                >{{playersList[player.id].type}};{{board.procentComplate(player.id)}};</span>
+                </span>
             </div>
             <div class="card-body" >                       
                 <div class="players">
