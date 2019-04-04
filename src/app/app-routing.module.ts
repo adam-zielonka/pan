@@ -3,8 +3,8 @@ import { RouterModule, Routes } from '@angular/router'
 import { PanComponent } from './pan/pan.component'
 
 const routes: Routes = [
-  { path: '', redirectTo: '/pan', pathMatch: 'full' },
-  { path: 'pan', component: PanComponent }
+  { path: '', component: PanComponent , pathMatch: 'full' },
+  {  path: '**', redirectTo: '' }
 ]
 
 @NgModule({
