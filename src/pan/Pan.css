@@ -1,3 +1,5 @@
+@import url("https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css");
+
 .red {
     color: red !important;
 }
@@ -8,18 +10,18 @@
 
 .onecard {
     opacity: 1 !important;
+    margin: 1px !important;
 }
 
-.onecard:enabled {
-    border-style: solid;
-    border-color: black;
+button:enabled {
+    border-style: solid !important;
+    border-color: black !important;
 }
 
 .players-input {
-    width: 70px;
+    width: 70px !important;
 }
 
 .newGame {
-    margin: 10px;
+    margin: 10px !important;
 }
-

@@ -1,137 +1,247 @@
-import { Card, Color, Figure } from "./card"
+import { Card, Figure, Color } from './card'
+import { Player } from './players/player'
 
 export interface IPlayer {
-    getID() : number
-    setID(id : number) : void
-    getCards() : Card[]
-    sortCards() : void
-    action(actionCard: Card) : Card | undefined
-    getFigureActions(isStackEmpty: boolean) : Figure[]
-    play(board: Board) : void
+    getID(): number
+    setID(id: number)
+    getCards(): Card[]
+    setCards(cards: Card[])
+    sortCards()
+    action(actionCard: Card): Card
+    getFigureActions(isStackEmpty): Figure[]
+    play(board: Board)
+}
+
+export class PanData {
+  public token: number
 }
 
 export class Board {
-    private stack : Card[]
-    private players : IPlayer[]
-    private token : number
-    private startCard : Card
-    private sitllPlay : number
-    private comboMode : Figure | null
-    private comboCounter : number
+    private stack: Card[]
+    private players: IPlayer[]
+    private startCard: Card
+    private sitllPlay: number
+    private comboMode: Figure
+    private comboCounter: number
+    private time = 0
+    public data: PanData
+    private symulation: boolean
+    private movesCount: number
 
-    public constructor() {
-        this.stack = []
-        this.players = []
-        this.token = -1
-        this.sitllPlay = 0
-        this.startCard = new Card(Figure.f9, Color.Kier)
+    public constructor(board: Board = null) {
+        if (board) {
+          this.symulation = true
+          this.stack = board.stack.map(card => card)
+          this.players = []
+          for (const player of board.players) {
+            const newPlayer = new Player()
+            newPlayer.setID(player.getID())
+            newPlayer.setCards(player.getCards().map(card => card))
+            this.players.push(newPlayer)
+          }
+          this.data = new PanData()
+          this.data.token = board.data.token
+          this.sitllPlay = board.sitllPlay
+          this.startCard = board.startCard
+          this.comboMode = board.comboMode
+          this.comboCounter = board.comboCounter
+          this.movesCount = board.movesCount
+        } else {
+          this.symulation = false
+          this.data = new PanData()
+          this.stack = []
+          this.players = []
+          this.data.token = -1
+          this.sitllPlay = 0
+          this.startCard = new Card(Figure.f9, Color.Kier)
+          this.movesCount = 0
+        }
     }
 
-    public addPlayer(player : IPlayer) {
+    public setPlayerDelay(playerDelay: number) {
+      this.time = playerDelay
+    }
+
+    public start() {
+      if (this.sitllPlay > 1 && !this.symulation) {
+        setTimeout(() => this.getCurrentPlayer().play(this), this.time)
+      }
+    }
+
+    public stop() {
+      this.symulation = true
+    }
+
+    public addPlayer(player: IPlayer) {
         this.sitllPlay++
         player.setID(this.players.length)
         this.players.push(player)
     }
 
     public dealingCards(deck: Card[]) {
-        while(deck.length && this.players.length) {
-            for(let i = 0; i < this.players.length; i++) {
-                if(!deck.length) { break }
+        while (deck.length && this.players.length) {
+            for (let i = 0; i < this.players.length; i++) {
+                if (!deck.length) { break }
                 const card = deck.pop()
-                if(card) {
-                    if(card.isEqual(this.startCard)) { this.token = i }
-                    this.players[i].getCards().push(card)
-                }
+                if (card.isEqual(this.startCard)) { this.data.token = i }
+                this.players[i].getCards().push(card)
             }
         }
         this.players.forEach(player => player.sortCards())
     }
 
-    public getPlayers() : IPlayer[] {
+    public getPlayers(): IPlayer[] {
         return this.players
     }
 
-    public getCurrentPlayer() : IPlayer | undefined {
-        if(this.token > -1) {
-            return this.players[this.token]
-        }
-        return undefined
+    public getCurrentPlayer(): IPlayer {
+        if (this.data.token > -1) { return this.players[this.data.token] }
+        return null
     }
 
-    public getToken() : number {
-        return this.token
+    public getToken(): number {
+        return this.data.token
     }
 
-    public getStack() : Card[] {
+    public getStack(): Card[] {
         return this.stack
     }
 
-    public getLastCard() : Card | undefined {
-        return this.stack.length ? this[this.stack.length - 1] : undefined
+    public getComboMode(): Figure {
+      return this.comboMode
     }
 
-    public isActionAvalible(actionCard : Card, playerID : number) : boolean {
-        if(this.comboMode) { return this.stack.length ? this.comboMode === actionCard.getValue() : this.startCard.isEqual(actionCard) }
-        const lastCard = this.getLastCard()
-        if(lastCard) {
-            return (this.getToken() === playerID) && (lastCard.compare(actionCard) !== 1)
+    public getStartedCard(): Card {
+      return this.startCard
+    }
+
+    public getLastCard(): Card {
+      return this.stack.length ? this.stack[this.stack.length - 1] : undefined
+  }
+
+    public isActionAvalible(actionCard: Card, playerID = this.getToken()): boolean {
+        if (this.comboMode) {
+          return this.stack.length
+            ? this.comboMode === actionCard.getValue()
+            : this.startCard.isEqual(actionCard)
+        }
+        if (this.getLastCard()) {
+            return (this.getToken() === playerID) && (this.getLastCard().compare(actionCard) !== 1)
         }
         return this.startCard.isEqual(actionCard)
     }
 
-    public isComboActionAvalible(figure : Figure, playerID : number) : boolean {
-        if(this.comboMode) { return false }
-        if(this.getToken() !== playerID) { return false }
-        const lastCard = this.getLastCard()
-        if(lastCard) { return lastCard.compare(new Card(figure)) !== 1 }
+    public isComboActionAvalible(figure: Figure, playerID = this.getToken()): boolean {
+        if (this.comboMode) { return false }
+        if (this.getToken() !== playerID) { return false }
+        if (this.stack.length) { return this.getLastCard().compare(new Card(figure, null)) !== 1 }
         return figure === 9
-        
     }
 
-    public action(actionCard : Card) {
-        const card = this.players[this.token].action(actionCard)
-        if(card) {
+    public action(actionCard: Card) {
+        if (this.sitllPlay < 2) { return }
+        const card = this.players[this.data.token].action(actionCard)
+        if (card) {
             this.stack.push(card)
-            const player = this.getCurrentPlayer()
-            if(player && !player.getCards().length) { this.sitllPlay-- }
-            if(!this.comboMode) { this.nextPlayer() }
-            else {
-                if(!--this.comboCounter) {
-                    this.comboMode = null
+            if (!this.getCurrentPlayer().getCards().length) { this.sitllPlay-- }
+            if (!this.comboMode) { this.nextPlayer() } else {
+                if (!--this.comboCounter) {
+                    this.comboMode = undefined
                     this.nextPlayer()
                 }
             }
         }
     }
 
-    public setComboMode(figure : Figure) {
+    public playersStillPlay(): number {
+      return this.sitllPlay
+    }
+
+    public setComboMode(figure: Figure, auto = false) {
+        if (this.sitllPlay < 2) { return }
         this.comboMode = figure
         this.comboCounter = figure === Figure.f9 && this.stack.length ? 3 : 4
+        if (auto || this.players.length <= 2 || this.playersStillPlay() <= 2) {
+          for (let color: Color = 5 - this.comboCounter; color <= 4; ++color) {
+            this.action(new Card(figure, color))
+          }
+        }
     }
 
     public getFromStack() {
+        if (this.sitllPlay < 2) { return }
         let counter = 3
-        const player = this.getCurrentPlayer()
-        if(player) {
-            while(this.stack.length > 1 && counter--) {
-                const card = this.stack.pop()
-                if(card) { player.getCards().push(card) }
-            }
-            player.sortCards()
+        while (this.stack.length > 1 && counter--) {
+            this.getCurrentPlayer().getCards().push(this.stack.pop())
         }
+        this.getCurrentPlayer().sortCards()
         this.nextPlayer()
     }
 
     public nextPlayer() {
-        const player = this.getCurrentPlayer()
-        if(player && this.sitllPlay > 0) {
-            if(this.stack[this.stack.length - 1].isPik()) { this.token-- }
-            else { this.token++ }
-            if(this.token < 0) { this.token = this.players.length - 1 }
-            if(this.token >= this.players.length) { this.token = 0 }
-            if(!player.getCards().length) { this.nextPlayer() }
-            else { setTimeout(() => player && player.play(this), 200) }
+      if (this.stack.length && this.stack[this.stack.length - 1].isPik()) {
+        this.data.token--
+        if (this.data.token < 0) {
+          this.data.token = this.players.length - 1
         }
+      } else {
+        this.data.token++
+        if (this.data.token >= this.players.length) {
+          this.data.token = 0
+        }
+      }
+      if (!this.getCurrentPlayer().getCards().length) {
+        this.nextPlayer()
+      } else {
+        if (this.sitllPlay > 1 && !this.symulation) {
+          this.movesCount++
+          setTimeout(() => this.getCurrentPlayer().play(this), this.time)
+        }
+      }
     }
-    
+
+    public getPosibleActions(): Card[] {
+      const cards: Card[] = []
+      for (const card of this.getCurrentPlayer().getCards()) {
+        if (this.isActionAvalible(card)) {
+          cards.push(card)
+        }
+      }
+      return cards
+    }
+
+    public getPosibleComboActions(): Figure[] {
+      return this.getCurrentPlayer().getFigureActions(this.getStack().length).reduce((actions, figure) => {
+        if (this.isComboActionAvalible(figure)) { actions.push(figure) }
+        return actions
+      }, [])
+    }
+
+    public playersPoints(player: IPlayer): number {
+      const cards = player.getCards()
+      let points = 0
+      cards.forEach(card => points += 15 - card.getValue())
+      return points
+    }
+
+    public procentComplate(playerID: number = null): number {
+      let oponnentsPoints = 0
+      let points = 0
+      const token = playerID !== null ? playerID : this.getToken()
+      this.players.forEach(player => {
+        if (player.getID() !== token) {
+          oponnentsPoints += this.playersPoints(player)
+        } else {
+          points += this.playersPoints(player)
+        }
+      })
+      let points3 = 0
+      this.stack.forEach(card => points3 += 15 - card.getValue())
+      return 1 - (points / (points + oponnentsPoints + points3 ))
+    }
+
+    public getMovesCount() {
+      return this.movesCount
+    }
+
 }

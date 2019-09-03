@@ -1,10 +1,10 @@
-import { Board, IPlayer } from "../board"
-import { Card, Figure } from "../card"
+import { Card, Figure } from '../card'
+import { Board, IPlayer } from '../board'
 
 export class Player implements IPlayer {
     protected cards: Card[] = []
-    protected id : number
-    
+    protected id: number
+
     public getID(): number {
         return this.id
     }
@@ -15,28 +15,32 @@ export class Player implements IPlayer {
         return this.cards
     }
 
-    public sortCards() {
-        this.cards.sort((a,b) => a.compare(b))
+    public setCards(cards: Card[]) {
+      this.cards = cards
     }
 
-    public action(actionCard: Card) : Card | undefined {
+    public sortCards() {
+        this.cards.sort((a, b) => a.compareColors(b))
+    }
+
+    public action(actionCard: Card): Card {
         for (let i = 0; i < this.cards.length; i++) {
-            if(actionCard.isEqual(this.cards[i])){
+            if (actionCard.isEqual(this.cards[i])) {
                 return this.cards.splice(i, 1)[0]
             }
         }
         return undefined
     }
 
-    public getFigureActions(isStackEmpty : boolean) : Figure[] {
+    public getFigureActions(isStackEmpty): Figure[] {
         this.sortCards()
-        const figureActions : Figure[] = []
-        let figure : Figure = Figure.f9
+        const figureActions: Figure[] = []
+        let figure: Figure = Figure.f9
         let count = isStackEmpty ? 1 : 0
         for (const card of this.cards) {
-            if(card.getValue() === figure) {
+            if (card.getValue() === figure) {
                 count++
-                if(count === 4) { figureActions.push(figure) }
+                if (count === 4) { figureActions.push(figure) }
             } else {
                 figure = card.getValue()
                 count = 1
@@ -46,6 +50,6 @@ export class Player implements IPlayer {
     }
 
     public play(board: Board) {
-
+      console.log('Human')
     }
 }
