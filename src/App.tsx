@@ -1,6 +1,5 @@
 import React from 'react'
-import './App.css'
-import { Pan } from './pan/Pan';
+import { Pan } from './pan/Pan'
 
 const App: React.FC = () => {
   return (
