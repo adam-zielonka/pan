@@ -44,6 +44,7 @@ class GameStore {
     this.board.setRender(this.render)
     this.board.addPlayers(this.playersStore.getGamePlayers())
     this.board.dealingCards(Deck.print(Deck.shuffle(Deck.generate())))
+    this.board.setPlayerDelay(100)
     this.render(this.board)
   }
 
