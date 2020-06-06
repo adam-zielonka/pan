@@ -1,11 +1,11 @@
 import React from 'react'
-import { Card, Figure, Deck, Color } from './card'
-import { Board } from './board'
-import { MCTS } from './players/mcts'
-import { Player } from './players/player'
-import { PlayerAI } from './players/simple.ai'
-import { PlayerAZ } from './players/playerAZ'
-import { PlayerRandom } from './players/random'
+import { Card, Figure, Deck, Color } from '../engine/card'
+import { Board } from '../engine/board'
+import { MCTS } from '../engine/players/mcts'
+import { Player } from '../engine/players/player'
+import { PlayerAI } from '../engine/players/simple.ai'
+import { PlayerAZ } from '../engine/players/playerAZ'
+import { PlayerRandom } from '../engine/players/random'
 import './Pan.css'
 
 enum PlayersTypes {
