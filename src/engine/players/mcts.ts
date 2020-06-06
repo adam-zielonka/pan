@@ -1,6 +1,6 @@
 import { Board } from '../board'
 import { Player } from './player'
-import { Card, Figure } from '../card'
+import { Card } from '../card'
 
 enum Action {
   play1 = 'action',

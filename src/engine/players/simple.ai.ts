@@ -1,6 +1,5 @@
 import { Board } from '../board'
 import { Player } from './player'
-import { Card } from '../card'
 
 export class PlayerAI extends Player {
     public play(board: Board) {

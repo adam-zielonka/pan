@@ -1,6 +1,6 @@
 import { Board } from '../board'
 import { Player } from './player'
-import { Card, Figure, Color } from '../card'
+import { Figure, Color } from '../card'
 
 export class PlayerRandom extends Player {
 

@@ -24,6 +24,17 @@ export class Deck {
       }
       return deck
   }
+  
+  public static print(deck: Card[]): Card[] {
+    const log = []
+    const styles = []
+    for (const card of deck) {
+      log.push(`%c${card.toString()}`)
+      styles.push(`color: ${card && card.getColorStyle()}`)
+    }
+    console.log(log.join(' '), ...styles)
+    return deck
+  }
 }
 
 export class Card {

@@ -78,6 +78,12 @@ export class Board {
         this.players.push(player)
     }
 
+    public addPlayers(players: IPlayer[]) {
+      for (const player of players) {
+        this.addPlayer(player)
+      }
+    }
+
     public dealingCards(deck: Card[]) {
         while (deck.length && this.players.length) {
             for (let i = 0; i < this.players.length; i++) {
