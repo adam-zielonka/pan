@@ -8,7 +8,7 @@ const CardElement: React.FC<{ card: Card, disabled: boolean }> = ({ card, disabl
   const { action } = useStore().gameStore
 
   return (
-    <button style={{ color: card.getColorStyle() }} disabled={disabled} onClick={() => action(card)}>
+    <button className='card' style={{ color: card.getColorStyle() }} disabled={disabled} onClick={() => action(card)}>
       {card.toString()}
     </button>
   )
@@ -21,7 +21,7 @@ const PlayerElement: React.FC<{ player: IPlayer, id: number, isStackEmpty: boole
     <div>
       {id+1}.
       {player.getCards().map(card => <CardElement key={card.toString()} card={card} disabled={!isActionAvailable(card, player.getID())} />)}
-      {player.getFigureActions(isStackEmpty).map(figure => <button onClick={() => setComboMode(figure)} disabled={!isComboActionAvailable(figure, player.getID())}>{Card.numberToFigure(figure)}</button>)}
+      {player.getFigureActions(isStackEmpty).map(figure => <button className='card' onClick={() => setComboMode(figure)} disabled={!isComboActionAvailable(figure, player.getID())}>{Card.numberToFigure(figure)}</button>)}
     </div>
   )
 }
@@ -34,7 +34,7 @@ const Board: React.FC = () => {
       Token: {token + 1}
       <div>
         Stack: {stack.map(card => <CardElement key={card.toString()} card={card} disabled={true} />)}
-        <button onClick={getFromStack} disabled={stack.length ? false : true}>Get cards</button>
+        <button className='card' onClick={getFromStack} disabled={stack.length ? false : true}>Get</button>
       </div>
       {players.map((player, i) => <PlayerElement key={i} id={i} player={player} isStackEmpty={stack.length ? true : false} />)}
     </div>
