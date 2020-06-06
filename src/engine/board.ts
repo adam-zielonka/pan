@@ -12,10 +12,6 @@ export interface IPlayer {
     play(board: Board)
 }
 
-export class PanData {
-  public token: number
-}
-
 export class Board {
     private stack: Card[]
     private players: IPlayer[]
@@ -24,9 +20,10 @@ export class Board {
     private comboMode: Figure
     private comboCounter: number
     private time = 0
-    public data: PanData
+    private token: number
     private symulation: boolean
     private movesCount: number
+    private render: (board: Board) => void
 
     public constructor(board: Board = null) {
         if (board) {
@@ -39,8 +36,7 @@ export class Board {
             newPlayer.setCards(player.getCards().map(card => card))
             this.players.push(newPlayer)
           }
-          this.data = new PanData()
-          this.data.token = board.data.token
+          this.token = board.token
           this.sitllPlay = board.sitllPlay
           this.startCard = board.startCard
           this.comboMode = board.comboMode
@@ -48,10 +44,9 @@ export class Board {
           this.movesCount = board.movesCount
         } else {
           this.symulation = false
-          this.data = new PanData()
           this.stack = []
           this.players = []
-          this.data.token = -1
+          this.token = -1
           this.sitllPlay = 0
           this.startCard = new Card(Figure.f9, Color.Kier)
           this.movesCount = 0
@@ -89,7 +84,7 @@ export class Board {
             for (let i = 0; i < this.players.length; i++) {
                 if (!deck.length) { break }
                 const card = deck.pop()
-                if (card.isEqual(this.startCard)) { this.data.token = i }
+                if (card.isEqual(this.startCard)) { this.token = i }
                 this.players[i].getCards().push(card)
             }
         }
@@ -101,12 +96,12 @@ export class Board {
     }
 
     public getCurrentPlayer(): IPlayer {
-        if (this.data.token > -1) { return this.players[this.data.token] }
+        if (this.token > -1) { return this.players[this.token] }
         return null
     }
 
     public getToken(): number {
-        return this.data.token
+        return this.token
     }
 
     public getStack(): Card[] {
@@ -146,7 +141,7 @@ export class Board {
 
     public action(actionCard: Card) {
         if (this.sitllPlay < 2) { return }
-        const card = this.players[this.data.token].action(actionCard)
+        const card = this.players[this.token].action(actionCard)
         if (card) {
             this.stack.push(card)
             if (!this.getCurrentPlayer().getCards().length) { this.sitllPlay-- }
@@ -184,16 +179,23 @@ export class Board {
         this.nextPlayer()
     }
 
+    public setRender(render: (board: Board) => void) {
+      this.render = render
+    }
+
     public nextPlayer() {
+      if (!this.symulation) {
+        if(this.render) this.render(this)
+      }
       if (this.stack.length && this.stack[this.stack.length - 1].isPik()) {
-        this.data.token--
-        if (this.data.token < 0) {
-          this.data.token = this.players.length - 1
+        this.token--
+        if (this.token < 0) {
+          this.token = this.players.length - 1
         }
       } else {
-        this.data.token++
-        if (this.data.token >= this.players.length) {
-          this.data.token = 0
+        this.token++
+        if (this.token >= this.players.length) {
+          this.token = 0
         }
       }
       if (!this.getCurrentPlayer().getCards().length) {
@@ -201,6 +203,7 @@ export class Board {
       } else {
         if (this.sitllPlay > 1 && !this.symulation) {
           this.movesCount++
+          if(this.render) this.render(this)
           setTimeout(() => this.getCurrentPlayer().play(this), this.time)
         }
       }

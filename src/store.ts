@@ -1,25 +1,15 @@
 import { createContext, useContext } from 'react'
-import { observable, action } from 'mobx'
 import PlayersStore from './store/PlayersStore'
-import { Board } from './engine/board'
-import { Deck } from './engine/card'
+import GameStore from './store/GameStore'
 
 class Store {
-  playersStore: PlayersStore = new PlayersStore()
-  @observable board: Board
+  playersStore: PlayersStore
+  gameStore: GameStore
 
   constructor() {
-    this.newGame()
-  }
-
-  @action newGame = () => {
-    this.board = new Board()
-    this.board.addPlayers(this.playersStore.getGamePlayers())
-    this.board.dealingCards(Deck.print(Deck.shuffle(Deck.generate())))
-  }
-
-  @action startGame = () => {
-    this.board.start()
+    this.playersStore = new PlayersStore()
+    this.gameStore = new GameStore(this.playersStore);
+    (window as any).render = () => this.gameStore.render(this.gameStore.board)
   }
 }
 

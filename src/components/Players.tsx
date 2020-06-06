@@ -3,13 +3,11 @@ import { observer } from 'mobx-react-lite'
 import { useStore } from '../store'
 import { PlayerType } from '../store/PlayersStore'
 
-type PlayerProps = {
+const Player: React.FC<{
   player: PlayerType
   remove: () => void
   set: (value: PlayerType) => void
-}
-
-const Player: React.FC<PlayerProps> = observer(({ player, remove, set }) => {
+}> = observer(({ player, remove, set }) => {
 
   const onChangeHandler  = (event: React.ChangeEvent<HTMLSelectElement>) => {
     set(event.target.value as PlayerType)

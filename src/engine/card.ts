@@ -38,7 +38,7 @@ export class Deck {
 }
 
 export class Card {
-  public static numberToColor(color: Color): String {
+  public static numberToColor(color: Color): string {
     switch (color) {
         case Color.Karo: return '♦'
         case Color.Kier: return '♥'
@@ -47,7 +47,7 @@ export class Card {
     }
   }
 
-  public static numberToFigure(figure: Figure): String {
+  public static numberToFigure(figure: Figure): string {
       switch (figure) {
           case Figure.f9: return '9'
           case Figure.f10: return '10'
@@ -71,7 +71,7 @@ export class Card {
       return this.color
   }
 
-  public getColorStyle(): String {
+  public getColorStyle(): string {
       switch (this.color) {
           case Color.Karo:
           case Color.Kier: return 'red'
@@ -80,15 +80,15 @@ export class Card {
       }
   }
 
-  private numberToColor(): String {
+  private numberToColor(): string {
       return Card.numberToColor(this.color)
   }
 
-  private numberToFigure(): String {
+  private numberToFigure(): string {
       return Card.numberToFigure(this.value)
   }
 
-  public toString(): String {
+  public toString(): string {
       return this.color ? `${this.numberToFigure()}${this.numberToColor()}` : this.numberToFigure()
   }
 
