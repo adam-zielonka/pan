@@ -18,7 +18,7 @@ const Player: React.FC<PlayerProps> = observer(({ player, remove, set }) => {
   return (
     <div>
       <select value={player} onChange={onChangeHandler}>
-        {Object.values(PlayerType).map(player => <option value={player}>{player}</option>)}
+        {Object.values(PlayerType).map(player => <option key={player} value={player}>{player}</option>)}
       </select>
       <button onClick={remove}>X</button>
     </div>
