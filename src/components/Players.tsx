@@ -12,10 +12,11 @@ const Player: React.FC<{
     set(event.target.value as PlayerType)
   }
 
-  const players = Object.values(PlayerType).filter(playerType => availableHuman || playerType !== PlayerType.Human )  
+  const players = Object.values(PlayerType).filter(playerType => availableHuman || playerType !== PlayerType.Human)
+    .filter(playerType => !availableHuman || playerType !== PlayerType.None) 
 
   return (
-    <div>
+    <div className='bp3-select'>
       <select value={player} onChange={onChangeHandler}>
         {players.map(player => <option key={player} value={player}>{player}</option>)}
       </select>
