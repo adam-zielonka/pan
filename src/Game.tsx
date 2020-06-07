@@ -10,7 +10,7 @@ const Game: React.FC = () => {
 
   return (
     <div className="game">
-      <div>
+      <div className="cards bp3-card">
         <ControlGroup>
           <Button onClick={newGame} >New</Button>
           <Button onClick={startGame} >Start</Button>

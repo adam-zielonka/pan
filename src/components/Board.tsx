@@ -27,7 +27,7 @@ const PlayerElement: React.FC<{
   const { isActionAvailable, isComboActionAvailable, setComboMode } = useStore().gameStore
   
   return (
-    <div className='cards'>
+    <div className='cards bp3-card'>
       {player.getCards().map(card => <CardElement 
         key={card.toString()} 
         card={card} 
@@ -47,6 +47,7 @@ const OponentElement: React.FC<{
 }> = ({ player }) => {  
   return (
     <div className='cards'>
+      #{player.getID() + 1}
       <button disabled={true} className='card'>{player.getCards().length}</button>
     </div>
   )
@@ -57,7 +58,13 @@ const Board: React.FC = () => {
 
   return (
     <div className='board'>
-      <div className='cards'>
+      <div className='cards bp3-card'>
+        {players.filter((_, i) => i).map((player, i) => <OponentElement 
+          key={i}
+          player={player}
+        />)}
+      </div>
+      <div className='cards bp3-card'>
         {stack.length > 3 && <button disabled={true} className='card'>...</button>}
         {stack.slice(Math.max(stack.length - 3, 0)).map(card => <CardElement 
           key={card.toString()} 
@@ -70,10 +77,6 @@ const Board: React.FC = () => {
           disabled={stack.length > 1 ? false : true}
         >Get</button>
       </div>
-      {players.filter((_, i) => i).map((player, i) => <OponentElement 
-        key={i}
-        player={player}
-      />)}
       <PlayerElement 
         player={players[0]} 
         isStackEmpty={stack.length ? true : false}

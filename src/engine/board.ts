@@ -3,7 +3,6 @@ import { Player } from './players/player'
 
 export interface IPlayer {
     getID(): number
-    setID(id: number)
     getCards(): Card[]
     setCards(cards: Card[])
     sortCards()
@@ -31,8 +30,7 @@ export class Board {
           this.stack = board.stack.map(card => card)
           this.players = []
           for (const player of board.players) {
-            const newPlayer = new Player()
-            newPlayer.setID(player.getID())
+            const newPlayer = new Player(player.getID())
             newPlayer.setCards(player.getCards().map(card => card))
             this.players.push(newPlayer)
           }
@@ -69,7 +67,6 @@ export class Board {
 
     public addPlayer(player: IPlayer) {
         this.stillPlay++
-        player.setID(this.players.length)
         this.players.push(player)
     }
 

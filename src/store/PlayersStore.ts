@@ -32,27 +32,26 @@ class PlayersStore {
   }
 
   getGamePlayers = (): IPlayer[] => {
-    const players: IPlayer[] = []
-    for (const player of this.players) {
+    return this.players.reduce<IPlayer[]>((players, player, index) => {
       switch (player) {
         case PlayerType.SimpleAI:
-          players.push(new PlayerAI())
+          players.push(new PlayerAI(index))
           break
         case PlayerType.Random:
-          players.push(new PlayerRandom())
+          players.push(new PlayerRandom(index))
           break
         case PlayerType.MCTS:
-          players.push(new MCTS())
+          players.push(new MCTS(index))
           break
         case PlayerType.AZ:
-          players.push(new PlayerAZ())
+          players.push(new PlayerAZ(index))
           break
         case PlayerType.Human:
-          players.push(new Player())
+          players.push(new Player(index))
           break
       }
-    }
-    return players
+      return players
+    }, [])
   }
 }
 

@@ -5,12 +5,14 @@ export class Player implements IPlayer {
     protected cards: Card[] = []
     protected id: number
 
+    public constructor(id: number) {
+        this.id = id
+    }
+
     public getID(): number {
         return this.id
     }
-    public setID(id: number) {
-        this.id = id
-    }
+    
     public getCards(): Card[] {
         return this.cards
     }
