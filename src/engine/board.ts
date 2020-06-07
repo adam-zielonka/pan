@@ -149,6 +149,7 @@ export class Board {
                 }
             }
         }
+        if(this.render) this.render(this)
     }
 
     public playersStillPlay(): number {
@@ -164,6 +165,7 @@ export class Board {
             this.action(new Card(figure, color))
           }
         }
+        if(this.render) this.render(this)
     }
 
     public getFromStack() {
