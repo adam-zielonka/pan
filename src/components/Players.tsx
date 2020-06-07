@@ -8,7 +8,6 @@ const Player: React.FC<{
   remove: () => void
   set: (value: PlayerType) => void
 }> = observer(({ player, remove, set }) => {
-
   const onChangeHandler  = (event: React.ChangeEvent<HTMLSelectElement>) => {
     set(event.target.value as PlayerType)
   }
