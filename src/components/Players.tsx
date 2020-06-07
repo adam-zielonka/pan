@@ -7,7 +7,8 @@ const Player: React.FC<{
   player: PlayerType
   set: (value: PlayerType) => void
   availableHuman: boolean
-}> = observer(({ player, set, availableHuman }) => {
+  id: number
+}> = observer(({ player, set, availableHuman, id }) => {
   const onChangeHandler  = (event: React.ChangeEvent<HTMLSelectElement>) => {
     set(event.target.value as PlayerType)
   }
@@ -18,7 +19,7 @@ const Player: React.FC<{
   return (
     <div className='bp3-select'>
       <select value={player} onChange={onChangeHandler}>
-        {players.map(player => <option key={player} value={player}>{player}</option>)}
+        {players.map(player => <option key={player} value={player}>#{id + 1} {player}</option>)}
       </select>
     </div>
   )
@@ -28,16 +29,17 @@ const Players: React.FC = () => {
   const { players, set } = useStore().playersStore
 
   return (
-    <div className="Players">
+    <>
       {players.map((player, i) => (
         <Player 
           key={i}
+          id={i}
           player={player}
           set={(player: PlayerType) => set(i, player)}
           availableHuman={!i}
         />
       ))}
-    </div>
+    </>
   )
 }
 
