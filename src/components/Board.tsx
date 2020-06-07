@@ -28,12 +28,16 @@ const PlayerElement: React.FC<{
   
   return (
     <div className='cards bp3-card'>
+      <div className="bp3-dialog-header">
+        <h4 className="bp3-heading">#1</h4>
+      </div>
       {player.getCards().map(card => <CardElement 
         key={card.toString()} 
         card={card} 
         disabled={!isActionAvailable(card, player.getID())}
       />)}
-      {player.getFigureActions(isStackEmpty).map(figure => <button 
+      {player.getFigureActions(isStackEmpty).map(figure => <button
+        key={figure}
         className='card' 
         onClick={() => setComboMode(figure)} 
         disabled={!isComboActionAvailable(figure, player.getID())}
@@ -47,7 +51,9 @@ const OponentElement: React.FC<{
 }> = ({ player }) => {  
   return (
     <div className='cards'>
-      #{player.getID() + 1}
+      <div className="bp3-dialog-header">
+        <h4 className="bp3-heading">#{player.getID() + 1}</h4>
+      </div>
       <button disabled={true} className='card'>{player.getCards().length}</button>
     </div>
   )
@@ -65,6 +71,10 @@ const Board: React.FC = () => {
         />)}
       </div>
       <div className='cards bp3-card'>
+        <div className="bp3-dialog-header">
+          <span className="bp3-icon-large bp3-icon-layers" style={{color: 'black'}}></span>
+          <h4 className="bp3-heading">Stack</h4>
+        </div>
         {stack.length > 3 && <button disabled={true} className='card'>...</button>}
         {stack.slice(Math.max(stack.length - 3, 0)).map(card => <CardElement 
           key={card.toString()} 
