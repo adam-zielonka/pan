@@ -20,6 +20,18 @@ const CardElement: React.FC<{
   )
 }
 
+const PlayerID: React.FC<{
+  id: number
+}> = observer(({ id }) => {
+  const { token } = useStore().gameStore
+
+  return (
+    <div className="bp3-dialog-header" style={{ backgroundColor: token === id ? 'lightgreen' : 'white' }}>
+      <h4 className="bp3-heading">#{id + 1}</h4>
+    </div>
+  )
+})
+
 const PlayerElement: React.FC<{ 
   player: IPlayer, 
   isStackEmpty: boolean 
@@ -28,9 +40,7 @@ const PlayerElement: React.FC<{
   
   return (
     <div className='cards bp3-card'>
-      <div className="bp3-dialog-header">
-        <h4 className="bp3-heading">#1</h4>
-      </div>
+      <PlayerID id={0} />     
       {player.getCards().map(card => <CardElement 
         key={card.toString()} 
         card={card} 
@@ -51,9 +61,7 @@ const OponentElement: React.FC<{
 }> = ({ player }) => {  
   return (
     <div className='cards'>
-      <div className="bp3-dialog-header">
-        <h4 className="bp3-heading">#{player.getID() + 1}</h4>
-      </div>
+      <PlayerID id={player.getID()} /> 
       <button disabled={true} className='card'>{player.getCards().length}</button>
     </div>
   )
