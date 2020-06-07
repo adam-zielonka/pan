@@ -68,7 +68,7 @@ const OponentElement: React.FC<{
 }
 
 const Board: React.FC = () => {
-  const { stack, players, getFromStack } = useStore().gameStore
+  const { stack, players, token, getFromStack } = useStore().gameStore
 
   return (
     <div className='board'>
@@ -92,7 +92,7 @@ const Board: React.FC = () => {
         <button 
           className='card' 
           onClick={getFromStack} 
-          disabled={stack.length > 1 ? false : true}
+          disabled={stack.length > 1 && token === 0 ? false : true}
         >Get</button>
       </div>
       <PlayerElement 
