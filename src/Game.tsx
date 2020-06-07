@@ -6,14 +6,13 @@ import Board from './components/Board'
 import { ControlGroup, Button } from '@blueprintjs/core'
 
 const Game: React.FC = () => {
-  const { newGame, startGame } = useStore().gameStore
+  const { newGame } = useStore().gameStore
 
   return (
     <div className="game">
       <div className="cards bp3-card">
         <ControlGroup>
-          <Button onClick={newGame} >New</Button>
-          <Button onClick={startGame} >Start</Button>
+          <Button onClick={newGame} >New Game</Button>
           <Players />
         </ControlGroup>
       </div>

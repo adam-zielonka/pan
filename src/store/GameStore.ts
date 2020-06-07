@@ -46,9 +46,6 @@ class GameStore {
     this.board.dealingCards(Deck.print(Deck.shuffle(Deck.generate())))
     this.board.setPlayerDelay(100)
     this.render(this.board)
-  }
-
-  @action startGame = () => {
     this.board.start()
   }
 }
