@@ -3,6 +3,7 @@ pages:
   script:
     - yarn
     - yarn build
+    - mv public public_files
     - mv build public
   artifacts:
     expire_in: 1 week
