@@ -10,8 +10,8 @@ export class PlayerRandom extends Player {
 
     public play(board: Board) {
         console.log('random')
-        const actions = board.getPosibleActions()
-        const comboActions = board.getPosibleComboActions()
+        const actions = board.getPossibleActions()
+        const comboActions = board.getPossibleComboActions()
         const random = this.getRandom(0, actions.length + comboActions.length + 1)
 
         switch (true) {

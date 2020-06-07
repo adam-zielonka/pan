@@ -26,23 +26,23 @@ export class PlayerAZ extends Player {
 
   public getAllPossibleStates(board: Board, level: number = 0): Result[] {
     const states: Result[] = []
-    for (const card of board.getPosibleActions()) {
+    for (const card of board.getPossibleActions()) {
       const testBoard = new Board(board)
       testBoard.action(card)
       let procent
       if (level === LEVEL) {
-        procent = testBoard.procentComplate(this.getID())
+        procent = testBoard.procentComplete(this.getID())
       } else {
         procent = 1 - this.getAllPossibleStates(testBoard, level + 1)[0].points
       }
       states.push(new Result(procent, Action.play1, card))
     }
-    for (const figure of board.getPosibleComboActions()) {
+    for (const figure of board.getPossibleComboActions()) {
       const testBoard = new Board(board)
       testBoard.setComboMode(figure, true)
       let procent
       if (level === LEVEL) {
-        procent = testBoard.procentComplate(this.getID())
+        procent = testBoard.procentComplete(this.getID())
       } else {
         procent = 1 - this.getAllPossibleStates(testBoard, level + 1)[0].points
       }
@@ -53,7 +53,7 @@ export class PlayerAZ extends Player {
       testBoard.getFromStack()
       let procent
       if (level === LEVEL) {
-        procent = 1 - testBoard.procentComplate(this.getID())
+        procent = 1 - testBoard.procentComplete(this.getID())
       } else {
         procent = this.getAllPossibleStates(testBoard, level + 1)[0].points
       }

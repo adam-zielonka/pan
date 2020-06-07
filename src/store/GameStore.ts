@@ -14,11 +14,11 @@ class GameStore {
   }
 
   isActionAvailable = (actionCard: Card, playerID: number): boolean => {
-    return this.board.isActionAvalible(actionCard, playerID)
+    return this.board.isActionAvailable(actionCard, playerID)
   }
 
   isComboActionAvailable = (figure: Figure, playerID: number): boolean => {
-    return this.board.isComboActionAvalible(figure, playerID)
+    return this.board.isComboActionAvailable(figure, playerID)
   }
 
   setComboMode = (figure: Figure) => {

@@ -16,18 +16,18 @@ export class Board {
     private stack: Card[]
     private players: IPlayer[]
     private startCard: Card
-    private sitllPlay: number
+    private stillPlay: number
     private comboMode: Figure
     private comboCounter: number
     private time = 0
     private token: number
-    private symulation: boolean
+    private simulation: boolean
     private movesCount: number
     private render: (board: Board) => void
 
     public constructor(board: Board = null) {
         if (board) {
-          this.symulation = true
+          this.simulation = true
           this.stack = board.stack.map(card => card)
           this.players = []
           for (const player of board.players) {
@@ -37,17 +37,17 @@ export class Board {
             this.players.push(newPlayer)
           }
           this.token = board.token
-          this.sitllPlay = board.sitllPlay
+          this.stillPlay = board.stillPlay
           this.startCard = board.startCard
           this.comboMode = board.comboMode
           this.comboCounter = board.comboCounter
           this.movesCount = board.movesCount
         } else {
-          this.symulation = false
+          this.simulation = false
           this.stack = []
           this.players = []
           this.token = -1
-          this.sitllPlay = 0
+          this.stillPlay = 0
           this.startCard = new Card(Figure.f9, Color.Kier)
           this.movesCount = 0
         }
@@ -58,17 +58,17 @@ export class Board {
     }
 
     public start() {
-      if (this.sitllPlay > 1 && !this.symulation) {
+      if (this.stillPlay > 1 && !this.simulation) {
         setTimeout(() => this.getCurrentPlayer().play(this), this.time)
       }
     }
 
     public stop() {
-      this.symulation = true
+      this.simulation = true
     }
 
     public addPlayer(player: IPlayer) {
-        this.sitllPlay++
+        this.stillPlay++
         player.setID(this.players.length)
         this.players.push(player)
     }
@@ -120,7 +120,7 @@ export class Board {
       return this.stack.length ? this.stack[this.stack.length - 1] : undefined
   }
 
-    public isActionAvalible(actionCard: Card, playerID = this.getToken()): boolean {
+    public isActionAvailable(actionCard: Card, playerID = this.getToken()): boolean {
         if (this.comboMode) {
           return this.stack.length
             ? this.comboMode === actionCard.getValue()
@@ -132,7 +132,7 @@ export class Board {
         return this.startCard.isEqual(actionCard)
     }
 
-    public isComboActionAvalible(figure: Figure, playerID = this.getToken()): boolean {
+    public isComboActionAvailable(figure: Figure, playerID = this.getToken()): boolean {
         if (this.comboMode) { return false }
         if (this.getToken() !== playerID) { return false }
         if (this.stack.length) { return this.getLastCard().compare(new Card(figure, null)) !== 1 }
@@ -140,11 +140,11 @@ export class Board {
     }
 
     public action(actionCard: Card) {
-        if (this.sitllPlay < 2) { return }
+        if (this.stillPlay < 2) { return }
         const card = this.players[this.token].action(actionCard)
         if (card) {
             this.stack.push(card)
-            if (!this.getCurrentPlayer().getCards().length) { this.sitllPlay-- }
+            if (!this.getCurrentPlayer().getCards().length) { this.stillPlay-- }
             if (!this.comboMode) { this.nextPlayer() } else {
                 if (!--this.comboCounter) {
                     this.comboMode = undefined
@@ -155,11 +155,11 @@ export class Board {
     }
 
     public playersStillPlay(): number {
-      return this.sitllPlay
+      return this.stillPlay
     }
 
     public setComboMode(figure: Figure, auto = false) {
-        if (this.sitllPlay < 2) { return }
+        if (this.stillPlay < 2) { return }
         this.comboMode = figure
         this.comboCounter = figure === Figure.f9 && this.stack.length ? 3 : 4
         if (auto || this.players.length <= 2 || this.playersStillPlay() <= 2) {
@@ -170,7 +170,7 @@ export class Board {
     }
 
     public getFromStack() {
-        if (this.sitllPlay < 2) { return }
+        if (this.stillPlay < 2) { return }
         let counter = 3
         while (this.stack.length > 1 && counter--) {
             this.getCurrentPlayer().getCards().push(this.stack.pop())
@@ -184,7 +184,7 @@ export class Board {
     }
 
     public nextPlayer() {
-      if (!this.symulation) {
+      if (!this.simulation) {
         if(this.render) this.render(this)
       }
       if (this.stack.length && this.stack[this.stack.length - 1].isPik()) {
@@ -201,7 +201,7 @@ export class Board {
       if (!this.getCurrentPlayer().getCards().length) {
         this.nextPlayer()
       } else {
-        if (this.sitllPlay > 1 && !this.symulation) {
+        if (this.stillPlay > 1 && !this.simulation) {
           this.movesCount++
           if(this.render) this.render(this)
           setTimeout(() => this.getCurrentPlayer().play(this), this.time)
@@ -209,19 +209,19 @@ export class Board {
       }
     }
 
-    public getPosibleActions(): Card[] {
+    public getPossibleActions(): Card[] {
       const cards: Card[] = []
       for (const card of this.getCurrentPlayer().getCards()) {
-        if (this.isActionAvalible(card)) {
+        if (this.isActionAvailable(card)) {
           cards.push(card)
         }
       }
       return cards
     }
 
-    public getPosibleComboActions(): Figure[] {
+    public getPossibleComboActions(): Figure[] {
       return this.getCurrentPlayer().getFigureActions(this.getStack().length).reduce((actions, figure) => {
-        if (this.isComboActionAvalible(figure)) { actions.push(figure) }
+        if (this.isComboActionAvailable(figure)) { actions.push(figure) }
         return actions
       }, [])
     }
@@ -233,20 +233,20 @@ export class Board {
       return points
     }
 
-    public procentComplate(playerID: number = null): number {
-      let oponnentsPoints = 0
+    public procentComplete(playerID: number = null): number {
+      let opponentsPoints = 0
       let points = 0
       const token = playerID !== null ? playerID : this.getToken()
       this.players.forEach(player => {
         if (player.getID() !== token) {
-          oponnentsPoints += this.playersPoints(player)
+          opponentsPoints += this.playersPoints(player)
         } else {
           points += this.playersPoints(player)
         }
       })
       let points3 = 0
       this.stack.forEach(card => points3 += 15 - card.getValue())
-      return 1 - (points / (points + oponnentsPoints + points3 ))
+      return 1 - (points / (points + opponentsPoints + points3 ))
     }
 
     public getMovesCount() {

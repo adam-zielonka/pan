@@ -34,7 +34,7 @@ class State {
 
   public getAllPossibleStates() {
     const states = []
-    for (const card of this.board.getPosibleActions()) {
+    for (const card of this.board.getPossibleActions()) {
       const fun = () => {
         const state = new State(this.board)
         state.board.action(card)
@@ -43,7 +43,7 @@ class State {
       }
       states.push(fun)
     }
-    for (const figure of this.board.getPosibleComboActions()) {
+    for (const figure of this.board.getPossibleComboActions()) {
       const fun = () => {
         const state = new State(this.board)
         state.board.setComboMode(figure, true)
@@ -154,7 +154,7 @@ export class MCTS extends Player {
     })
   }
 
-  public simulateRandomPlayout(node: Node): number {
+  public simulateRandomPlayOut(node: Node): number {
     let status = node.state.board.playersStillPlay() <= 1
     if (status) {
       return node.state.board.getToken() !== this.getID() ? 10 : 0
@@ -166,13 +166,13 @@ export class MCTS extends Player {
         status = state.board.playersStillPlay() <= 1
     }
     if (!counter) {
-      return 10 * state.board.procentComplate(this.getID())
+      return 10 * state.board.procentComplete(this.getID())
     } else {
       return state.board.getToken() !== this.getID() ? 10 : 0
     }
   }
 
-  public backPropogation(node: Node, score: number) {
+  public backPropagation(node: Node, score: number) {
     if (score < 0) { return }
     let tempNode = node
     while (tempNode) {
@@ -185,11 +185,11 @@ export class MCTS extends Player {
   public getResult(board: Board): Result {
     const tree = new Tree(board)
 
-    let countOfaction = 0
-    countOfaction += board.getPosibleActions().length
-    countOfaction += board.getPosibleComboActions().length
-    countOfaction += board.getStack().length > 1 ? 1 : 0
-    let iter = 50 * countOfaction
+    let countOfAction = 0
+    countOfAction += board.getPossibleActions().length
+    countOfAction += board.getPossibleComboActions().length
+    countOfAction += board.getStack().length > 1 ? 1 : 0
+    let iter = 50 * countOfAction
     while (iter--) {
       // 1. Select promising node
       // console.log('Loop')
@@ -197,17 +197,17 @@ export class MCTS extends Player {
       if (promisingNode.state.board.playersStillPlay() > 1) {
         this.expandNode(promisingNode)
       }
-      // 2. Symulation
+      // 2. Simulation
       let nodeToExplore = promisingNode
       if (promisingNode.childArray.length > 0) {
         nodeToExplore = promisingNode.getRandomChildNode()
       }
       // 3. Back propagation
-      const playoutResult = this.simulateRandomPlayout(nodeToExplore)
-      // if (playoutResult === -1) {
-      //   console.log(playoutResult)
+      const playOutResult = this.simulateRandomPlayOut(nodeToExplore)
+      // if (playOutResult === -1) {
+      //   console.log(playOutResult)
       // }
-      this.backPropogation(nodeToExplore, playoutResult)
+      this.backPropagation(nodeToExplore, playOutResult)
     }
     // tree.print()
     const winnerNode = tree.root.getChildWithMaxScore()
@@ -217,19 +217,19 @@ export class MCTS extends Player {
   }
 
   public play(board: Board) {
-    // let sucess = false
-    // if (board.isActionAvalible(this.cards[0], this.id)) {
+    // let success = false
+    // if (board.isActionAvailable(this.cards[0], this.id)) {
     //   const comboActions = this.getFigureActions(board.getStack().length)
     //     if (comboActions.length && comboActions[0] === this.cards[0].getValue() &&
-    //       board.isComboActionAvalible(this.cards[0].getValue(), this.id)) {
+    //       board.isComboActionAvailable(this.cards[0].getValue(), this.id)) {
     //       board.setComboMode(this.cards[0].getValue(), true)
     //     } else {
     //       board.action(this.cards[0])
     //     }
-    //     sucess = true
+    //     success = true
     // }
-    // if (!sucess) {
-      console.log('START ' + board.getToken() + ' - ' + (Math.round(board.procentComplate() * 10000) / 100) + '%')
+    // if (!success) {
+      console.log('START ' + board.getToken() + ' - ' + (Math.round(board.procentComplete() * 10000) / 100) + '%')
       const result = this.getResult(board)
 
       switch (result.type) {
