@@ -23,6 +23,7 @@ export class Board {
     private simulation: boolean
     private movesCount: number
     private render: (board: Board) => void
+    private timeout: NodeJS.Timeout
 
     public constructor(board: Board = null) {
         if (board) {
@@ -57,12 +58,13 @@ export class Board {
 
     public start() {
       if (this.stillPlay > 1 && !this.simulation) {
-        setTimeout(() => this.getCurrentPlayer().play(this), this.time)
+        this.timeout = setTimeout(() => this.getCurrentPlayer().play(this), this.time)
       }
     }
 
     public stop() {
       this.simulation = true
+      clearTimeout(this.timeout)
     }
 
     public addPlayer(player: IPlayer) {
@@ -203,7 +205,7 @@ export class Board {
         if (this.stillPlay > 1 && !this.simulation) {
           this.movesCount++
           if(this.render) this.render(this)
-          setTimeout(() => this.getCurrentPlayer().play(this), this.time)
+          this.timeout = setTimeout(() => this.getCurrentPlayer().play(this), this.time)
         }
       }
     }

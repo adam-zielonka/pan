@@ -40,6 +40,7 @@ class GameStore {
   }
 
   @action newGame = () => {
+    if(this.board) this.board.stop()
     this.board = new Board()
     this.board.setRender(this.render)
     this.board.addPlayers(this.playersStore.getGamePlayers())
