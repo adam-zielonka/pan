@@ -1,6 +1,6 @@
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+@import '../node_modules/@blueprintjs/icons/lib/css/blueprint-icons.css';
+@import '../node_modules/@blueprintjs/core/lib/css/blueprint.css';
+
 .card, .card:disabled:hover {
   padding: 2px;
   margin: 1px;
