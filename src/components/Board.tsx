@@ -34,7 +34,7 @@ const Board: React.FC = () => {
       Token: {token + 1}
       <div>
         Stack: {stack.map(card => <CardElement key={card.toString()} card={card} disabled={true} />)}
-        <button className='card' onClick={getFromStack} disabled={stack.length ? false : true}>Get</button>
+        <button className='card' onClick={getFromStack} disabled={stack.length > 1 ? false : true}>Get</button>
       </div>
       {players.map((player, i) => <PlayerElement key={i} id={i} player={player} isStackEmpty={stack.length ? true : false} />)}
     </div>
