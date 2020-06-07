@@ -8,11 +8,12 @@ import { PlayerAZ } from '../engine/players/playerAZ'
 import { PlayerRandom } from '../engine/players/random'
 
 export enum PlayerType {
+  None = 'None',
   Human = 'Human',
   SimpleAI = 'Simple.AI',
   Random = 'Random',
   MCTS = 'MCTS',
-  AZ = 'AZ'
+  AZ = 'AZ',
 }
 
 class PlayersStore {
@@ -22,14 +23,8 @@ class PlayersStore {
     this.players = []
     this.players.push(PlayerType.Human)
     this.players.push(PlayerType.MCTS)
-  }
-
-  @action add = () => {
-    this.players.push(PlayerType.SimpleAI)
-  }
-
-  @action remove = (index: number) => {
-    this.players.splice(index, 1)
+    this.players.push(PlayerType.None)
+    this.players.push(PlayerType.None)
   }
 
   @action set = (index: number, player: PlayerType) => {
@@ -52,7 +47,7 @@ class PlayersStore {
         case PlayerType.AZ:
           players.push(new PlayerAZ())
           break
-        default:
+        case PlayerType.Human:
           players.push(new Player())
           break
       }
