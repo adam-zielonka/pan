@@ -1,0 +1,15 @@
+pages:
+  image: node:alpine
+  script:
+    - yarn
+    - yarn build
+    - mv build public
+  artifacts:
+    expire_in: 1 week
+    paths:
+    - public
+  cache:
+    paths:
+    - node_modules
+  only:
+    - react
