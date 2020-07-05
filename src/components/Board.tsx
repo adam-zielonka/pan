@@ -4,10 +4,9 @@ import { useStore } from '../store'
 import { Card } from '../engine/card'
 import { IPlayer } from '../engine/board'
 
-const CardElement: React.FC<{ 
-  card: Card, 
-  disabled: boolean 
-}> = ({ card, disabled }) => {
+const CardElement = ({ card, disabled }:{ 
+  card: Card, disabled: boolean 
+}) => {
   const { action } = useStore().gameStore
 
   return (
@@ -20,9 +19,7 @@ const CardElement: React.FC<{
   )
 }
 
-const PlayerID: React.FC<{
-  id: number
-}> = observer(({ id }) => {
+const PlayerID = observer(({ id }:{ id: number }) => {
   const { token } = useStore().gameStore
 
   return (
@@ -32,10 +29,9 @@ const PlayerID: React.FC<{
   )
 })
 
-const PlayerElement: React.FC<{ 
-  player: IPlayer, 
-  isStackEmpty: boolean 
-}> = ({ player, isStackEmpty }) => {
+const PlayerElement = ({ player, isStackEmpty }:{ 
+  player: IPlayer, isStackEmpty: boolean 
+}) => {
   const { isActionAvailable, isComboActionAvailable, setComboMode } = useStore().gameStore
   
   return (
@@ -56,9 +52,7 @@ const PlayerElement: React.FC<{
   )
 }
 
-const OponentElement: React.FC<{ 
-  player: IPlayer
-}> = ({ player }) => {  
+const OponentElement = ({ player }:{ player: IPlayer }) => {  
   return (
     <div className='cards'>
       <PlayerID id={player.getID()} /> 
@@ -67,7 +61,7 @@ const OponentElement: React.FC<{
   )
 }
 
-const Board: React.FC = () => {
+const Board = () => {
   const { stack, players, token, getFromStack } = useStore().gameStore
 
   return (
