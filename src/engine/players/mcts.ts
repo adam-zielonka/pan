@@ -123,15 +123,15 @@ class Tree {
 
 class UCT {
   public static uctValue(totalVisit: number, nodeWinScore: number, nodeVisit: number): number {
-      if (nodeVisit === 0) { return Number.MAX_VALUE }
-      return nodeWinScore / nodeVisit + 1.41 * Math.sqrt(Math.log(totalVisit) / nodeVisit)
+    if (nodeVisit === 0) { return Number.MAX_VALUE }
+    return nodeWinScore / nodeVisit + 1.41 * Math.sqrt(Math.log(totalVisit) / nodeVisit)
   }
 
   public static findBestNodeWithUCT(node: Node): Node {
-      const parentVisit = node.state.visitCount
-      return node.childArray.reduce((a, b) => {
-        return a.getUTC(parentVisit) > b.getUTC(parentVisit) ? a : b
-      })
+    const parentVisit = node.state.visitCount
+    return node.childArray.reduce((a, b) => {
+      return a.getUTC(parentVisit) > b.getUTC(parentVisit) ? a : b
+    })
   }
 }
 
@@ -140,7 +140,7 @@ export class MCTS extends Player {
   public selectPromisingNode(root: Node): Node {
     let node = root
     while (node.childArray.length) {
-        node = UCT.findBestNodeWithUCT(node)
+      node = UCT.findBestNodeWithUCT(node)
     }
     return node
   }
@@ -148,9 +148,9 @@ export class MCTS extends Player {
   public expandNode(node: Node) {
     const possibleStates = node.state.getAllPossibleStates()
     possibleStates.forEach(state => {
-        const newNode = new Node(state())
-        newNode.parent = node
-        node.childArray.push(newNode)
+      const newNode = new Node(state())
+      newNode.parent = node
+      node.childArray.push(newNode)
     })
   }
 
@@ -162,8 +162,8 @@ export class MCTS extends Player {
     const state = new State(node.state.board)
     let counter = 100
     while (!status && --counter) {
-        state.randomPlay()
-        status = state.board.playersStillPlay() <= 1
+      state.randomPlay()
+      status = state.board.playersStillPlay() <= 1
     }
     if (!counter) {
       return 10 * state.board.procentComplete(this.getID())
@@ -176,9 +176,9 @@ export class MCTS extends Player {
     if (score < 0) { return }
     let tempNode = node
     while (tempNode) {
-        tempNode.state.visitCount++
-        tempNode.state.winScore += score
-        tempNode = tempNode.parent
+      tempNode.state.visitCount++
+      tempNode.state.winScore += score
+      tempNode = tempNode.parent
     }
   }
 
@@ -229,21 +229,21 @@ export class MCTS extends Player {
     //     success = true
     // }
     // if (!success) {
-      console.log('START ' + board.getToken() + ' - ' + (Math.round(board.procentComplete() * 10000) / 100) + '%')
-      const result = this.getResult(board)
+    console.log('START ' + board.getToken() + ' - ' + (Math.round(board.procentComplete() * 10000) / 100) + '%')
+    const result = this.getResult(board)
 
-      switch (result.type) {
-        case Action.play1:
-          board.action(result.card)
-          break
-        case Action.play4:
-          board.setComboMode(result.card.getValue(), true)
-          break
-        default:
-          board.getFromStack()
-          break
-      }
-      console.log('END')
+    switch (result.type) {
+    case Action.play1:
+      board.action(result.card)
+      break
+    case Action.play4:
+      board.setComboMode(result.card.getValue(), true)
+      break
+    default:
+      board.getFromStack()
+      break
+    }
+    console.log('END')
     // }
   }
 }

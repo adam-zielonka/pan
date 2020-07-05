@@ -6,15 +6,15 @@ export class Player implements IPlayer {
     protected id: number
 
     public constructor(id: number) {
-        this.id = id
+      this.id = id
     }
 
     public getID(): number {
-        return this.id
+      return this.id
     }
     
     public getCards(): Card[] {
-        return this.cards
+      return this.cards
     }
 
     public setCards(cards: Card[]) {
@@ -22,33 +22,33 @@ export class Player implements IPlayer {
     }
 
     public sortCards() {
-        this.cards.sort((a, b) => a.compareColors(b))
+      this.cards.sort((a, b) => a.compareColors(b))
     }
 
     public action(actionCard: Card): Card {
-        for (let i = 0; i < this.cards.length; i++) {
-            if (actionCard.isEqual(this.cards[i])) {
-                return this.cards.splice(i, 1)[0]
-            }
+      for (let i = 0; i < this.cards.length; i++) {
+        if (actionCard.isEqual(this.cards[i])) {
+          return this.cards.splice(i, 1)[0]
         }
-        return undefined
+      }
+      return undefined
     }
 
     public getFigureActions(isStackEmpty): Figure[] {
-        this.sortCards()
-        const figureActions: Figure[] = []
-        let figure: Figure = Figure.f9
-        let count = isStackEmpty ? 1 : 0
-        for (const card of this.cards) {
-            if (card.getValue() === figure) {
-                count++
-                if (count === 4) { figureActions.push(figure) }
-            } else {
-                figure = card.getValue()
-                count = 1
-            }
+      this.sortCards()
+      const figureActions: Figure[] = []
+      let figure: Figure = Figure.f9
+      let count = isStackEmpty ? 1 : 0
+      for (const card of this.cards) {
+        if (card.getValue() === figure) {
+          count++
+          if (count === 4) { figureActions.push(figure) }
+        } else {
+          figure = card.getValue()
+          count = 1
         }
-        return figureActions
+      }
+      return figureActions
     }
 
     public play(board: Board) {

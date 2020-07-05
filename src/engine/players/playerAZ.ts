@@ -62,9 +62,9 @@ export class PlayerAZ extends Player {
     if (level === 0) {
       return states.sort((a, b) => {
         switch (true) {
-          case a.points > b.points: return -1
-          case a.points < b.points: return 1
-          default: return 0
+        case a.points > b.points: return -1
+        case a.points < b.points: return 1
+        default: return 0
         }
       })
     } else {
@@ -76,15 +76,15 @@ export class PlayerAZ extends Player {
     const result = this.getAllPossibleStates(board)
     console.log(result)
     switch (result[0].type) {
-      case Action.play1:
-        board.action(result[0].card)
-        break
-      case Action.play4:
-        board.setComboMode(result[0].card.getValue(), true)
-        break
-      default:
-        board.getFromStack()
-        break
+    case Action.play1:
+      board.action(result[0].card)
+      break
+    case Action.play4:
+      board.setComboMode(result[0].card.getValue(), true)
+      break
+    default:
+      board.getFromStack()
+      break
     }
   }
 }
