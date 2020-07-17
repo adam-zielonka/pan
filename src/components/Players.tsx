@@ -26,7 +26,7 @@ const Player: React.FC<{
 })
 
 const Players: React.FC = () => {
-  const { players, set } = useStore().playersStore
+  const { players, set } = useStore().players
 
   return (
     <>

@@ -7,7 +7,7 @@ import { IPlayer } from '../engine/board'
 const CardElement = ({ card, disabled }:{ 
   card: Card, disabled: boolean 
 }) => {
-  const { action } = useStore().gameStore
+  const { action } = useStore().game
 
   return (
     <button 
@@ -20,7 +20,7 @@ const CardElement = ({ card, disabled }:{
 }
 
 const PlayerID = observer(({ id }:{ id: number }) => {
-  const { token } = useStore().gameStore
+  const { token } = useStore().game
 
   return (
     <div className="bp3-dialog-header" style={{ backgroundColor: token === id ? 'lightgreen' : 'white' }}>
@@ -32,7 +32,7 @@ const PlayerID = observer(({ id }:{ id: number }) => {
 const PlayerElement = ({ player, isStackEmpty }:{ 
   player: IPlayer, isStackEmpty: boolean 
 }) => {
-  const { isActionAvailable, isComboActionAvailable, setComboMode } = useStore().gameStore
+  const { isActionAvailable, isComboActionAvailable, setComboMode } = useStore().game
   
   return (
     <div className='cards bp3-card'>
@@ -62,7 +62,7 @@ const OponentElement = ({ player }:{ player: IPlayer }) => {
 }
 
 const Board = () => {
-  const { stack, players, token, getFromStack } = useStore().gameStore
+  const { stack, players, token, getFromStack } = useStore().game
 
   return (
     <div className='board'>
@@ -89,7 +89,7 @@ const Board = () => {
           disabled={stack.length > 1 && token === 0 ? false : true}
         >Get</button>
       </div>
-      <PlayerElement 
+      <PlayerElement
         player={players[0]} 
         isStackEmpty={stack.length ? true : false}
       />

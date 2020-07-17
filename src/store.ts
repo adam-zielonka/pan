@@ -3,13 +3,13 @@ import PlayersStore from './store/PlayersStore'
 import GameStore from './store/GameStore'
 
 class Store {
-  playersStore: PlayersStore
-  gameStore: GameStore
+  players: PlayersStore
+  game: GameStore
 
   constructor() {
-    this.playersStore = new PlayersStore()
-    this.gameStore = new GameStore(this.playersStore);
-    (window as any).render = () => this.gameStore.render(this.gameStore.board)
+    this.players = new PlayersStore()
+    this.game = new GameStore(this.players)
+    ;(window as any).render = () => this.game.render(this.game.board)
   }
 }
 

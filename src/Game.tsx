@@ -6,7 +6,7 @@ import Board from './components/Board'
 import { ControlGroup, Button } from '@blueprintjs/core'
 
 const Game: React.FC = () => {
-  const { newGame } = useStore().gameStore
+  const { newGame } = useStore().game
 
   return (
     <div className="game">
