@@ -157,7 +157,7 @@ export class MCTS extends Player {
   public simulateRandomPlayOut(node: Node): number {
     let status = node.state.board.playersStillPlay() <= 1
     if (status) {
-      return node.state.board.getToken() !== this.getID() ? 10 : 0
+      return node.state.board.getToken() !== this.id ? 10 : 0
     }
     const state = new State(node.state.board)
     let counter = 100
@@ -166,9 +166,9 @@ export class MCTS extends Player {
       status = state.board.playersStillPlay() <= 1
     }
     if (!counter) {
-      return 10 * state.board.procentComplete(this.getID())
+      return 10 * state.board.procentComplete(this.id)
     } else {
-      return state.board.getToken() !== this.getID() ? 10 : 0
+      return state.board.getToken() !== this.id ? 10 : 0
     }
   }
 

@@ -2,27 +2,30 @@ import { Card, Figure } from '../card'
 import { Board, IPlayer } from '../board'
 
 export class Player implements IPlayer {
-    protected cards: Card[] = []
-    protected id: number
+    private _cards: Card[]
+    private _id: number
 
-    public constructor(id: number) {
-      this.id = id
+    public constructor(id: number, cards: Card[] = []) {
+      this._id = id
+      this._cards = cards
     }
 
-    public getID(): number {
-      return this.id
-    }
-    
-    public getCards(): Card[] {
-      return this.cards
+    public get cards(): Card[] {
+      return this._cards
     }
 
-    public setCards(cards: Card[]) {
-      this.cards = cards
+    public get id(): number {
+      return this._id
     }
 
-    public sortCards() {
-      this.cards.sort((a, b) => a.compareColors(b))
+    public copy(): IPlayer {
+      return new Player(this.id, this.cards.map(card => card))
+    }
+
+    public addCard(card: Card) {
+      const index = this._cards.findIndex(_card => card.compareColors(_card) === -1)
+      if (index !== -1) this._cards.splice(index, 0, card)
+      else this._cards.push(card)
     }
 
     public action(actionCard: Card): Card {
@@ -34,8 +37,7 @@ export class Player implements IPlayer {
       return undefined
     }
 
-    public getFigureActions(isStackEmpty): Figure[] {
-      this.sortCards()
+    public getFigureActions(isStackEmpty: boolean): Figure[] {
       const figureActions: Figure[] = []
       let figure: Figure = Figure.f9
       let count = isStackEmpty ? 1 : 0

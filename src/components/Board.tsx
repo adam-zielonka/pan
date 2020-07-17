@@ -37,16 +37,16 @@ const PlayerElement = ({ player, isStackEmpty }:{
   return (
     <div className='cards bp3-card'>
       <PlayerID id={0} />     
-      {player.getCards().map(card => <CardElement 
+      {player.cards.map(card => <CardElement 
         key={card.toString()} 
         card={card} 
-        disabled={!isActionAvailable(card, player.getID())}
+        disabled={!isActionAvailable(card, player.id)}
       />)}
       {player.getFigureActions(isStackEmpty).map(figure => <button
         key={figure}
         className='card' 
         onClick={() => setComboMode(figure)} 
-        disabled={!isComboActionAvailable(figure, player.getID())}
+        disabled={!isComboActionAvailable(figure, player.id)}
       >{Card.numberToFigure(figure)}</button>)}
     </div>
   )
@@ -55,8 +55,8 @@ const PlayerElement = ({ player, isStackEmpty }:{
 const OponentElement = ({ player }:{ player: IPlayer }) => {  
   return (
     <div className='cards'>
-      <PlayerID id={player.getID()} /> 
-      <button disabled={true} className='card'>{player.getCards().length}</button>
+      <PlayerID id={player.id} /> 
+      <button disabled={true} className='card'>{player.cards.length}</button>
     </div>
   )
 }

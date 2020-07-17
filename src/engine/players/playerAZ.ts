@@ -31,7 +31,7 @@ export class PlayerAZ extends Player {
       testBoard.action(card)
       let procent
       if (level === LEVEL) {
-        procent = testBoard.procentComplete(this.getID())
+        procent = testBoard.procentComplete(this.id)
       } else {
         procent = 1 - this.getAllPossibleStates(testBoard, level + 1)[0].points
       }
@@ -42,7 +42,7 @@ export class PlayerAZ extends Player {
       testBoard.setComboMode(figure, true)
       let procent
       if (level === LEVEL) {
-        procent = testBoard.procentComplete(this.getID())
+        procent = testBoard.procentComplete(this.id)
       } else {
         procent = 1 - this.getAllPossibleStates(testBoard, level + 1)[0].points
       }
@@ -53,7 +53,7 @@ export class PlayerAZ extends Player {
       testBoard.getFromStack()
       let procent
       if (level === LEVEL) {
-        procent = 1 - testBoard.procentComplete(this.getID())
+        procent = 1 - testBoard.procentComplete(this.id)
       } else {
         procent = this.getAllPossibleStates(testBoard, level + 1)[0].points
       }

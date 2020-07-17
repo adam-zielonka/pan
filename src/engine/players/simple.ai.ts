@@ -5,7 +5,7 @@ export class PlayerAI extends Player {
   public play(board: Board) {
     let success = false
     if (board.isActionAvailable(this.cards[0], this.id)) {
-      const comboActions = this.getFigureActions(board.getStack().length)
+      const comboActions = this.getFigureActions(!!board.getStack().length)
       if (comboActions.length && comboActions[0] === this.cards[0].getValue() &&
               board.isComboActionAvailable(this.cards[0].getValue(), this.id)) {
         board.setComboMode(this.cards[0].getValue(), true)
