@@ -8,7 +8,7 @@ const Player = ({ player, set, id }:{
   set: (index:number, value: PlayerType) => void
   id: number
 }) => {
-  const onChangeHandler  = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const onChangeHandler = (event: React.ChangeEvent<HTMLSelectElement>) => {
     set(id, event.target.value as PlayerType)
   }
   const isHuman = !id
