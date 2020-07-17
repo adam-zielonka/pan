@@ -61,8 +61,32 @@ const OponentElement = ({ player }:{ player: IPlayer }) => {
   )
 }
 
+const Stack = observer(() => {
+  const { stack, token, getFromStack } = useStore().game
+
+  return (
+    <div className='cards bp3-card'>
+      <div className="bp3-dialog-header">
+        <span className="bp3-icon-large bp3-icon-layers" style={{color: 'black'}}></span>
+        <h4 className="bp3-heading">Stack</h4>
+      </div>
+      {stack.length > 3 && <button disabled={true} className='card'>...</button>}
+      {stack.slice(Math.max(stack.length - 3, 0)).map(card => <CardElement 
+        key={card.toString()} 
+        card={card} 
+        disabled={true} 
+      />)}
+      <button 
+        className='card' 
+        onClick={getFromStack} 
+        disabled={stack.length > 1 && token === 0 ? false : true}
+      >Get</button>
+    </div>
+  )
+})
+
 const Board = () => {
-  const { stack, players, token, getFromStack } = useStore().game
+  const { stack, players } = useStore().game
 
   return (
     <div className='board'>
@@ -72,23 +96,7 @@ const Board = () => {
           player={player}
         />)}
       </div>
-      <div className='cards bp3-card'>
-        <div className="bp3-dialog-header">
-          <span className="bp3-icon-large bp3-icon-layers" style={{color: 'black'}}></span>
-          <h4 className="bp3-heading">Stack</h4>
-        </div>
-        {stack.length > 3 && <button disabled={true} className='card'>...</button>}
-        {stack.slice(Math.max(stack.length - 3, 0)).map(card => <CardElement 
-          key={card.toString()} 
-          card={card} 
-          disabled={true} 
-        />)}
-        <button 
-          className='card' 
-          onClick={getFromStack} 
-          disabled={stack.length > 1 && token === 0 ? false : true}
-        >Get</button>
-      </div>
+      <Stack/>
       <PlayerElement
         player={players[0]} 
         isStackEmpty={stack.length ? true : false}
