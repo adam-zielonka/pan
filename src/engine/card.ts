@@ -1,9 +1,9 @@
 export enum Figure {
-    f9 = 9, f10, J, Q, K, A
+  f9 = 9, f10, J, Q, K, A
 }
 
 export enum Color {
-    Kier = 1, Karo, Trefl, Pik
+  Kier = 1, Karo, Trefl, Pik
 }
 
 export class Deck {

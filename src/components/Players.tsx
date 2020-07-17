@@ -3,18 +3,18 @@ import { observer } from 'mobx-react-lite'
 import { useStore } from '../store'
 import { PlayerType } from '../store/PlayersStore'
 
-const Player: React.FC<{
+const Player = ({ player, set, id }:{
   player: PlayerType
-  set: (value: PlayerType) => void
-  availableHuman: boolean
+  set: (index:number, value: PlayerType) => void
   id: number
-}> = observer(({ player, set, availableHuman, id }) => {
+}) => {
   const onChangeHandler  = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    set(event.target.value as PlayerType)
+    set(id, event.target.value as PlayerType)
   }
-
-  const players = Object.values(PlayerType).filter(playerType => availableHuman || playerType !== PlayerType.Human)
-    .filter(playerType => !availableHuman || playerType !== PlayerType.None) 
+  const isHuman = !id
+  const players = Object.values(PlayerType).filter(playerType => 
+    (isHuman || playerType !== PlayerType.Human) && (!isHuman || playerType !== PlayerType.None)
+  )
 
   return (
     <div className='bp3-select'>
@@ -23,24 +23,12 @@ const Player: React.FC<{
       </select>
     </div>
   )
-})
+}
 
-const Players: React.FC = () => {
+const Players = () => {
   const { players, set } = useStore().players
 
-  return (
-    <>
-      {players.map((player, i) => (
-        <Player 
-          key={i}
-          id={i}
-          player={player}
-          set={(player: PlayerType) => set(i, player)}
-          availableHuman={!i}
-        />
-      ))}
-    </>
-  )
+  return <>{players.map((player, i) => <Player key={i} id={i} player={player} set={set}/>)}</>
 }
 
 export default observer(Players)
