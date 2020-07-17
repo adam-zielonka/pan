@@ -1,4 +1,4 @@
-import { Card, Figure, Color } from './card'
+import { Card, Figure, Color, Deck } from './card'
 
 export interface IPlayer {
   id: number,
@@ -55,14 +55,10 @@ export class Board {
       clearTimeout(this.timeout)
     }
 
-    public addPlayer(player: IPlayer) {
-      this.stillPlay++
-      this.players.push(player)
-    }
-
     public addPlayers(players: IPlayer[]) {
       for (const player of players) {
-        this.addPlayer(player)
+        this.stillPlay++
+        this.players.push(player)
       }
     }
 
@@ -207,28 +203,15 @@ export class Board {
         return actions
       }, [])
     }
-
-    public playersPoints(player: IPlayer): number {
-      const cards = player.cards
-      let points = 0
-      cards.forEach(card => points += 15 - card.getValue())
-      return points
-    }
-
+    
     public procentComplete(playerID: number = null): number {
-      let opponentsPoints = 0
-      let points = 0
-      const token = playerID !== null ? playerID : this.getToken()
-      this.players.forEach(player => {
-        if (player.id !== token) {
-          opponentsPoints += this.playersPoints(player)
-        } else {
-          points += this.playersPoints(player)
-        }
-      })
-      let points3 = 0
-      this.stack.forEach(card => points3 += 15 - card.getValue())
-      return 1 - (points / (points + opponentsPoints + points3 ))
+      const formula = (points: number, card: Card): number => {
+        return points + 15 - card.getValue()
+      }
+
+      const maxPoint = Deck.generate().reduce(formula, 0)
+      const points = this.getCurrentPlayer().cards.reduce(formula, 0)
+      return 1 - (points / maxPoint)
     }
     
 }
