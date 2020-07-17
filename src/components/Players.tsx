@@ -13,7 +13,7 @@ const Player = ({ player, set, id }:{
   }
   const isHuman = !id
   const players = Object.values(PlayerType).filter(playerType => 
-    (!isHuman && playerType !== PlayerType.Human) || (isHuman && playerType !== PlayerType.None)
+    isHuman ? playerType !== PlayerType.None : playerType !== PlayerType.Human
   )
 
   return (
