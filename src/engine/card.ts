@@ -112,4 +112,8 @@ export class Card {
     if (this.color > card.getColor()) { return 1 }
     return 0
   }
+
+  public isStartCard(): boolean {
+    return this.isEqual(new Card(Figure.f9, Color.Kier))
+  }
 }

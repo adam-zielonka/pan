@@ -14,7 +14,6 @@ export interface IPlayer {
 export class Board {
     private stack: Card[]
     private players: IPlayer[]
-    private startCard: Card
     private stillPlay: number
     private comboMode: Figure
     private comboCounter: number
@@ -37,7 +36,6 @@ export class Board {
         }
         this.token = board.token
         this.stillPlay = board.stillPlay
-        this.startCard = board.startCard
         this.comboMode = board.comboMode
         this.comboCounter = board.comboCounter
         this.movesCount = board.movesCount
@@ -47,7 +45,6 @@ export class Board {
         this.players = []
         this.token = -1
         this.stillPlay = 0
-        this.startCard = new Card(Figure.f9, Color.Kier)
         this.movesCount = 0
       }
     }
@@ -80,11 +77,11 @@ export class Board {
 
     public dealingCards(deck: Card[]) {
       while (deck.length && this.players.length) {
-        for (let i = 0; i < this.players.length; i++) {
+        for (const player of this.players) {
           if (!deck.length) { break }
           const card = deck.pop()
-          if (card.isEqual(this.startCard)) { this.token = i }
-          this.players[i].getCards().push(card)
+          if (card.isStartCard()) { this.token = player.getID() }
+          player.getCards().push(card)
         }
       }
       this.players.forEach(player => player.sortCards())
@@ -111,10 +108,6 @@ export class Board {
       return this.comboMode
     }
 
-    public getStartedCard(): Card {
-      return this.startCard
-    }
-
     public getLastCard(): Card {
       return this.stack.length ? this.stack[this.stack.length - 1] : undefined
     }
@@ -123,12 +116,12 @@ export class Board {
       if (this.comboMode) {
         return this.stack.length
           ? this.comboMode === actionCard.getValue()
-          : this.startCard.isEqual(actionCard)
+          : actionCard.isStartCard()
       }
       if (this.getLastCard()) {
         return (this.getToken() === playerID) && (this.getLastCard().compare(actionCard) !== 1)
       }
-      return this.startCard.isEqual(actionCard)
+      return actionCard.isStartCard()
     }
 
     public isComboActionAvailable(figure: Figure, playerID = this.getToken()): boolean {
