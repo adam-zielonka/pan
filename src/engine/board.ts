@@ -20,7 +20,6 @@ export class Board {
     private time = 0
     private token: number
     private simulation: boolean
-    private movesCount: number
     private render: (board: Board) => void
     private timeout: NodeJS.Timeout
 
@@ -38,14 +37,12 @@ export class Board {
         this.stillPlay = board.stillPlay
         this.comboMode = board.comboMode
         this.comboCounter = board.comboCounter
-        this.movesCount = board.movesCount
       } else {
         this.simulation = false
         this.stack = []
         this.players = []
         this.token = -1
         this.stillPlay = 0
-        this.movesCount = 0
       }
     }
 
@@ -196,7 +193,6 @@ export class Board {
         this.nextPlayer()
       } else {
         if (this.stillPlay > 1 && !this.simulation) {
-          this.movesCount++
           if(this.render) this.render(this)
           this.timeout = setTimeout(() => this.getCurrentPlayer().play(this), this.time)
         }
@@ -242,9 +238,5 @@ export class Board {
       this.stack.forEach(card => points3 += 15 - card.getValue())
       return 1 - (points / (points + opponentsPoints + points3 ))
     }
-
-    public getMovesCount() {
-      return this.movesCount
-    }
-
+    
 }
