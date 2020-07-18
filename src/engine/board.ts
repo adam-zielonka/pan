@@ -48,33 +48,9 @@ export class Board {
       this.render = render
     }
 
-    public start() {
-      if (this.stillPlay > 1 && !this.simulation) {
-        this.timeout = setTimeout(() => this.getCurrentPlayer().play(this), this.time)
-      }
-    }
-
-    public stop() {
-      this.simulation = true
-      clearTimeout(this.timeout)
-    }
-
-    public addPlayers(players: IPlayer[]) {
-      for (const player of players) {
-        this.stillPlay++
-        this.players.push(player)
-      }
-    }
-
-    public dealingCards(deck: Card[]) {
-      while (deck.length && this.players.length) {
-        for (const player of this.players) {
-          if (!deck.length) { break }
-          const card = deck.pop()
-          if (card.isStartCard()) { this.token = player.id }
-          player.addCard(card)
-        }
-      }
+    public setPlayers(players: IPlayer[]) {
+      this.players = players
+      this.stillPlay = players.length
     }
 
     public getPlayers(): IPlayer[] {
@@ -123,6 +99,27 @@ export class Board {
       if (this.getToken() !== playerID) { return false }
       if (this.stack.length) { return this.getLastCard().compare(new Card(figure, null)) !== 1 }
       return figure === 9
+    }
+
+    public start() {
+      if (this.isGameOver() || this.simulation) return
+      this.timeout = setTimeout(() => this.getCurrentPlayer().play(this), this.time)
+    }
+
+    public stop() {
+      this.simulation = true
+      clearTimeout(this.timeout)
+    }
+
+    public dealingCards(deck: Card[]) {
+      while (deck.length && this.players.length) {
+        for (const player of this.players) {
+          if (!deck.length) { break }
+          const card = deck.pop()
+          if (card.isStartCard()) { this.token = player.id }
+          player.addCard(card)
+        }
+      }
     }
 
     public action(actionCard: Card) {

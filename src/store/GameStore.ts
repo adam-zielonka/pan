@@ -42,10 +42,10 @@ class GameStore {
   @action newGame = () => {
     if(this.board) this.board.stop()
     this.board = new Board()
-    this.board.setRender(this.render)
-    this.board.addPlayers(this.playersStore.getGamePlayers())
-    this.board.dealingCards(Deck.print(Deck.shuffle(Deck.generate())))
     this.board.setPlayerDelay(100)
+    this.board.setRender(this.render)
+    this.board.setPlayers(this.playersStore.getGamePlayers())
+    this.board.dealingCards(Deck.print(Deck.shuffle(Deck.generate())))
     this.render(this.board)
     this.board.start()
   }
