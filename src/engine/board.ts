@@ -44,6 +44,10 @@ export class Board {
       this.time = playerDelay
     }
 
+    public setRender(render: (board: Board) => void) {
+      this.render = render
+    }
+
     public start() {
       if (this.stillPlay > 1 && !this.simulation) {
         this.timeout = setTimeout(() => this.getCurrentPlayer().play(this), this.time)
@@ -98,7 +102,11 @@ export class Board {
       return this.stack.length ? this.stack[this.stack.length - 1] : undefined
     }
 
-    public isActionAvailable(actionCard: Card, playerID = this.getToken()): boolean {
+    public isGameOver(): boolean {
+      return this.stillPlay < 2
+    }
+
+    public isActionAvailable = (actionCard: Card, playerID = this.getToken()): boolean => {
       if (this.comboMode) {
         return this.stack.length
           ? this.comboMode === actionCard.getValue()
@@ -110,7 +118,7 @@ export class Board {
       return actionCard.isStartCard()
     }
 
-    public isComboActionAvailable(figure: Figure, playerID = this.getToken()): boolean {
+    public isComboActionAvailable = (figure: Figure, playerID = this.getToken()): boolean => {
       if (this.comboMode) { return false }
       if (this.getToken() !== playerID) { return false }
       if (this.stack.length) { return this.getLastCard().compare(new Card(figure, null)) !== 1 }
@@ -118,7 +126,7 @@ export class Board {
     }
 
     public action(actionCard: Card) {
-      if (this.stillPlay < 2) { return }
+      if (this.isGameOver()) return
       const card = this.players[this.token].action(actionCard)
       if (card) {
         this.stack.push(card)
@@ -138,7 +146,7 @@ export class Board {
     }
 
     public setComboMode(figure: Figure, auto = false) {
-      if (this.stillPlay < 2) { return }
+      if (this.isGameOver()) return
       this.comboMode = figure
       this.comboCounter = figure === Figure.f9 && this.stack.length ? 3 : 4
       if (auto || this.players.length <= 2 || this.playersStillPlay() <= 2) {
@@ -150,7 +158,7 @@ export class Board {
     }
 
     public getFromStack() {
-      if (this.stillPlay < 2) { return }
+      if (this.isGameOver()) return
       let counter = 3
       while (this.stack.length > 1 && counter--) {
         this.getCurrentPlayer().addCard(this.stack.pop())
@@ -158,50 +166,35 @@ export class Board {
       this.nextPlayer()
     }
 
-    public setRender(render: (board: Board) => void) {
-      this.render = render
-    }
-
     public nextPlayer() {
-      if (!this.simulation) {
-        if(this.render) this.render(this)
-      }
       if (this.stack.length && this.stack[this.stack.length - 1].isPik()) {
-        this.token--
-        if (this.token < 0) {
-          this.token = this.players.length - 1
-        }
+        this.token = --this.token < 0 ? this.players.length - 1 : this.token
       } else {
-        this.token++
-        if (this.token >= this.players.length) {
-          this.token = 0
-        }
+        this.token = ++this.token >= this.players.length ? 0 : this.token
       }
+
       if (!this.getCurrentPlayer().cards.length) {
         this.nextPlayer()
-      } else {
-        if (this.stillPlay > 1 && !this.simulation) {
-          if(this.render) this.render(this)
-          this.timeout = setTimeout(() => this.getCurrentPlayer().play(this), this.time)
-        }
+        return
+      }
+
+      if (this.simulation) return
+      if (this.render) this.render(this)
+      
+      if (!this.isGameOver()) {
+        this.timeout = setTimeout(() => this.getCurrentPlayer().play(this), this.time)
       }
     }
 
     public getPossibleActions(): Card[] {
-      const cards: Card[] = []
-      for (const card of this.getCurrentPlayer().cards) {
-        if (this.isActionAvailable(card)) {
-          cards.push(card)
-        }
-      }
-      return cards
+      return this.getCurrentPlayer().cards.filter(card => this.isActionAvailable(card))
     }
 
     public getPossibleComboActions(): Figure[] {
-      return this.getCurrentPlayer().getFigureActions(!!this.getStack().length).reduce((actions, figure) => {
-        if (this.isComboActionAvailable(figure)) { actions.push(figure) }
-        return actions
-      }, [])
+      const isStackEmpty = !!this.getStack().length
+      return this.getCurrentPlayer()
+        .getFigureActions(isStackEmpty)
+        .filter(this.isComboActionAvailable)
     }
     
     public procentComplete(playerID: number = null): number {
