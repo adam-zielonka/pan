@@ -1,6 +1,7 @@
 import { Board } from '../board'
 import { Player } from './player'
 import { Card } from '../card'
+import { printPlayer } from '../utils'
 
 enum Action {
   play1 = 'action',
@@ -229,7 +230,7 @@ export class MCTS extends Player {
     //     success = true
     // }
     // if (!success) {
-    console.log(`%c#${this.id + 1} MCTS`, 'font-weight:bold;font-size:1.5rem;')
+    printPlayer(this.id, 'MCTS')
     console.log('START ' + board.getToken() + ' - ' + (Math.round(board.procentComplete() * 10000) / 100) + '%')
     const result = this.getResult(board)
     console.log('END')

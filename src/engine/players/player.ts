@@ -1,5 +1,6 @@
 import { Card, Figure } from '../card'
 import { Board, IPlayer } from '../board'
+import { printPlayer } from '../utils'
 
 export class Player implements IPlayer {
     private _cards: Card[]
@@ -54,6 +55,6 @@ export class Player implements IPlayer {
     }
 
     public play(board: Board) {
-      console.log(`%c#${this.id + 1} Human`, 'font-weight:bold;font-size:1.5rem;')
+      printPlayer(this.id, 'Human')
     }
 }

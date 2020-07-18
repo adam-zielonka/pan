@@ -1,6 +1,7 @@
 import { Board } from '../board'
 import { Player } from './player'
 import { Figure, Color } from '../card'
+import { printPlayer } from '../utils'
 
 export class PlayerRandom extends Player {
 
@@ -9,7 +10,7 @@ export class PlayerRandom extends Player {
   }
 
   public play(board: Board) {
-    console.log(`%c#${this.id + 1} random`, 'font-weight:bold;font-size:1.5rem;')
+    printPlayer(this.id, 'random')
     const actions = board.getPossibleActions()
     const comboActions = board.getPossibleComboActions()
     const random = this.getRandom(0, actions.length + comboActions.length + 1)

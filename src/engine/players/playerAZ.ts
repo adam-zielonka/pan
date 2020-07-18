@@ -1,6 +1,7 @@
 import { Board } from '../board'
 import { Player } from './player'
 import { Card } from '../card'
+import { printPlayer } from '../utils'
 
 const LEVEL = 4
 
@@ -73,7 +74,7 @@ export class PlayerAZ extends Player {
   }
 
   public play(board: Board) {
-    console.log(`%c#${this.id + 1} AZ`, 'font-weight:bold;font-size:1.5rem;')
+    printPlayer(this.id, 'AZ')
     const result = this.getAllPossibleStates(board)
     console.log(result)
     switch (result[0].type) {
