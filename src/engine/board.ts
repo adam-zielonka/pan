@@ -194,13 +194,13 @@ export class Board {
         .filter(this.isComboActionAvailable)
     }
     
-    public procentComplete(playerID: number = null): number {
+    public procentComplete(player: IPlayer = null): number {
       const formula = (points: number, card: Card): number => {
         return points + 15 - card.getValue()
       }
 
       const maxPoint = Deck.generate().reduce(formula, 0)
-      const points = this.getCurrentPlayer().cards.reduce(formula, 0)
+      const points = (player || this.getCurrentPlayer()).cards.reduce(formula, 0)
       return 1 - (points / maxPoint)
     }
     

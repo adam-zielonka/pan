@@ -32,7 +32,7 @@ export class PlayerAZ extends Player {
       testBoard.action(card)
       let procent
       if (level === LEVEL) {
-        procent = testBoard.procentComplete(this.id)
+        procent = testBoard.procentComplete(this)
       } else {
         procent = 1 - this.getAllPossibleStates(testBoard, level + 1)[0].points
       }
@@ -43,7 +43,7 @@ export class PlayerAZ extends Player {
       testBoard.setComboMode(figure, true)
       let procent
       if (level === LEVEL) {
-        procent = testBoard.procentComplete(this.id)
+        procent = testBoard.procentComplete(this)
       } else {
         procent = 1 - this.getAllPossibleStates(testBoard, level + 1)[0].points
       }
@@ -54,7 +54,7 @@ export class PlayerAZ extends Player {
       testBoard.getFromStack()
       let procent
       if (level === LEVEL) {
-        procent = 1 - testBoard.procentComplete(this.id)
+        procent = 1 - testBoard.procentComplete(this)
       } else {
         procent = this.getAllPossibleStates(testBoard, level + 1)[0].points
       }
@@ -73,10 +73,19 @@ export class PlayerAZ extends Player {
     }
   }
 
+  public printResult(result: Result[]) {
+    for (const action of result) {
+      const { card, points } = action
+      console.log(`%c ${card ? card.toString() : 'Stack'} ${Math.round(points * 10000) / 100 }`,
+      `color: ${card && card.getColorStyle()}`
+      )
+    }
+  }
+
   public play(board: Board) {
     printPlayer(this.id, 'AZ')
     const result = this.getAllPossibleStates(board)
-    console.log(result)
+    this.printResult(result)
     switch (result[0].type) {
     case Action.play1:
       board.action(result[0].card)
