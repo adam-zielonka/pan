@@ -54,6 +54,6 @@ export class Player implements IPlayer {
     }
 
     public play(board: Board) {
-      console.log('Human')
+      console.log(`%c#${this.id + 1} Human`, 'font-weight:bold;font-size:1.5rem;')
     }
 }

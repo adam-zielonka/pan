@@ -73,6 +73,7 @@ export class PlayerAZ extends Player {
   }
 
   public play(board: Board) {
+    console.log(`%c#${this.id + 1} AZ`, 'font-weight:bold;font-size:1.5rem;')
     const result = this.getAllPossibleStates(board)
     console.log(result)
     switch (result[0].type) {

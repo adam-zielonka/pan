@@ -229,8 +229,10 @@ export class MCTS extends Player {
     //     success = true
     // }
     // if (!success) {
+    console.log(`%c#${this.id + 1} MCTS`, 'font-weight:bold;font-size:1.5rem;')
     console.log('START ' + board.getToken() + ' - ' + (Math.round(board.procentComplete() * 10000) / 100) + '%')
     const result = this.getResult(board)
+    console.log('END')
 
     switch (result.type) {
     case Action.play1:
@@ -243,7 +245,6 @@ export class MCTS extends Player {
       board.getFromStack()
       break
     }
-    console.log('END')
     // }
   }
 }

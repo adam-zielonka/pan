@@ -9,7 +9,7 @@ export class PlayerRandom extends Player {
   }
 
   public play(board: Board) {
-    console.log('random')
+    console.log(`%c#${this.id + 1} random`, 'font-weight:bold;font-size:1.5rem;')
     const actions = board.getPossibleActions()
     const comboActions = board.getPossibleComboActions()
     const random = this.getRandom(0, actions.length + comboActions.length + 1)

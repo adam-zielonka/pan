@@ -177,7 +177,7 @@ export class Board {
       this.playPlayer()
     }
 
-    public playPlayer() {
+    public playPlayer = (): void => {
       if (this.render) this.render(this)
       if (this.isGameOver() || this.simulation) return
       this.timeout = setTimeout(() => this.getCurrentPlayer().play(this), this.time)
