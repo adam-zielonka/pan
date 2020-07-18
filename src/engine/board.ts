@@ -102,8 +102,7 @@ export class Board {
     }
 
     public start() {
-      if (this.isGameOver() || this.simulation) return
-      this.timeout = setTimeout(() => this.getCurrentPlayer().play(this), this.time)
+      this.playPlayer()
     }
 
     public stop() {
@@ -175,12 +174,13 @@ export class Board {
         return
       }
 
-      if (this.simulation) return
+      this.playPlayer()
+    }
+
+    public playPlayer() {
       if (this.render) this.render(this)
-      
-      if (!this.isGameOver()) {
-        this.timeout = setTimeout(() => this.getCurrentPlayer().play(this), this.time)
-      }
+      if (this.isGameOver() || this.simulation) return
+      this.timeout = setTimeout(() => this.getCurrentPlayer().play(this), this.time)
     }
 
     public getPossibleActions(): Card[] {
