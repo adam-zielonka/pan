@@ -77,7 +77,7 @@ export class PlayerAZ extends Player {
     for (const action of result) {
       const { card, points } = action
       console.log(`%c ${card ? card.toString() : 'Stack'} ${Math.round(points * 10000) / 100 }`,
-      `color: ${card && card.getColorStyle()}`
+        `color: ${card && card.getColorStyle()}`
       )
     }
   }
