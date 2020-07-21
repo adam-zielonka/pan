@@ -35,7 +35,7 @@ const PlayerElement = ({ player, isStackEmpty }:{
   const { isActionAvailable, isComboActionAvailable, setComboMode } = useStore().game
   
   return (
-    <div className='cards bp3-card'>
+    <div className='cards bp3-card player1'>
       <PlayerID id={0} />     
       {player.cards.map(card => <CardElement 
         key={card.toString()} 
@@ -54,7 +54,7 @@ const PlayerElement = ({ player, isStackEmpty }:{
 
 const OponentElement = ({ player }:{ player: IPlayer }) => {  
   return (
-    <div className='cards'>
+    <div className={'cards bp3-card player' + (player.id+1)}>
       <PlayerID id={player.id} /> 
       <button disabled={true} className='card'>{player.cards.length}</button>
     </div>
@@ -65,7 +65,7 @@ const Stack = observer(() => {
   const { stack, token, getFromStack } = useStore().game
 
   return (
-    <div className='cards bp3-card'>
+    <div className='cards bp3-card stack'>
       <div className="bp3-dialog-header">
         <span className="bp3-icon-large bp3-icon-layers" style={{color: 'black'}}></span>
         <h4 className="bp3-heading">Stack</h4>
@@ -89,13 +89,11 @@ const Board = () => {
   const { stack, players } = useStore().game
 
   return (
-    <div className='board'>
-      <div className='cards bp3-card'>
-        {players.filter((_, i) => i).map((player, i) => <OponentElement 
-          key={i}
-          player={player}
-        />)}
-      </div>
+    <div className='board grid'>
+      {players.filter((_, i) => i).map((player, i) => <OponentElement 
+        key={i}
+        player={player}
+      />)}
       <Stack/>
       <PlayerElement
         player={players[0]} 

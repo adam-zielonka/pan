@@ -1,12 +1,12 @@
 import { Card, Figure, Color, Deck } from './card'
 
 export interface IPlayer {
-  id: number,
-  cards: Card[],
+  id: number
+  cards: Card[]
   addCard(card: Card): void
   action(actionCard: Card): Card
   getFigureActions(isStackEmpty: boolean): Figure[]
-  play(board: Board)
+  play(board: Board): void
   copy(): IPlayer
 }
 
@@ -112,12 +112,12 @@ export class Board {
 
     public dealingCards(deck: Card[]) {
       while (deck.length && this.players.length) {
-        for (const player of this.players) {
-          if (!deck.length) { break }
+        this.players.forEach((player, index) => {
+          if (!deck.length) return
           const card = deck.pop()
-          if (card.isStartCard()) { this.token = player.id }
+          if (card.isStartCard()) { this.token = index }
           player.addCard(card)
-        }
+        })
       }
     }
 

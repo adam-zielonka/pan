@@ -11,7 +11,7 @@ const Game: React.FC = () => {
   return (
     <div className="game">
       <div className="cards bp3-card">
-        <ControlGroup>
+        <ControlGroup className="menu">
           <Button onClick={newGame} >New Game</Button>
           <Players />
         </ControlGroup>

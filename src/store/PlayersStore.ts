@@ -22,8 +22,8 @@ class PlayersStore {
   constructor() {
     this.players = []
     this.players.push(PlayerType.Human)
-    this.players.push(PlayerType.MCTS)
     this.players.push(PlayerType.None)
+    this.players.push(PlayerType.MCTS)
     this.players.push(PlayerType.None)
   }
 

@@ -34,3 +34,36 @@
   top: 0;
   left: 0;
 }
+
+@media (min-width: 810px) {
+  .grid {
+    display: grid;
+    grid-template-columns: auto 150px 500px 150px auto;
+    grid-template-rows: 50px 82px 82px auto;
+  }
+}
+@media (max-width: 809px) {
+  .menu {
+    flex-direction: column;
+  }
+}
+.stack {
+  grid-column: 3;
+  grid-row: 3;
+}
+.player1 {
+  grid-column: 3;
+  grid-row: 4;
+}
+.player2 {
+  grid-column: 4;
+  grid-row: 3;
+}
+.player3 {
+  grid-column: 3;
+  grid-row: 2;
+}
+.player4 {
+  grid-column: 2;
+  grid-row: 3;
+}
