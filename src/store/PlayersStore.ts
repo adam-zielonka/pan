@@ -20,11 +20,12 @@ class PlayersStore {
   @observable players: PlayerType[]
 
   constructor() {
-    this.players = []
-    this.players.push(PlayerType.Human)
-    this.players.push(PlayerType.None)
-    this.players.push(PlayerType.MCTS)
-    this.players.push(PlayerType.None)
+    this.players = [
+      PlayerType.Human,
+      PlayerType.None,
+      PlayerType.MCTS,
+      PlayerType.None,
+    ]
   }
 
   @action set = (index: number, player: PlayerType) => {
