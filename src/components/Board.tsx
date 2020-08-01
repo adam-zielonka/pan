@@ -68,7 +68,6 @@ const Stack = observer(() => {
     <div className='cards bp3-card stack'>
       <div className="bp3-dialog-header">
         <span className="bp3-icon-large bp3-icon-layers" style={{color: 'black'}}></span>
-        <h4 className="bp3-heading">Stack</h4>
       </div>
       {stack.length > 3 && <button disabled={true} className='card'>...</button>}
       {stack.slice(Math.max(stack.length - 3, 0)).map(card => <CardElement 
