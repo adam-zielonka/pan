@@ -1,13 +1,13 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import { useStore } from '../store'
+import { useGameStore } from '../store/store'
 import { Card } from '../engine/card'
 import { IPlayer } from '../engine/board'
 
 const CardElement = ({ card, disabled }:{ 
   card: Card, disabled: boolean 
 }) => {
-  const { action } = useStore().game
+  const { action } = useGameStore()
 
   return (
     <button 
@@ -20,7 +20,7 @@ const CardElement = ({ card, disabled }:{
 }
 
 const PlayerID = observer(({ id }:{ id: number }) => {
-  const { token } = useStore().game
+  const { token } = useGameStore()
 
   return (
     <div className="bp3-dialog-header" style={{ backgroundColor: token === id ? 'lightgreen' : 'white' }}>
@@ -32,7 +32,7 @@ const PlayerID = observer(({ id }:{ id: number }) => {
 const PlayerElement = ({ player, isStackEmpty }:{ 
   player: IPlayer, isStackEmpty: boolean 
 }) => {
-  const { isActionAvailable, isComboActionAvailable, setComboMode } = useStore().game
+  const { isActionAvailable, isComboActionAvailable, setComboMode } = useGameStore()
   
   return (
     <div className='cards bp3-card player1'>
@@ -62,7 +62,7 @@ const OponentElement = ({ player }:{ player: IPlayer }) => {
 }
 
 const Stack = observer(() => {
-  const { stack, token, getFromStack } = useStore().game
+  const { stack, token, getFromStack } = useGameStore()
 
   return (
     <div className='cards bp3-card stack'>
@@ -86,7 +86,7 @@ const Stack = observer(() => {
 })
 
 const Board = () => {
-  const { stack, players } = useStore().game
+  const { stack, players } = useGameStore()
 
   return (
     <div className='board grid'>

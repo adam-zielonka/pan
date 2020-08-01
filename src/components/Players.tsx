@@ -1,6 +1,6 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import { useStore } from '../store'
+import { usePlayersStore } from '../store/store'
 import { PlayerType } from '../store/PlayersStore'
 
 const Player = ({ player, set, id }:{
@@ -26,7 +26,7 @@ const Player = ({ player, set, id }:{
 }
 
 const Players = () => {
-  const { players, set } = useStore().players
+  const { players, set } = usePlayersStore()
 
   return <>{players.map((player, i) => <Player key={i} id={i} player={player} set={set}/>)}</>
 }

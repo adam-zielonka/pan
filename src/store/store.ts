@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react'
-import PlayersStore from './store/PlayersStore'
-import GameStore from './store/GameStore'
+import PlayersStore from './PlayersStore'
+import GameStore from './GameStore'
 
 class Store {
   players: PlayersStore
@@ -15,6 +15,10 @@ class Store {
 
 const store = createContext(new Store())
 
-export function useStore(): Store {
-  return useContext(store)
+export function useGameStore(): GameStore {
+  return useContext(store).game
+}
+
+export function usePlayersStore(): PlayersStore {
+  return useContext(store).players
 }

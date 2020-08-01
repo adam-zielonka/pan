@@ -1,12 +1,12 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import Players from './components/Players'
-import { useStore } from './store'
-import Board from './components/Board'
+import Players from './Players'
+import { useGameStore } from '../store/store'
+import Board from './Board'
 import { ControlGroup, Button } from '@blueprintjs/core'
 
 const Game: React.FC = () => {
-  const { newGame } = useStore().game
+  const { newGame } = useGameStore()
 
   return (
     <div className="game">
