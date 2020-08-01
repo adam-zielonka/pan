@@ -34,7 +34,7 @@ class GameStore {
   }
 
   @action render = (board: Board) => {
-    this.token = board.getToken()
+    this.token = board.getCurrentPlayer().id
     this.stack = board.getStack()
     this.players = board.getPlayers()
   }
