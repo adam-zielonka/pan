@@ -1,16 +1,17 @@
 pages:
-  image: node:alpine
+  image: node:14.9.0
   script:
-    - yarn
-    - yarn build
+    - npm install -g pnpm
+    - pnpm install
+    - pnpm build
     - mv public public_files
-    - mv build public
+    - mv dist public
   artifacts:
     expire_in: 1 week
     paths:
-    - public
+      - public
   cache:
     paths:
-    - node_modules
+      - node_modules
   only:
     - react
