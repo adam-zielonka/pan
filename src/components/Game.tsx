@@ -12,7 +12,7 @@ const Game: React.FC = () => {
     <div className="game">
       <div className="cards bp3-card">
         <ControlGroup className="menu">
-          <Button onClick={newGame} >New Game</Button>
+          <Button onClick={newGame}>New Game</Button>
           <Players />
         </ControlGroup>
       </div>

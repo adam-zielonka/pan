@@ -1,7 +1,7 @@
-import App from './App.svelte'
+import Game from './components/Game.svelte'
 
-const app = new App({
-  target: document.getElementById('app')
+const app = new Game({
+  target: document.getElementById('app'),
 })
 
 export default app

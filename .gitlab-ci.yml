@@ -46,21 +46,20 @@ check:
       - node_modules
   needs:
     - build
-
-pages:
-  image: alpine
-  variables:
-    GIT_STRATEGY: none
-    GIT_CHECKOUT: 'false'
-  stage: deploy
-  needs:
-    - job: build
-      artifacts: true
-  script:
-    - mv dist public
-  artifacts:
-    expire_in: 1 week
-    paths:
-      - public
-  only:
-    - svelte
+# pages:
+#   image: alpine
+#   variables:
+#     GIT_STRATEGY: none
+#     GIT_CHECKOUT: 'false'
+#   stage: deploy
+#   needs:
+#     - job: build
+#       artifacts: true
+#   script:
+#     - mv dist public
+#   artifacts:
+#     expire_in: 1 week
+#     paths:
+#       - public
+#   only:
+#     - svelte
