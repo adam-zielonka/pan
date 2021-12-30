@@ -5,7 +5,7 @@ pages:
     - pnpm install
     - pnpm build
     - mv public public_files
-    - mv dist public
+    - mv build public
   artifacts:
     expire_in: 1 week
     paths:
