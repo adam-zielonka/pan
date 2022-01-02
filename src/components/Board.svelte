@@ -11,5 +11,4 @@
     <PlayerElement {player} />
   {/each}
   <Stack />
-  <PlayerElement player={$game.players[0]} />
 </div>
