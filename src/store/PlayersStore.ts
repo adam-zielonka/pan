@@ -23,6 +23,10 @@ class PlayersStore extends SubscribableStore {
     this.players = [PlayerType.Human, PlayerType.None, PlayerType.MCTS, PlayerType.None]
   }
 
+  get playerOne(): PlayerType {
+    return this.players[0]
+  }
+
   set = (index: number, player: PlayerType): void => {
     this.players[index] = player
   }

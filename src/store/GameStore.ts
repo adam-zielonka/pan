@@ -14,6 +14,10 @@ class GameStore extends SubscribableStore {
     this.newGame()
   }
 
+  get smallStack(): Card[] {
+    return this.stack.slice(0, 3)
+  }
+
   isActionAvailable = (actionCard: Card, playerID: number): boolean => {
     return this.board.isActionAvailable(actionCard, playerID)
   }
@@ -38,6 +42,7 @@ class GameStore extends SubscribableStore {
     this.token = board.getCurrentPlayer().id
     this.stack = board.getStack()
     this.players = board.getPlayers()
+    this.notify()
   }
 
   newGame = (): void => {

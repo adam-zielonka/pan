@@ -1,22 +1,19 @@
 <script lang="ts">
   import { store } from '../store/store'
+  import Card from './CardElement.svelte'
   const { game } = store
-
-  $: smallStack = game.stack.slice(Math.max(game.stack.length - 3, 0))
 </script>
 
 <div>
   {#if $game.stack.length > 3}
     <button disabled={true}> ... </button>
   {/if}
-  <div>
-    {#each smallStack as card}
-      {card.toString()}
-    {/each}
-  </div>
-  {#each $game.stack as card}
-    {card.toString()}
+  {#each $game.smallStack as card}
+    <Card {card} />
   {/each}
+  {#if $game.stack.length > 3}
+    ...
+  {/if}
   <button
     on:click={game.getFromStack}
     disabled={$game.stack.length > 1 && $game.token === 0 ? false : true}
