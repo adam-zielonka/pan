@@ -14,7 +14,7 @@
   {#each player.cards as card}
     <CardElement {card} disabled={!game.isActionAvailable(card, player.id)} />
   {/each}
-  {#each player.getFigureActions($game.stack.length === 0) as figure}
+  {#each player.getFigureActions($game.stack.length !== 0) as figure}
     <button on:click={() => game.setComboMode(figure)}>
       {Card.numberToFigure(figure)}
     </button>
