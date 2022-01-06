@@ -35,12 +35,18 @@
       <CardElement {card} on:click={() => move(card)} />
     </span>
   {/each}
+  <footer>&nbsp;</footer>
 </div>
 
 <style>
   div {
     display: flex;
     flex-direction: row;
+    justify-content: center;
+  }
+
+  footer {
+    width: 62px;
   }
 
   .hidden {
