@@ -76,10 +76,22 @@ export class Card {
     }
   }
 
-  public constructor(private value: Figure, private color: Color) {}
+  public constructor(public readonly value: Figure, public readonly color: Color) {}
 
   get colorStyle(): string {
     return this.getColorStyle()
+  }
+
+  get text(): string {
+    return this.toString()
+  }
+
+  get colorText(): string {
+    return this.numberToColor()
+  }
+
+  get figureText(): string {
+    return this.numberToFigure()
   }
 
   public getValue(): number {
