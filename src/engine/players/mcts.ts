@@ -6,7 +6,7 @@ import { printPlayer } from '../utils'
 enum Action {
   play1 = 'action',
   play4 = 'setComboMode',
-  getFromStack = 'getFromStack'
+  getFromStack = 'getFromStack',
 }
 
 class Result {
@@ -102,13 +102,15 @@ class Node {
     for (const node of this.childArray) {
       // console.log(node)
       const card = node.state.action.card
-      console.log(`%c ${card ? card.toString() : 'Stack'} ${Math.round(node.state.winScore * 100 / 10) / 100 }/${node.state.visitCount}`,
-        `color: ${card && card.getColorStyle()}`
+      console.log(
+        `%c ${card ? card.text : 'Stack'} ${
+          Math.round((node.state.winScore * 100) / 10) / 100
+        }/${node.state.visitCount}`,
+        `color: ${card && card.colorStyle}`,
       )
     }
   }
 }
-
 
 class Tree {
   root: Node
@@ -123,8 +125,14 @@ class Tree {
 }
 
 class UCT {
-  public static uctValue(totalVisit: number, nodeWinScore: number, nodeVisit: number): number {
-    if (nodeVisit === 0) { return Number.MAX_VALUE }
+  public static uctValue(
+    totalVisit: number,
+    nodeWinScore: number,
+    nodeVisit: number,
+  ): number {
+    if (nodeVisit === 0) {
+      return Number.MAX_VALUE
+    }
     return nodeWinScore / nodeVisit + 1.41 * Math.sqrt(Math.log(totalVisit) / nodeVisit)
   }
 
@@ -137,7 +145,6 @@ class UCT {
 }
 
 export class MCTS extends Player {
-
   public selectPromisingNode(root: Node): Node {
     let node = root
     while (node.childArray.length) {
@@ -174,7 +181,9 @@ export class MCTS extends Player {
   }
 
   public backPropagation(node: Node, score: number) {
-    if (score < 0) { return }
+    if (score < 0) {
+      return
+    }
     let tempNode = node
     while (tempNode) {
       tempNode.state.visitCount++
@@ -231,20 +240,26 @@ export class MCTS extends Player {
     // }
     // if (!success) {
     printPlayer(this.id, 'MCTS')
-    console.log('START ' + board.getToken() + ' - ' + (Math.round(board.procentComplete() * 10000) / 100) + '%')
+    console.log(
+      'START ' +
+        board.getToken() +
+        ' - ' +
+        Math.round(board.procentComplete() * 10000) / 100 +
+        '%',
+    )
     const result = this.getResult(board)
     console.log('END')
 
     switch (result.type) {
-    case Action.play1:
-      board.action(result.card)
-      break
-    case Action.play4:
-      board.setComboMode(result.card.getValue(), true)
-      break
-    default:
-      board.getFromStack()
-      break
+      case Action.play1:
+        board.action(result.card)
+        break
+      case Action.play4:
+        board.setComboMode(result.card.figure, true)
+        break
+      default:
+        board.getFromStack()
+        break
     }
     // }
   }

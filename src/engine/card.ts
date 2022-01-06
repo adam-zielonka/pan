@@ -37,8 +37,8 @@ export class Deck {
     const log = []
     const styles = []
     for (const card of deck) {
-      log.push(`%c${card.toString()}`)
-      styles.push(`color: ${card && card.getColorStyle()}`)
+      log.push(`%c${card.text}`)
+      styles.push(`color: ${card && card.colorStyle}`)
     }
     console.log(log.join(' '), ...styles)
     return deck
@@ -46,8 +46,25 @@ export class Deck {
 }
 
 export class Card {
-  public static numberToColor(color: Color): string {
-    switch (color) {
+  public constructor(public readonly figure: Figure, public readonly color: Color) {}
+
+  get colorStyle(): string {
+    switch (this.color) {
+      case Color.Karo:
+      case Color.Kier:
+        return 'red'
+      case Color.Trefl:
+      case Color.Pik:
+        return 'black'
+    }
+  }
+
+  get text(): string {
+    return this.color ? `${this.figureText}${this.colorText}` : this.figureText
+  }
+
+  get colorText(): string {
+    switch (this.color) {
       case Color.Karo:
         return '♦'
       case Color.Kier:
@@ -59,8 +76,8 @@ export class Card {
     }
   }
 
-  public static numberToFigure(figure: Figure): string {
-    switch (figure) {
+  get figureText(): string {
+    switch (this.figure) {
       case Figure.f9:
         return '9'
       case Figure.f10:
@@ -76,92 +93,37 @@ export class Card {
     }
   }
 
-  public constructor(public readonly value: Figure, public readonly color: Color) {}
-
-  get colorStyle(): string {
-    return this.getColorStyle()
-  }
-
-  get text(): string {
-    return this.toString()
-  }
-
-  get colorText(): string {
-    return this.numberToColor()
-  }
-
-  get figureText(): string {
-    return this.numberToFigure()
-  }
-
-  public getValue(): number {
-    return this.value
-  }
-
-  public getColor(): number {
-    return this.color
-  }
-
-  public getColorStyle(): string {
-    switch (this.color) {
-      case Color.Karo:
-      case Color.Kier:
-        return 'red'
-      case Color.Trefl:
-      case Color.Pik:
-        return 'black'
-    }
-  }
-
-  private numberToColor(): string {
-    return Card.numberToColor(this.color)
-  }
-
-  private numberToFigure(): string {
-    return Card.numberToFigure(this.value)
-  }
-
-  public toString(): string {
-    return this.color
-      ? `${this.numberToFigure()}${this.numberToColor()}`
-      : this.numberToFigure()
-  }
-
-  public isEqual(card: Card): boolean {
-    return this.value === card.getValue() && this.color === card.getColor()
-  }
-
-  public isPik(): boolean {
+  get isPik(): boolean {
     return this.color === Color.Pik
   }
 
+  get isStartCard(): boolean {
+    return this.isEqual(new Card(Figure.f9, Color.Kier))
+  }
+
+  public isEqual(card: Card): boolean {
+    return this.figure === card.figure && this.color === card.color
+  }
+
   public compare(card: Card): number {
-    if (this.value < card.getValue()) {
+    if (this.figure < card.figure) {
       return -1
-    }
-    if (this.value > card.getValue()) {
+    } else if (this.figure > card.figure) {
       return 1
     }
     return 0
   }
 
   public compareColors(card: Card): number {
-    if (this.value < card.getValue()) {
+    if (this.figure < card.figure) {
       return -1
-    }
-    if (this.value > card.getValue()) {
+    } else if (this.figure > card.figure) {
       return 1
-    }
-    if (this.color > card.getColor()) {
+    } else if (this.color > card.color) {
       return 1
-    }
-    if (this.color < card.getColor()) {
+    } else if (this.color < card.color) {
       return -1
     }
     return 0
-  }
-
-  public isStartCard(): boolean {
-    return this.isEqual(new Card(Figure.f9, Color.Kier))
   }
 }

@@ -8,7 +8,7 @@ const LEVEL = 4
 enum Action {
   play1 = 'action',
   play4 = 'setComboMode',
-  getFromStack = 'getFromStack'
+  getFromStack = 'getFromStack',
 }
 
 class Result {
@@ -24,7 +24,6 @@ class Result {
 }
 
 export class PlayerAZ extends Player {
-
   public getAllPossibleStates(board: Board, level: number = 0): Result[] {
     const states: Result[] = []
     for (const card of board.getPossibleActions()) {
@@ -63,21 +62,25 @@ export class PlayerAZ extends Player {
     if (level === 0) {
       return states.sort((a, b) => {
         switch (true) {
-        case a.points > b.points: return -1
-        case a.points < b.points: return 1
-        default: return 0
+          case a.points > b.points:
+            return -1
+          case a.points < b.points:
+            return 1
+          default:
+            return 0
         }
       })
     } else {
-      return [states.reduce((a, b) => a.points < b.points ? a : b)]
+      return [states.reduce((a, b) => (a.points < b.points ? a : b))]
     }
   }
 
   public printResult(result: Result[]) {
     for (const action of result) {
       const { card, points } = action
-      console.log(`%c ${card ? card.toString() : 'Stack'} ${Math.round(points * 10000) / 100 }`,
-        `color: ${card && card.getColorStyle()}`
+      console.log(
+        `%c ${card ? card.text : 'Stack'} ${Math.round(points * 10000) / 100}`,
+        `color: ${card && card.colorStyle}`,
       )
     }
   }
@@ -87,15 +90,15 @@ export class PlayerAZ extends Player {
     const result = this.getAllPossibleStates(board)
     this.printResult(result)
     switch (result[0].type) {
-    case Action.play1:
-      board.action(result[0].card)
-      break
-    case Action.play4:
-      board.setComboMode(result[0].card.getValue(), true)
-      break
-    default:
-      board.getFromStack()
-      break
+      case Action.play1:
+        board.action(result[0].card)
+        break
+      case Action.play4:
+        board.setComboMode(result[0].card.figure, true)
+        break
+      default:
+        board.getFromStack()
+        break
     }
   }
 }
