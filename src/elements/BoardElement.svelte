@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { quintOut } from 'svelte/easing'
   import { crossfade } from 'svelte/transition'
   import { onMount } from 'svelte'
 
@@ -7,7 +6,6 @@
   import StackElement from './StackElement.svelte'
   import PlayerElement from './PlayerElement.svelte'
 
-  let deck: Card[] = []
   let stack: Card[] = []
   let player1: Card[] = []
   let player2: Card[] = []
@@ -20,53 +18,52 @@
   }
 
   async function dealingCards(): Promise<void> {
-    while (deck.length) {
-      let card = deck.pop()
+    while (stack.length) {
+      let card = stack.pop()
       if (!card) {
         return
       }
-      deck = [...deck]
+      stack = [...stack]
       player1.push(card)
       player1 = [...player1]
-      await sleep(50)
+      await sleep(150)
 
-      card = deck.pop()
+      card = stack.pop()
       if (!card) {
         return
       }
-      deck = [...deck]
+      stack = [...stack]
       player2.push(card)
       player2 = [...player2]
-      await sleep(50)
+      await sleep(150)
 
-      card = deck.pop()
+      card = stack.pop()
       if (!card) {
         return
       }
-      deck = [...deck]
+      stack = [...stack]
       player3.push(card)
       player3 = [...player3]
-      await sleep(50)
+      await sleep(150)
 
-      card = deck.pop()
+      card = stack.pop()
       if (!card) {
         return
       }
-      deck = [...deck]
+      stack = [...stack]
       player4.push(card)
       player4 = [...player4]
-      await sleep(50)
+      await sleep(150)
     }
   }
 
   onMount(() => {
-    deck = Deck.shuffle(Deck.generate())
-    setTimeout(() => void dealingCards())
+    stack = Deck.shuffle(Deck.generate())
+    setTimeout(() => void dealingCards(), 500)
   })
 
   function moveToStack(card: Card): void {
     stack = [...stack, card]
-    deck = deck.filter(c => c !== card)
     player1 = player1.filter(c => c !== card)
     player2 = player2.filter(c => c !== card)
     player3 = player3.filter(c => c !== card)
@@ -92,29 +89,12 @@
 
   const [send, receive] = crossfade({
     duration: d => Math.sqrt(d * 200),
-
-    fallback(node) {
-      const style = getComputedStyle(node)
-      const transform = style.transform === 'none' ? '' : style.transform
-
-      return {
-        duration: 600,
-        easing: quintOut,
-        css: t => `
-    			transform: ${transform} scale(${t});
-    			opacity: ${t}
-    		`,
-      }
-    },
   })
 </script>
 
 <main>
   <div class="stack">
     <StackElement {stack} move={moveToDeck} {receive} {send} />
-  </div>
-  <div class="deck">
-    <PlayerElement cards={deck} move={moveToStack} {receive} {send} />
   </div>
   <div class="player1">
     <PlayerElement cards={player1} move={moveToStack} {receive} {send} />
@@ -131,15 +111,38 @@
 </main>
 
 <style>
-  .deck {
-    position: absolute;
-    top: -1000px;
-    left: -1000px;
-  }
   div {
     padding: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  }
+
+  main {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+  }
+
+  .stack {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .player1 {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  .player2 {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .player3 {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .player4 {
+    grid-column: 3;
+    grid-row: 2;
   }
 </style>
