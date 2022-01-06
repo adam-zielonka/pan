@@ -4,39 +4,33 @@
   export let card: Card
 </script>
 
-<article>
-  <div style={`color: ${card.colorStyle}`} on:click>
-    <header>
-      <span>
-        {card.figureText}
-      </span>
-      <span />
-      <span>
-        {card.colorText}
-      </span>
-    </header>
-    <main>{card.text}</main>
-    <footer>
-      <span>
-        {card.figureText}
-      </span>
-      <span />
-      <span>
-        {card.colorText}
-      </span>
-    </footer>
-  </div>
-</article>
+<div style={`color: ${card.colorStyle}`} on:click>
+  <header>
+    <span>
+      {card.figureText}
+    </span>
+    <span />
+    <span>
+      {card.colorText}
+    </span>
+  </header>
+  <main>{card.text}</main>
+  <footer>
+    <span>
+      {card.figureText}
+    </span>
+    <span />
+    <span>
+      {card.colorText}
+    </span>
+  </footer>
+</div>
 
 <style>
-  article {
-    width: 25px;
-  }
-
   div {
+    user-select: none;
     border: 1px solid black;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     padding: 5px;
     width: 75px;
     display: grid;

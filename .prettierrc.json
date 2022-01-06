@@ -7,5 +7,7 @@
   "svelteStrictMode": false,
   "svelteBracketNewLine": true,
   "svelteIndentScriptAndStyle": true,
-  "trailingComma": "all"
+  "trailingComma": "all",
+  "useTabs": false,
+  "tabWidth": 2
 }
