@@ -12,6 +12,7 @@
   let player3: Card[] = []
   let player4: Card[] = []
   let counter = 0
+  let started = false
 
   function sleep(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms))
@@ -59,7 +60,7 @@
 
   onMount(() => {
     stack = Deck.shuffle(Deck.generate())
-    setTimeout(() => void dealingCards(), 500)
+    setTimeout(() => void dealingCards().then(() => (started = true)), 500)
   })
 
   function moveToStack(card: Card): void {
@@ -94,19 +95,19 @@
 
 <main>
   <div class="stack">
-    <StackElement {stack} move={moveToDeck} {receive} {send} />
+    <StackElement {stack} move={moveToDeck} {receive} {send} hidden={!started} />
   </div>
   <div class="player1">
     <PlayerElement cards={player1} move={moveToStack} {receive} {send} />
   </div>
   <div class="player2">
-    <PlayerElement cards={player2} move={moveToStack} {receive} {send} />
+    <PlayerElement cards={player2} move={moveToStack} {receive} {send} hidden />
   </div>
   <div class="player3">
-    <PlayerElement cards={player3} move={moveToStack} {receive} {send} />
+    <PlayerElement cards={player3} move={moveToStack} {receive} {send} hidden />
   </div>
   <div class="player4">
-    <PlayerElement cards={player4} move={moveToStack} {receive} {send} />
+    <PlayerElement cards={player4} move={moveToStack} {receive} {send} hidden />
   </div>
 </main>
 

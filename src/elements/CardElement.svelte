@@ -2,9 +2,10 @@
   import { Card } from '../engine/card'
 
   export let card: Card
+  export let hidden = false
 </script>
 
-<div style={`color: ${card.colorStyle}`} on:click>
+<div style={`color: ${card.colorStyle}`} on:click class={hidden ? 'hidden' : 'active'}>
   <header>
     <span>
       {card.figureText}
@@ -41,9 +42,14 @@
     transition: transform 0.2s ease-in-out;
   }
 
-  div:hover {
+  .active:hover {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     transform: translateY(-20px);
+  }
+
+  .hidden {
+    background-color: rgb(67, 67, 194);
+    color: rgb(67, 67, 194) !important;
   }
 
   main {

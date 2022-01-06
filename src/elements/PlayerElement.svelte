@@ -9,6 +9,8 @@
 
   export let move: (card: Card) => void
 
+  export let hidden = false
+
   export let send: (
     node: Element,
     params: CrossfadeParams & {
@@ -27,7 +29,7 @@
 <div>
   {#each cards as card (card)}
     <span animate:flip in:receive={{ key: card }} out:send={{ key: card }}>
-      <CardElement {card} on:click={() => move(card)} />
+      <CardElement {card} on:click={() => move(card)} {hidden} />
     </span>
   {/each}
   <footer>&nbsp;</footer>
