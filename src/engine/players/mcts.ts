@@ -11,9 +11,9 @@ enum Action {
 
 class Result {
   type: Action
-  card: Card
+  card?: Card
 
-  constructor(type: Action, card: Card = null) {
+  constructor(type: Action, card?: Card) {
     this.type = type
     this.card = card
   }
@@ -24,7 +24,7 @@ class State {
   playerNo: number
   visitCount: number
   winScore: number
-  action: Result
+  action?: Result
 
   constructor(board: Board) {
     this.board = new Board(board)
@@ -33,10 +33,10 @@ class State {
     this.winScore = 0
   }
 
-  public getAllPossibleStates() {
+  getAllPossibleStates(): (() => State)[] {
     const states = []
     for (const card of this.board.getPossibleActions()) {
-      const fun = () => {
+      const fun = (): State => {
         const state = new State(this.board)
         state.board.action(card)
         state.action = new Result(Action.play1, card)
@@ -45,16 +45,16 @@ class State {
       states.push(fun)
     }
     for (const figure of this.board.getPossibleComboActions()) {
-      const fun = () => {
+      const fun = (): State => {
         const state = new State(this.board)
         state.board.setComboMode(figure, true)
-        state.action = new Result(Action.play4, new Card(figure, null))
+        state.action = new Result(Action.play4, new Card(figure, undefined))
         return state
       }
       states.push(fun)
     }
     if (this.board.getStack().length > 1) {
-      const fun = () => {
+      const fun = (): State => {
         const state = new State(this.board)
         state.board.getFromStack()
         state.action = new Result(Action.getFromStack)
@@ -65,7 +65,7 @@ class State {
     return states
   }
 
-  public randomPlay() {
+  randomPlay(): void {
     const states = this.getAllPossibleStates()
     const random = Math.floor(Math.random() * states.length)
     this.board = states[random]().board
@@ -75,7 +75,7 @@ class State {
 
 class Node {
   state: State
-  parent: Node
+  parent?: Node
   childArray: Node[]
 
   constructor(state: State) {
@@ -88,7 +88,7 @@ class Node {
     return this.childArray[random]
   }
 
-  getUTC(parentVisit): number {
+  getUTC(parentVisit: number): number {
     return UCT.uctValue(parentVisit, this.state.winScore, this.state.visitCount)
   }
 
@@ -98,15 +98,15 @@ class Node {
     })
   }
 
-  printPoints() {
+  printPoints(): void {
     for (const node of this.childArray) {
       // console.log(node)
-      const card = node.state.action.card
+      const card = node?.state?.action?.card
       console.log(
         `%c ${card ? card.text : 'Stack'} ${
           Math.round((node.state.winScore * 100) / 10) / 100
         }/${node.state.visitCount}`,
-        `color: ${card && card.colorStyle}`,
+        `color: ${(card && card.colorStyle) || 'black'}`,
       )
     }
   }
@@ -119,24 +119,20 @@ class Tree {
     this.root = new Node(new State(board))
   }
 
-  print() {
+  print(): void {
     console.log(this.root)
   }
 }
 
 class UCT {
-  public static uctValue(
-    totalVisit: number,
-    nodeWinScore: number,
-    nodeVisit: number,
-  ): number {
+  static uctValue(totalVisit: number, nodeWinScore: number, nodeVisit: number): number {
     if (nodeVisit === 0) {
       return Number.MAX_VALUE
     }
     return nodeWinScore / nodeVisit + 1.41 * Math.sqrt(Math.log(totalVisit) / nodeVisit)
   }
 
-  public static findBestNodeWithUCT(node: Node): Node {
+  static findBestNodeWithUCT(node: Node): Node {
     const parentVisit = node.state.visitCount
     return node.childArray.reduce((a, b) => {
       return a.getUTC(parentVisit) > b.getUTC(parentVisit) ? a : b
@@ -145,7 +141,7 @@ class UCT {
 }
 
 export class MCTS extends Player {
-  public selectPromisingNode(root: Node): Node {
+  selectPromisingNode(root: Node): Node {
     let node = root
     while (node.childArray.length) {
       node = UCT.findBestNodeWithUCT(node)
@@ -153,7 +149,7 @@ export class MCTS extends Player {
     return node
   }
 
-  public expandNode(node: Node) {
+  expandNode(node: Node): void {
     const possibleStates = node.state.getAllPossibleStates()
     possibleStates.forEach(state => {
       const newNode = new Node(state())
@@ -162,7 +158,7 @@ export class MCTS extends Player {
     })
   }
 
-  public simulateRandomPlayOut(node: Node): number {
+  simulateRandomPlayOut(node: Node): number {
     let status = node.state.board.playersStillPlay() <= 1
     if (status) {
       return node.state.board.getToken() !== this.id ? 10 : 0
@@ -180,11 +176,11 @@ export class MCTS extends Player {
     }
   }
 
-  public backPropagation(node: Node, score: number) {
+  backPropagation(node: Node, score: number): void {
     if (score < 0) {
       return
     }
-    let tempNode = node
+    let tempNode: Node | undefined = node
     while (tempNode) {
       tempNode.state.visitCount++
       tempNode.state.winScore += score
@@ -192,7 +188,7 @@ export class MCTS extends Player {
     }
   }
 
-  public getResult(board: Board): Result {
+  getResult(board: Board): Result | undefined {
     const tree = new Tree(board)
 
     let countOfAction = 0
@@ -226,7 +222,7 @@ export class MCTS extends Player {
     return winnerNode.state.action
   }
 
-  public play(board: Board) {
+  play(board: Board): void {
     // let success = false
     // if (board.isActionAvailable(this.cards[0], this.id)) {
     //   const comboActions = this.getFigureActions(board.getStack().length)
@@ -241,25 +237,23 @@ export class MCTS extends Player {
     // if (!success) {
     printPlayer(this.id, 'MCTS')
     console.log(
-      'START ' +
-        board.getToken() +
-        ' - ' +
-        Math.round(board.procentComplete() * 10000) / 100 +
-        '%',
+      `START ${board.getToken()} - ${Math.round(board.procentComplete() * 10000) / 100}%`,
     )
     const result = this.getResult(board)
     console.log('END')
 
-    switch (result.type) {
-      case Action.play1:
-        board.action(result.card)
-        break
-      case Action.play4:
-        board.setComboMode(result.card.figure, true)
-        break
-      default:
-        board.getFromStack()
-        break
+    if (result) {
+      switch (result.type) {
+        case Action.play1:
+          result.card && board.action(result.card)
+          break
+        case Action.play4:
+          result.card && board.setComboMode(result.card.figure, true)
+          break
+        default:
+          board.getFromStack()
+          break
+      }
     }
     // }
   }

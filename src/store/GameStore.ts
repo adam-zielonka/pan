@@ -39,7 +39,7 @@ class GameStore extends SubscribableStore {
   }
 
   render = (board: Board): void => {
-    this.token = board.getCurrentPlayer().id
+    this.token = board.getCurrentPlayer()?.id || 0
     this.stack = board.getStack()
     this.players = board.getPlayers()
     this.notify()

@@ -13,10 +13,10 @@ enum Action {
 
 class Result {
   type: Action
-  card: Card
+  card?: Card
   points: number
 
-  constructor(points: number, type: Action, card: Card = null) {
+  constructor(points: number, type: Action, card?: Card) {
     this.type = type
     this.card = card
     this.points = points
@@ -24,7 +24,7 @@ class Result {
 }
 
 export class PlayerAZ extends Player {
-  public getAllPossibleStates(board: Board, level: number = 0): Result[] {
+  getAllPossibleStates(board: Board, level = 0): Result[] {
     const states: Result[] = []
     for (const card of board.getPossibleActions()) {
       const testBoard = new Board(board)
@@ -46,7 +46,7 @@ export class PlayerAZ extends Player {
       } else {
         procent = 1 - this.getAllPossibleStates(testBoard, level + 1)[0].points
       }
-      states.push(new Result(procent, Action.play4, new Card(figure, null)))
+      states.push(new Result(procent, Action.play4, new Card(figure, undefined)))
     }
     if (board.getStack().length > 1) {
       const testBoard = new Board(board)
@@ -75,26 +75,26 @@ export class PlayerAZ extends Player {
     }
   }
 
-  public printResult(result: Result[]) {
+  printResult(result: Result[]): void {
     for (const action of result) {
       const { card, points } = action
       console.log(
         `%c ${card ? card.text : 'Stack'} ${Math.round(points * 10000) / 100}`,
-        `color: ${card && card.colorStyle}`,
+        `color: ${(card && card.colorStyle) || 'black'}}`,
       )
     }
   }
 
-  public play(board: Board) {
+  play(board: Board): void {
     printPlayer(this.id, 'AZ')
     const result = this.getAllPossibleStates(board)
     this.printResult(result)
     switch (result[0].type) {
       case Action.play1:
-        board.action(result[0].card)
+        result[0].card && board.action(result[0].card)
         break
       case Action.play4:
-        board.setComboMode(result[0].card.figure, true)
+        result[0].card && board.setComboMode(result[0].card.figure, true)
         break
       default:
         board.getFromStack()

@@ -6,37 +6,40 @@ export class Player implements IPlayer {
   private _cards: Card[]
   private _id: number
 
-  public constructor(id: number, cards: Card[] = []) {
+  constructor(id: number, cards: Card[] = []) {
     this._id = id
     this._cards = cards
   }
 
-  public get idText(): number {
+  get idText(): number {
     return this.id + 1
   }
 
-  public get cards(): Card[] {
+  get cards(): Card[] {
     return this._cards
   }
 
-  public get id(): number {
+  get id(): number {
     return this._id
   }
 
-  public copy(): IPlayer {
+  copy(): IPlayer {
     return new Player(
       this.id,
       this.cards.map(card => card),
     )
   }
 
-  public addCard(card: Card) {
+  addCard(card: Card): void {
     const index = this._cards.findIndex(_card => card.compareColors(_card) === -1)
-    if (index !== -1) this._cards.splice(index, 0, card)
-    else this._cards.push(card)
+    if (index !== -1) {
+      this._cards.splice(index, 0, card)
+    } else {
+      this._cards.push(card)
+    }
   }
 
-  public action(actionCard: Card): Card {
+  action(actionCard: Card): Card | undefined {
     for (let i = 0; i < this.cards.length; i++) {
       if (actionCard.isEqual(this.cards[i])) {
         return this.cards.splice(i, 1)[0]
@@ -45,7 +48,7 @@ export class Player implements IPlayer {
     return undefined
   }
 
-  public getFigureActions(isStackEmpty: boolean): Figure[] {
+  getFigureActions(isStackEmpty: boolean): Figure[] {
     const figureActions: Figure[] = []
     let figure: Figure = Figure.f9
     let count = isStackEmpty ? 1 : 0
@@ -63,7 +66,8 @@ export class Player implements IPlayer {
     return figureActions
   }
 
-  public play(board: Board) {
+  play(board: Board): void {
+    console.log(`Board: `, board)
     printPlayer(this.id, 'Human')
   }
 }

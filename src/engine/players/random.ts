@@ -4,11 +4,11 @@ import { Figure, Color } from '../card'
 import { printPlayer } from '../utils'
 
 export class PlayerRandom extends Player {
-  public getRandom(min: number, max: number) {
+  getRandom(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1)) + min
   }
 
-  public play(board: Board) {
+  play(board: Board): void {
     printPlayer(this.id, 'random')
     const actions = board.getPossibleActions()
     const comboActions = board.getPossibleComboActions()

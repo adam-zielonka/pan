@@ -3,7 +3,7 @@ import { Player } from './player'
 import { printPlayer } from '../utils'
 
 export class PlayerAI extends Player {
-  public play(board: Board) {
+  play(board: Board): void {
     printPlayer(this.id, 'simple.ai')
     let success = false
     if (board.isActionAvailable(this.cards[0], this.id)) {

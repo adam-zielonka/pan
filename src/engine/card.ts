@@ -15,7 +15,7 @@ export enum Color {
 }
 
 export class Deck {
-  public static generate(): Card[] {
+  static generate(): Card[] {
     const deck: Card[] = []
     for (let figure = Figure.f9; figure <= Figure.A; figure++) {
       for (let color = Color.Kier; color <= Color.Pik; color++) {
@@ -25,7 +25,7 @@ export class Deck {
     return deck
   }
 
-  public static shuffle(deck: Card[]): Card[] {
+  static shuffle(deck: Card[]): Card[] {
     for (let i = deck.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))
       ;[deck[i], deck[j]] = [deck[j], deck[i]]
@@ -33,7 +33,7 @@ export class Deck {
     return deck
   }
 
-  public static print(deck: Card[]): Card[] {
+  static print(deck: Card[]): Card[] {
     const log = []
     const styles = []
     for (const card of deck) {
@@ -63,7 +63,7 @@ export class Card {
     }
   }
 
-  static colorToString(color: Color): string {
+  static colorToString(color?: Color): string {
     switch (color) {
       case Color.Karo:
         return '♦'
@@ -73,10 +73,12 @@ export class Card {
         return '♣'
       case Color.Pik:
         return '♠'
+      default:
+        return '?'
     }
   }
 
-  constructor(public readonly figure: Figure, public readonly color: Color) {}
+  constructor(readonly figure: Figure, readonly color?: Color) {}
 
   get colorStyle(): string {
     switch (this.color) {
@@ -86,6 +88,8 @@ export class Card {
       case Color.Trefl:
       case Color.Pik:
         return 'black'
+      default:
+        return 'green'
     }
   }
 
@@ -127,10 +131,12 @@ export class Card {
       return -1
     } else if (this.figure > card.figure) {
       return 1
-    } else if (this.color > card.color) {
-      return 1
-    } else if (this.color < card.color) {
-      return -1
+    } else if (this.color && card.color) {
+      if (this.color > card.color) {
+        return 1
+      } else if (this.color < card.color) {
+        return -1
+      }
     }
     return 0
   }
