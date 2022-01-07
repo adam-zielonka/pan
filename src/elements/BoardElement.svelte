@@ -18,6 +18,12 @@
   </div>
   {#each $game.players as player}
     <div class={`player${player.id + 1}`}>
+      <header class={player.id !== 0 ? 'playerID' : 'playerIDOne'}>
+        #{player.id + 1}
+        {#if player.id === $game.token}
+          🪙
+        {/if}
+      </header>
       <PlayerElement
         cards={player.cards}
         move={game.action}
@@ -43,6 +49,16 @@
 <style>
   div {
     padding: 10px;
+  }
+
+  header {
+    font-size: 1.5em;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .playerIDOne {
+    margin-bottom: 20px;
   }
 
   main {
