@@ -17,12 +17,12 @@
     <StackElement stack={$game.stack} move={game.getFromStack} {receive} {send} />
   </div>
   {#each $game.players as player}
-    <div class={`player${player.id + 1}`}>
+    <div class={`player${player.idText}`}>
       <header
         class={`${player.id === 0 ? 'playerIDOne ' : ''}` +
           `${player.id === $game.token ? 'token' : ''}`}
       >
-        #{player.id + 1}
+        #{player.idText}
       </header>
       <PlayerElement
         cards={player.cards}

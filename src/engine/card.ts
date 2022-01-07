@@ -17,9 +17,9 @@ export enum Color {
 export class Deck {
   public static generate(): Card[] {
     const deck: Card[] = []
-    for (let i = 9; i <= 14; i++) {
-      for (let j = 1; j <= 4; j++) {
-        deck.push(new Card(i, j))
+    for (let figure = Figure.f9; figure <= Figure.A; figure++) {
+      for (let color = Color.Kier; color <= Color.Pik; color++) {
+        deck.push(new Card(figure, color))
       }
     }
     return deck
@@ -63,6 +63,19 @@ export class Card {
     }
   }
 
+  static colorToString(color: Color): string {
+    switch (color) {
+      case Color.Karo:
+        return '♦'
+      case Color.Kier:
+        return '♥'
+      case Color.Trefl:
+        return '♣'
+      case Color.Pik:
+        return '♠'
+    }
+  }
+
   constructor(public readonly figure: Figure, public readonly color: Color) {}
 
   get colorStyle(): string {
@@ -81,16 +94,7 @@ export class Card {
   }
 
   get colorText(): string {
-    switch (this.color) {
-      case Color.Karo:
-        return '♦'
-      case Color.Kier:
-        return '♥'
-      case Color.Trefl:
-        return '♣'
-      case Color.Pik:
-        return '♠'
-    }
+    return Card.colorToString(this.color)
   }
 
   get figureText(): string {

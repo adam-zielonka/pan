@@ -1,11 +1,9 @@
 import { Card, Figure, Color, Deck } from './card'
 
-function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
-
 export interface IPlayer {
   id: number
+
+  get idText(): number
   cards: Card[]
   addCard(card: Card): void
   action(actionCard: Card): Card

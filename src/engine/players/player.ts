@@ -11,6 +11,10 @@ export class Player implements IPlayer {
     this._cards = cards
   }
 
+  public get idText(): number {
+    return this.id + 1
+  }
+
   public get cards(): Card[] {
     return this._cards
   }
