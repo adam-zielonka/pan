@@ -9,8 +9,6 @@
 
   export let move: (card: Card) => void
 
-  export let hidden = false
-
   export let send: (
     node: Element,
     params: CrossfadeParams & {
@@ -34,7 +32,7 @@
       out:send={{ key: card }}
       class={i > stack.length - 4 ? 'lastThree' : 'hidden'}
     >
-      <CardElement {card} on:click={() => move(card)} {hidden} />
+      <CardElement {card} on:click={() => move(card)} />
     </span>
   {/each}
   <footer>&nbsp;</footer>
@@ -52,7 +50,8 @@
   }
 
   .hidden {
-    width: 0px;
+    /* width: 0px; */
+    width: 25px;
   }
 
   .lastThree {

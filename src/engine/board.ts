@@ -1,5 +1,9 @@
 import { Card, Figure, Color, Deck } from './card'
 
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
 export interface IPlayer {
   id: number
   cards: Card[]
@@ -179,7 +183,7 @@ export class Board {
     this.nextPlayer()
   }
 
-  public nextPlayer() {
+  public async nextPlayer(): Promise<void> {
     if (this.stack.length && this.stack[this.stack.length - 1].isPik) {
       this.token = --this.token < 0 ? this.players.length - 1 : this.token
     } else {
@@ -187,11 +191,11 @@ export class Board {
     }
 
     if (!this.getCurrentPlayer().cards.length) {
-      this.nextPlayer()
+      await this.nextPlayer()
       return
     }
 
-    this.playPlayer()
+    setTimeout(() => this.playPlayer(), 400)
   }
 
   public playPlayer = (): void => {

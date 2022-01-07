@@ -3,9 +3,14 @@
 
   export let card: Card
   export let hidden = false
+  export let possible: (card: Card) => boolean = () => true
 </script>
 
-<div style={`color: ${card.colorStyle}`} on:click class={hidden ? 'hidden' : 'active'}>
+<div
+  style={`color: ${card.colorStyle}`}
+  on:click
+  class={hidden ? 'hidden' : possible(card) ? 'active' : 'no-active'}
+>
   <header>
     <span>
       {card.figureText}
@@ -44,7 +49,14 @@
 
   .active:hover {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  }
+
+  .active {
     transform: translateY(-20px);
+  }
+
+  .no-active {
+    background-color: lightgray;
   }
 
   .hidden {

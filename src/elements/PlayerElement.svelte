@@ -9,6 +9,8 @@
 
   export let move: (card: Card) => void
 
+  export let possible: (card: Card) => boolean
+
   export let hidden = false
 
   export let send: (
@@ -29,7 +31,7 @@
 <div>
   {#each cards as card (card)}
     <span animate:flip in:receive={{ key: card }} out:send={{ key: card }}>
-      <CardElement {card} on:click={() => move(card)} {hidden} />
+      <CardElement {card} on:click={() => move(card)} {hidden} {possible} />
     </span>
   {/each}
   <footer>&nbsp;</footer>

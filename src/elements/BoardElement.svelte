@@ -1,92 +1,10 @@
 <script lang="ts">
   import { crossfade } from 'svelte/transition'
-  import { onMount } from 'svelte'
-
-  import { Card, Deck } from '../engine/card'
   import StackElement from './StackElement.svelte'
   import PlayerElement from './PlayerElement.svelte'
+  import { store } from '../store/store'
 
-  let stack: Card[] = []
-  let player1: Card[] = []
-  let player2: Card[] = []
-  let player3: Card[] = []
-  let player4: Card[] = []
-  let counter = 0
-  let started = false
-
-  function sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms))
-  }
-
-  async function dealingCards(): Promise<void> {
-    while (stack.length) {
-      let card = stack.pop()
-      if (!card) {
-        return
-      }
-      stack = [...stack]
-      player1.push(card)
-      player1 = [...player1]
-      await sleep(150)
-
-      card = stack.pop()
-      if (!card) {
-        return
-      }
-      stack = [...stack]
-      player2.push(card)
-      player2 = [...player2]
-      await sleep(150)
-
-      card = stack.pop()
-      if (!card) {
-        return
-      }
-      stack = [...stack]
-      player3.push(card)
-      player3 = [...player3]
-      await sleep(150)
-
-      card = stack.pop()
-      if (!card) {
-        return
-      }
-      stack = [...stack]
-      player4.push(card)
-      player4 = [...player4]
-      await sleep(150)
-    }
-  }
-
-  onMount(() => {
-    stack = Deck.shuffle(Deck.generate())
-    setTimeout(() => void dealingCards().then(() => (started = true)), 500)
-  })
-
-  function moveToStack(card: Card): void {
-    stack = [...stack, card]
-    player1 = player1.filter(c => c !== card)
-    player2 = player2.filter(c => c !== card)
-    player3 = player3.filter(c => c !== card)
-    player4 = player4.filter(c => c !== card)
-  }
-
-  function moveToDeck(card: Card): void {
-    if (counter % 4 === 0) {
-      player1 = [...player1, card]
-    }
-    if (counter % 4 === 1) {
-      player2 = [...player2, card]
-    }
-    if (counter % 4 === 2) {
-      player3 = [...player3, card]
-    }
-    if (counter % 4 === 3) {
-      player4 = [...player4, card]
-    }
-    stack = stack.filter(c => c !== card)
-    counter++
-  }
+  const { game } = store
 
   const [send, receive] = crossfade({
     duration: d => Math.sqrt(d * 200),
@@ -95,20 +13,20 @@
 
 <main>
   <div class="stack">
-    <StackElement {stack} move={moveToDeck} {receive} {send} hidden={!started} />
+    <StackElement stack={$game.stack} move={game.getFromStack} {receive} {send} />
   </div>
-  <div class="player1">
-    <PlayerElement cards={player1} move={moveToStack} {receive} {send} />
-  </div>
-  <div class="player2">
-    <PlayerElement cards={player2} move={moveToStack} {receive} {send} hidden />
-  </div>
-  <div class="player3">
-    <PlayerElement cards={player3} move={moveToStack} {receive} {send} hidden />
-  </div>
-  <div class="player4">
-    <PlayerElement cards={player4} move={moveToStack} {receive} {send} hidden />
-  </div>
+  {#each $game.players as player}
+    <div class={`player${player.id + 1}`}>
+      <PlayerElement
+        cards={player.cards}
+        move={game.action}
+        possible={card => game.isActionAvailable(card, player.id)}
+        {receive}
+        {send}
+        hidden={player.id !== 0}
+      />
+    </div>
+  {/each}
 </main>
 
 <style>
