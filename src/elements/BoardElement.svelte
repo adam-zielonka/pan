@@ -7,8 +7,8 @@
 
   const { game } = store
 
-  const [send, receive] = crossfade({
-    duration: d => Math.sqrt(d * 200),
+  const [receive, send] = crossfade({
+    duration: d => Math.sqrt(d * 500),
   })
 </script>
 

@@ -50,7 +50,7 @@ class GameStore extends SubscribableStore {
       this.board.stop()
     }
     this.board = new Board()
-    this.board.setPlayerDelay(100)
+    this.board.setPlayerDelay(1500)
     this.board.setRender(this.render)
     this.board.setPlayers(this.playersStore.getGamePlayers())
     this.board.dealingCards(Deck.print(Deck.shuffle(Deck.generate())))

@@ -146,11 +146,11 @@ export class Board {
         this.stillPlay--
       }
       if (!this.comboMode) {
-        void this.nextPlayer()
+        this.nextPlayer()
       } else {
         if (!--this.comboCounter) {
           this.comboMode = undefined
-          void this.nextPlayer()
+          this.nextPlayer()
         }
       }
     }
@@ -188,10 +188,10 @@ export class Board {
       const card = this.stack.pop()
       card && this.getCurrentPlayer()?.addCard(card)
     }
-    void this.nextPlayer()
+    this.nextPlayer()
   }
 
-  async nextPlayer(): Promise<void> {
+  nextPlayer(): void {
     if (this.stack.length && this.stack[this.stack.length - 1].isPik) {
       this.token = --this.token < 0 ? this.players.length - 1 : this.token
     } else {
@@ -199,11 +199,11 @@ export class Board {
     }
 
     if (!this.getCurrentPlayer()?.cards.length) {
-      await this.nextPlayer()
+      this.nextPlayer()
       return
     }
 
-    setTimeout(() => this.playPlayer(), 400)
+    this.playPlayer()
   }
 
   playPlayer = (): void => {
