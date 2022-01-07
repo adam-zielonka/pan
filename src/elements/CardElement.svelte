@@ -4,11 +4,16 @@
   export let card: Card
   export let hidden = false
   export let possible: (card: Card) => boolean = () => true
+  export let click: (card: Card) => void
 </script>
 
 <div
   style={`color: ${card.colorStyle}`}
-  on:click
+  on:click={() => {
+    if (possible(card)) {
+      click(card)
+    }
+  }}
   class={hidden ? 'hidden' : possible(card) ? 'active' : 'no-active'}
 >
   <header>

@@ -20,7 +20,7 @@ class PlayersStore extends SubscribableStore {
 
   constructor() {
     super()
-    this.players = [PlayerType.Human, PlayerType.AZ, PlayerType.MCTS, PlayerType.MCTS]
+    this.players = [PlayerType.Human, PlayerType.AZ, PlayerType.MCTS, PlayerType.AZ]
   }
 
   get playerOne(): PlayerType {

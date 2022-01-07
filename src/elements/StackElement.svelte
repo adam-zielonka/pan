@@ -37,7 +37,7 @@
     >
       <CardElement
         {card}
-        on:click={() => move(card)}
+        click={() => move(card)}
         possible={() => i > 0 && $game.token === 0 && i > stack.length - 4}
       />
     </span>

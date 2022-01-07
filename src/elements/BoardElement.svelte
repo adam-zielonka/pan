@@ -3,6 +3,7 @@
   import StackElement from './StackElement.svelte'
   import PlayerElement from './PlayerElement.svelte'
   import { store } from '../store/store'
+  import { Card } from '../engine/card'
 
   const { game } = store
 
@@ -27,6 +28,16 @@
       />
     </div>
   {/each}
+  <div class="combo">
+    {#each $game.players[0].getFigureActions($game.stack.length !== 0) as figure}
+      <button
+        on:click={() => game.setComboMode(figure)}
+        disabled={!game.isComboActionAvailable(figure, $game.players[0].id)}
+      >
+        {Card.figureToString(figure)}
+      </button>
+    {/each}
+  </div>
 </main>
 
 <style>
@@ -37,7 +48,7 @@
   main {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr auto;
     gap: 10px;
   }
 
@@ -64,5 +75,13 @@
   .player4 {
     grid-column: 3;
     grid-row: 2;
+  }
+
+  .combo {
+    grid-column: 2;
+    grid-row: 4;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
   }
 </style>

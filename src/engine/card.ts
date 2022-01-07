@@ -46,7 +46,24 @@ export class Deck {
 }
 
 export class Card {
-  public constructor(public readonly figure: Figure, public readonly color: Color) {}
+  static figureToString(figure: Figure): string {
+    switch (figure) {
+      case Figure.f9:
+        return '9'
+      case Figure.f10:
+        return '10'
+      case Figure.J:
+        return 'J'
+      case Figure.Q:
+        return 'Q'
+      case Figure.K:
+        return 'K'
+      case Figure.A:
+        return 'A'
+    }
+  }
+
+  constructor(public readonly figure: Figure, public readonly color: Color) {}
 
   get colorStyle(): string {
     switch (this.color) {
@@ -77,20 +94,7 @@ export class Card {
   }
 
   get figureText(): string {
-    switch (this.figure) {
-      case Figure.f9:
-        return '9'
-      case Figure.f10:
-        return '10'
-      case Figure.J:
-        return 'J'
-      case Figure.Q:
-        return 'Q'
-      case Figure.K:
-        return 'K'
-      case Figure.A:
-        return 'A'
-    }
+    return Card.figureToString(this.figure)
   }
 
   get isPik(): boolean {
@@ -101,11 +105,11 @@ export class Card {
     return this.isEqual(new Card(Figure.f9, Color.Kier))
   }
 
-  public isEqual(card: Card): boolean {
+  isEqual(card: Card): boolean {
     return this.figure === card.figure && this.color === card.color
   }
 
-  public compare(card: Card): number {
+  compare(card: Card): number {
     if (this.figure < card.figure) {
       return -1
     } else if (this.figure > card.figure) {
@@ -114,7 +118,7 @@ export class Card {
     return 0
   }
 
-  public compareColors(card: Card): number {
+  compareColors(card: Card): number {
     if (this.figure < card.figure) {
       return -1
     } else if (this.figure > card.figure) {

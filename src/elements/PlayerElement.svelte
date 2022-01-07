@@ -36,7 +36,7 @@
       out:send={{ key: card }}
       class={hidden ? 'hidden' : ''}
     >
-      <CardElement {card} on:click={() => move(card)} {hidden} {possible} />
+      <CardElement {card} click={() => move(card)} {hidden} {possible} />
     </span>
   {/each}
   <footer>&nbsp;</footer>
