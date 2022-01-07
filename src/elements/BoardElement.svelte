@@ -18,11 +18,11 @@
   </div>
   {#each $game.players as player}
     <div class={`player${player.id + 1}`}>
-      <header class={player.id !== 0 ? 'playerID' : 'playerIDOne'}>
+      <header
+        class={`${player.id === 0 ? 'playerIDOne ' : ''}` +
+          `${player.id === $game.token ? 'token' : ''}`}
+      >
         #{player.id + 1}
-        {#if player.id === $game.token}
-          🪙
-        {/if}
       </header>
       <PlayerElement
         cards={player.cards}
@@ -59,6 +59,10 @@
 
   .playerIDOne {
     margin-bottom: 20px;
+  }
+
+  .token {
+    text-decoration: double overline;
   }
 
   main {
