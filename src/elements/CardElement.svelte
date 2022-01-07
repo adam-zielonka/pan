@@ -56,7 +56,7 @@
   }
 
   .no-active {
-    background-color: lightgray;
+    background-color: rgb(247, 243, 211);
   }
 
   .hidden {

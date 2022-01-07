@@ -1,7 +1,10 @@
 <script lang="ts">
+  import { store } from '../store/store'
   import { flip } from 'svelte/animate'
   import { CrossfadeParams, TransitionConfig } from 'svelte/transition'
   import { Card } from '../engine/card'
+
+  const { game } = store
 
   import CardElement from './CardElement.svelte'
 
@@ -32,7 +35,11 @@
       out:send={{ key: card }}
       class={i > stack.length - 4 ? 'lastThree' : 'hidden'}
     >
-      <CardElement {card} on:click={() => move(card)} />
+      <CardElement
+        {card}
+        on:click={() => move(card)}
+        possible={() => i > 0 && $game.token === 0 && i > stack.length - 4}
+      />
     </span>
   {/each}
   <footer>&nbsp;</footer>
