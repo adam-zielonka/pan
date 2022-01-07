@@ -30,7 +30,12 @@
 
 <div>
   {#each cards as card (card)}
-    <span animate:flip in:receive={{ key: card }} out:send={{ key: card }}>
+    <span
+      animate:flip
+      in:receive={{ key: card }}
+      out:send={{ key: card }}
+      class={hidden ? 'hidden' : ''}
+    >
       <CardElement {card} on:click={() => move(card)} {hidden} {possible} />
     </span>
   {/each}
@@ -50,5 +55,9 @@
 
   span {
     width: 25px;
+  }
+
+  .hidden {
+    width: 5px;
   }
 </style>
