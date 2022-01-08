@@ -1,4 +1,9 @@
 /node_modules/
+/build/
 /dist/
 /.vscode/
+/coverage/
 .DS_Store
+
+eslint.xml
+junit.xml

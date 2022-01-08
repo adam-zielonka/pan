@@ -19,13 +19,30 @@ build:
     paths:
       - node_modules
 
+test:
+  stage: test
+  script:
+    - npm install -g pnpm
+    - pnpm install
+    - pnpm test:coverage
+  coverage: /All files[^|]*\|[^|]*\s+([\d\.]+)/
+  artifacts:
+    reports:
+      cobertura: coverage/cobertura-coverage.xml
+      junit: junit.xml
+  cache:
+    paths:
+      - node_modules
+  needs:
+    - build
+
 lint:
   stage: test
   allow_failure: true
   script:
     - npm install -g pnpm
     - pnpm install
-    - pnpm lint & pnpm lint-junit
+    - pnpm lint & pnpm lint:junit
   artifacts:
     reports:
       junit: eslint.xml
