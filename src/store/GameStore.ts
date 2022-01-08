@@ -40,8 +40,8 @@ class GameStore extends SubscribableStore {
 
   render = (board: Board): void => {
     this.token = board.getCurrentPlayer()?.id || 0
-    this.stack = board.getStack()
-    this.players = board.getPlayers()
+    this.stack = board.stack
+    this.players = board.players
     this.notify()
   }
 
@@ -50,8 +50,8 @@ class GameStore extends SubscribableStore {
       this.board.stop()
     }
     this.board = new Board()
-    this.board.setPlayerDelay(1500)
-    this.board.setRender(this.render)
+    this.board.playerDelay = 1500
+    this.board.render = this.render
     this.board.setPlayers(this.playersStore.getGamePlayers())
     this.board.dealingCards(Deck.print(Deck.shuffle(Deck.generate())))
     this.render(this.board)

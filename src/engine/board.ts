@@ -13,15 +13,15 @@ export interface IPlayer {
 }
 
 export class Board {
-  private stack: Card[]
-  private players: IPlayer[]
+  stack: Card[]
+  players: IPlayer[]
+  playerDelay = 0
+  token: number
+  render?: (board: Board) => void
   private stillPlay: number
   private comboMode?: Figure
   private comboCounter = 0
-  private time = 0
-  private token: number
   private simulation: boolean
-  private render?: (board: Board) => void
   private timeout?: NodeJS.Timeout
 
   constructor(board?: Board) {
@@ -42,21 +42,13 @@ export class Board {
     }
   }
 
-  setPlayerDelay(playerDelay: number): void {
-    this.time = playerDelay
-  }
-
-  setRender(render: (board: Board) => void): void {
-    this.render = render
+  get isGameOver(): boolean {
+    return this.stillPlay < 2
   }
 
   setPlayers(players: IPlayer[]): void {
     this.players = players
     this.stillPlay = players.length
-  }
-
-  getPlayers(): IPlayer[] {
-    return this.players
   }
 
   getCurrentPlayer(): IPlayer | undefined {
@@ -66,43 +58,27 @@ export class Board {
     return undefined
   }
 
-  getToken(): number {
-    return this.token
-  }
-
-  getStack(): Card[] {
-    return this.stack
-  }
-
-  getComboMode(): Figure | undefined {
-    return this.comboMode
-  }
-
   getLastCard(): Card | undefined {
     return this.stack.length ? this.stack[this.stack.length - 1] : undefined
   }
 
-  isGameOver(): boolean {
-    return this.stillPlay < 2
-  }
-
-  isActionAvailable = (actionCard: Card, playerID = this.getToken()): boolean => {
+  isActionAvailable = (actionCard: Card, playerID = this.token): boolean => {
     if (this.comboMode) {
       return this.stack.length
         ? this.comboMode === actionCard.figure
         : actionCard.isStartCard
     }
     if (this.getLastCard()) {
-      return this.getToken() === playerID && this.getLastCard()?.compare(actionCard) !== 1
+      return this.token === playerID && this.getLastCard()?.compare(actionCard) !== 1
     }
     return actionCard.isStartCard
   }
 
-  isComboActionAvailable = (figure: Figure, playerID = this.getToken()): boolean => {
+  isComboActionAvailable = (figure: Figure, playerID = this.token): boolean => {
     if (this.comboMode) {
       return false
     }
-    if (this.getToken() !== playerID) {
+    if (this.token !== playerID) {
       return false
     }
     if (this.stack.length) {
@@ -136,7 +112,7 @@ export class Board {
   }
 
   action(actionCard: Card): void {
-    if (this.isGameOver()) {
+    if (this.isGameOver) {
       return
     }
     const card = this.players[this.token].action(actionCard)
@@ -164,7 +140,7 @@ export class Board {
   }
 
   setComboMode(figure: Figure, auto = false): void {
-    if (this.isGameOver()) {
+    if (this.isGameOver) {
       return
     }
     this.comboMode = figure
@@ -180,7 +156,7 @@ export class Board {
   }
 
   getFromStack(): void {
-    if (this.isGameOver()) {
+    if (this.isGameOver) {
       return
     }
     let counter = 3
@@ -210,10 +186,10 @@ export class Board {
     if (this.render) {
       this.render(this)
     }
-    if (this.isGameOver() || this.simulation) {
+    if (this.isGameOver || this.simulation) {
       return
     }
-    this.timeout = setTimeout(() => this.getCurrentPlayer()?.play(this), this.time)
+    this.timeout = setTimeout(() => this.getCurrentPlayer()?.play(this), this.playerDelay)
   }
 
   getPossibleActions(): Card[] {
@@ -223,7 +199,7 @@ export class Board {
   }
 
   getPossibleComboActions(): Figure[] {
-    const isStackEmpty = !!this.getStack().length
+    const isStackEmpty = !!this.stack.length
     return (
       this.getCurrentPlayer()
         ?.getFigureActions(isStackEmpty)

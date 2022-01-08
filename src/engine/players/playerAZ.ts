@@ -48,7 +48,7 @@ export class PlayerAZ extends Player {
       }
       states.push(new Result(procent, Action.play4, new Card(figure, undefined)))
     }
-    if (board.getStack().length > 1) {
+    if (board.stack.length > 1) {
       const testBoard = new Board(board)
       testBoard.getFromStack()
       let procent

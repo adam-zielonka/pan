@@ -7,7 +7,7 @@ export class PlayerAI extends Player {
     printPlayer(this.id, 'simple.ai')
     let success = false
     if (board.isActionAvailable(this.cards[0], this.id)) {
-      const comboActions = this.getFigureActions(!!board.getStack().length)
+      const comboActions = this.getFigureActions(!!board.stack.length)
       if (
         comboActions.length &&
         comboActions[0] === this.cards[0].figure &&

@@ -28,7 +28,7 @@ class State {
 
   constructor(board: Board) {
     this.board = new Board(board)
-    this.playerNo = this.board.getToken()
+    this.playerNo = this.board.token
     this.visitCount = 0
     this.winScore = 0
   }
@@ -53,7 +53,7 @@ class State {
       }
       states.push(fun)
     }
-    if (this.board.getStack().length > 1) {
+    if (this.board.stack.length > 1) {
       const fun = (): State => {
         const state = new State(this.board)
         state.board.getFromStack()
@@ -69,7 +69,7 @@ class State {
     const states = this.getAllPossibleStates()
     const random = Math.floor(Math.random() * states.length)
     this.board = states[random]().board
-    this.playerNo = this.board.getToken()
+    this.playerNo = this.board.token
   }
 }
 
@@ -161,7 +161,7 @@ export class MCTS extends Player {
   simulateRandomPlayOut(node: Node): number {
     let status = node.state.board.playersStillPlay() <= 1
     if (status) {
-      return node.state.board.getToken() !== this.id ? 10 : 0
+      return node.state.board.token !== this.id ? 10 : 0
     }
     const state = new State(node.state.board)
     let counter = 100
@@ -172,7 +172,7 @@ export class MCTS extends Player {
     if (!counter) {
       return 10 * state.board.procentComplete(this)
     } else {
-      return state.board.getToken() !== this.id ? 10 : 0
+      return state.board.token !== this.id ? 10 : 0
     }
   }
 
@@ -194,7 +194,7 @@ export class MCTS extends Player {
     let countOfAction = 0
     countOfAction += board.getPossibleActions().length
     countOfAction += board.getPossibleComboActions().length
-    countOfAction += board.getStack().length > 1 ? 1 : 0
+    countOfAction += board.stack.length > 1 ? 1 : 0
     let iter = 50 * countOfAction
     while (iter--) {
       // 1. Select promising node
@@ -225,7 +225,7 @@ export class MCTS extends Player {
   play(board: Board): void {
     // let success = false
     // if (board.isActionAvailable(this.cards[0], this.id)) {
-    //   const comboActions = this.getFigureActions(board.getStack().length)
+    //   const comboActions = this.getFigureActions(board.stack.length)
     //     if (comboActions.length && comboActions[0] === this.cards[0].getValue() &&
     //       board.isComboActionAvailable(this.cards[0].getValue(), this.id)) {
     //       board.setComboMode(this.cards[0].getValue(), true)
@@ -237,7 +237,7 @@ export class MCTS extends Player {
     // if (!success) {
     printPlayer(this.id, 'MCTS')
     console.log(
-      `START ${board.getToken()} - ${Math.round(board.procentComplete() * 10000) / 100}%`,
+      `START ${board.token} - ${Math.round(board.procentComplete() * 10000) / 100}%`,
     )
     const result = this.getResult(board)
     console.log('END')
