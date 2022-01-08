@@ -1,16 +1,26 @@
-<script>
+<script lang="ts">
   import BoardElement from './BoardElement.svelte'
   import { store } from '../new-engine/Store'
-  // import PlayerSelectElement from './PlayerSelectElement.svelte'
+  import PlayerSelectElement from './PlayerSelectElement.svelte'
 
-  // const { game } = store
+  const { game } = store
+
+  let disabled = false
+
+  function newGame(): void {
+    disabled = true
+    game.newGame()
+    setTimeout(() => {
+      disabled = false
+    }, 1000)
+  }
 </script>
 
 <div>
-  <button on:click={store.newGame}>New Game</button>
-  <!-- {#each $players.players as player, i}
-    <PlayerSelectElement id={i} {player} set={players.set} />
-  {/each} -->
+  <button on:click={newGame} {disabled}>New Game</button>
+  {#each $game.playersSelect as player, i}
+    <PlayerSelectElement id={i} {player} set={$game.playersSelect.set} />
+  {/each}
 </div>
 
 <BoardElement />

@@ -1,8 +1,10 @@
 import { Card } from './Card'
-import { Stack } from './Stack'
+import { Game } from './Game'
+import { PlayerType } from './PlayersSelect'
 
-export class Player {
+export abstract class Player {
   cards: Card[] = []
+  abstract type: PlayerType
 
   constructor(readonly id: number) {}
 
@@ -14,12 +16,7 @@ export class Player {
     return this.cards.length > 0
   }
 
-  play(stack: Stack): void {
-    const possibleActions = this.cards.filter(card =>
-      stack.isPossibleToPutCardOnStack(card),
-    )
-    const possibleGetFromStack = stack.isPossibleToGetCardFromStack()
-  }
+  abstract play(game: Game): void
 
   addCard(card: Card): void {
     const index = this.cards.findIndex(_card => card.compare(_card) === -1)

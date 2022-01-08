@@ -3,6 +3,7 @@
   import StackElement from './StackElement.svelte'
   import PlayerElement from './PlayerElement.svelte'
   import { store } from '../new-engine/Store'
+  import CardElement from './CardElement.svelte'
 
   const { game } = store
 
@@ -10,6 +11,14 @@
     duration: d => Math.sqrt(d * 500),
   })
 </script>
+
+<div>
+  {#each $game.deck as card}
+    <span in:receive={{ key: card }} out:send={{ key: card }} class="deck">
+      <CardElement {card} click={() => console.log('click')} possible={() => false} />
+    </span>
+  {/each}
+</div>
 
 <main>
   <div class="stack">
@@ -29,7 +38,7 @@
         possible={card => game.isPossibleToMoveCard(player, card)}
         {receive}
         {send}
-        hidden={false}
+        hidden={player.id !== 0}
       />
     </div>
   {/each}
@@ -54,6 +63,11 @@
     font-size: 1.5em;
     font-weight: bold;
     text-align: center;
+  }
+
+  .deck {
+    position: absolute;
+    top: -1000px;
   }
 
   .playerIDOne {

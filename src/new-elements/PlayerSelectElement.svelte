@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { PlayerType } from '../store/PlayersStore'
+  import { PlayerType } from '../new-engine/PlayersSelect'
 
   export let player: PlayerType
   export let id: number

@@ -37,7 +37,7 @@
     >
       <CardElement
         {card}
-        click={() => move(card)}
+        click={() => $game.token === 0 && move(card)}
         possible={() => i > 0 && i > stack.length - 4}
       />
     </span>

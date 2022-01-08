@@ -3,27 +3,66 @@ import { Player } from './Player'
 import { Card } from './Card'
 import { Deck } from './Deck'
 import { SubscribableStore } from './utils'
+import { PlayersSelect, PlayerType } from './PlayersSelect'
 
 export class Game extends SubscribableStore {
   stack: Stack = new Stack()
+  deck: Card[] = []
   players: Player[] = []
   token = 0
 
-  constructor(players: Player[]) {
+  timeout: NodeJS.Timeout | undefined
+  playersSelect: PlayersSelect = new PlayersSelect()
+
+  constructor() {
     super()
 
-    this.players = players
-    setTimeout(() => {
-      this.dealingCards(Deck.shuffle(Deck.generate()))
-      // this.gameLoop()
-    }, 1000)
+    this.players = this.playersSelect.getGamePlayers()
+    this.deck.push(...Deck.shuffle(Deck.generate()))
+
+    this.timeout = setTimeout(() => {
+      this.dealingCards()
+      this.notify()
+      this.timeout = setTimeout(() => this.playerPlay(), 2000)
+    }, 100)
   }
 
   get isGameOver(): boolean {
-    return this.players.filter(player => !player.isPlaying).length > 0
+    return this.players.filter(player => player.isPlaying).length < 1
+  }
+
+  newGame(): void {
+    this.timeout && clearTimeout(this.timeout)
+    this.stack.slice(0).forEach(card => {
+      const index = this.stack.findIndex(_card => card.compare(_card) === 0)
+      if (index !== -1) {
+        this.deck.push(this.stack.splice(index, 1)[0])
+      }
+    })
+    this.players.forEach(player => {
+      player.cards.slice(0).forEach(card => {
+        const c = player.pop(card)
+        if (c) {
+          this.deck.push(c)
+        }
+      })
+    })
+    for (let i = this.deck.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]]
+    }
+    this.players = this.playersSelect.getGamePlayers()
+    this.token = 0
+    this.dealingCards()
+    this.notify()
+    this.timeout = setTimeout(() => this.playerPlay(), 2000)
   }
 
   setNextPlayerToken(): void {
+    if (!this.players.some(player => player.isPlaying)) {
+      return
+    }
+
     if (this.stack.isPikOnTop) {
       this.token = (this.token + this.players.length - 1) % this.players.length
     } else {
@@ -35,31 +74,33 @@ export class Game extends SubscribableStore {
     }
   }
 
-  // getPossibleActions(player: Player): void {
-  //   const possibleCards = player.cards.filter(card =>
-  //     this.stack.isPossibleToPutCardOnStack(card),
-  //   )
+  getPossibleActions(player: Player): (() => void)[] {
+    const possibleCards = player.cards.filter(card =>
+      this.stack.isPossibleToPutCardOnStack(card),
+    )
 
-  //   const actions = [
-  //     ...possibleCards.map(c => () => {
-  //       const card = player.pop(c)
-  //       if (card) {
-  //         this.stack.putCardOnStack(card)
-  //         this.setNextPlayerToken()
-  //         this.notify()
-  //       }
-  //     }),
-  //   ]
+    const actions = [
+      ...possibleCards.map(c => () => {
+        this.moveCard(player, c)
+      }),
+    ]
 
-  //   if (this.stack.isPossibleToGetCardFromStack()) {
-  //     actions.push(() => {
-  //       const cards = this.stack.getFromStack()
-  //       cards.forEach(card => player.addCard(card))
-  //       this.setNextPlayerToken()
-  //       this.notify()
-  //     })
-  //   }
-  // }
+    if (this.stack.isPossibleToGetCardFromStack()) {
+      actions.push(() => {
+        this.getFromStack()
+      })
+    }
+
+    return actions
+  }
+
+  playerPlay(): void {
+    if (this.isGameOver) {
+      return
+    }
+
+    this.players[this.token].play(this)
+  }
 
   isPossibleToMoveCard(player: Player, card: Card): boolean {
     if (player.id !== this.token) {
@@ -87,6 +128,10 @@ export class Game extends SubscribableStore {
       this.stack.putCardOnStack(card)
       this.setNextPlayerToken()
       this.notify()
+      this.timeout && clearTimeout(this.timeout)
+      this.timeout = setTimeout(() => {
+        this.playerPlay()
+      }, 1000)
     }
   }
 
@@ -99,21 +144,27 @@ export class Game extends SubscribableStore {
     cards.forEach(card => this.players[this.token].addCard(card))
     this.setNextPlayerToken()
     this.notify()
+    this.timeout && clearTimeout(this.timeout)
+    this.timeout = setTimeout(() => {
+      this.playerPlay()
+    }, 1000)
   }
 
-  dealingCards(deck: Card[]): void {
-    while (deck.length && this.players.length) {
-      this.players.forEach((player, index) => {
-        const card = deck.pop()
+  dealingCards(): void {
+    while (this.deck.length && this.players.length) {
+      for (const player of this.players) {
+        if (player.type === PlayerType.None) {
+          continue
+        }
+        const card = this.deck.pop()
         if (!card) {
           return
         }
         if (card.isStartCard) {
-          this.token = index
+          this.token = player.id
         }
         player.addCard(card)
-        this.notify()
-      })
+      }
     }
   }
 }
