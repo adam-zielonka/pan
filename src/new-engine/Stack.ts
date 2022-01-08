@@ -1,10 +1,8 @@
 import { Card } from './Card'
 
-export class Board {
-  constructor(readonly stack: Card[] = []) {}
-
+export class Stack extends Array<Card> {
   get numberOfCardsThatCanBeGetFromStack(): number {
-    switch (this.stack.length) {
+    switch (this.length) {
       case 0:
       case 1:
         return 0
@@ -18,23 +16,23 @@ export class Board {
   }
 
   getFromStack(): Card[] {
-    return this.stack.splice(
-      this.stack.length - this.numberOfCardsThatCanBeGetFromStack,
+    return this.splice(
+      this.length - this.numberOfCardsThatCanBeGetFromStack,
       this.numberOfCardsThatCanBeGetFromStack,
     )
   }
 
   putCardOnStack(card: Card): void {
     if (this.isPossibleToPutCardOnStack(card)) {
-      this.stack.push(card)
+      this.push(card)
     }
   }
 
   isPossibleToPutCardOnStack(card: Card): boolean {
-    if (this.stack.length === 0) {
+    if (this.length === 0) {
       return card.isStartCard
     }
-    const lastCard = this.stack[this.stack.length - 1]
+    const lastCard = this[this.length - 1]
     return card.compareFigures(lastCard) >= 0
   }
 
