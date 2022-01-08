@@ -4,6 +4,12 @@ import { Stack } from './Stack'
 export class Player {
   cards: Card[] = []
 
+  constructor(readonly id: number) {}
+
+  get idText(): string {
+    return `${this.id + 1}`
+  }
+
   get isPlaying(): boolean {
     return this.cards.length > 0
   }
@@ -21,6 +27,13 @@ export class Player {
       this.cards.splice(index, 0, card)
     } else {
       this.cards.push(card)
+    }
+  }
+
+  pop(card: Card): Card | undefined {
+    const index = this.cards.findIndex(_card => card.compare(_card) === 0)
+    if (index !== -1) {
+      return this.cards.splice(index, 1)[0]
     }
   }
 }
