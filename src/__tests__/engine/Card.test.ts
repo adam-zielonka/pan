@@ -85,11 +85,11 @@ describe('Card', () => {
   it('compareFigures()', () => {
     const card = new Card(Figure.J, Color.Kier)
     const card2 = new Card(Figure.J, Color.Karo)
-    expect(card.compareFigures(card2)).toBe(0)
+    expect(card.compareFigures(card2.figure)).toBe(0)
     const card3 = new Card(Figure.K, Color.Kier)
-    expect(card.compareFigures(card3)).toBe(-1)
+    expect(card.compareFigures(card3.figure)).toBe(-1)
     const card4 = new Card(Figure.f9, Color.Kier)
-    expect(card.compareFigures(card4)).toBe(1)
+    expect(card.compareFigures(card4.figure)).toBe(1)
   })
   it('compare()', () => {
     const card = new Card(Figure.J, Color.Karo)

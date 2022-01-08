@@ -1,6 +1,6 @@
 import { Stack } from './Stack'
 import { Player } from './Player'
-import { Card } from './Card'
+import { Card, Figure } from './Card'
 import { Deck } from './Deck'
 import { SubscribableStore } from './utils'
 import { PlayersSelect, PlayerType } from './PlayersSelect'
@@ -13,6 +13,9 @@ export class Game extends SubscribableStore {
 
   timeout: NodeJS.Timeout | undefined
   playersSelect: PlayersSelect = new PlayersSelect()
+
+  isComboModeRady = false
+  isComboMode = false
 
   constructor() {
     super()
@@ -29,6 +32,35 @@ export class Game extends SubscribableStore {
 
   get isGameOver(): boolean {
     return this.players.filter(player => player.isPlaying).length < 1
+  }
+
+  get isComboPossible(): boolean {
+    const card = this.stack[this.stack.length - 1]
+    const player = this.players[this.token]
+    if (!player) {
+      return false
+    }
+
+    if (!card) {
+      const cards = player.cards.filter(c => c.compareFigures(Figure.f9) === 0)
+      return cards.length === 3
+    }
+
+    const cards = player.cards.filter(c => c.compareFigures(card.figure) === 0)
+    if (this.stack.length === 2 && card.compareFigures(Figure.f9) === 0) {
+      return cards.length === 2
+    }
+
+    return cards.length === 3
+  }
+
+  get comboFigure(): Figure {
+    const card = this.stack[this.stack.length - 1]
+    if (card) {
+      return card.figure
+    } else {
+      return Figure.f9
+    }
   }
 
   newGame(): void {
@@ -63,6 +95,10 @@ export class Game extends SubscribableStore {
       return
     }
 
+    if (this.isComboMode || this.isComboModeRady) {
+      return
+    }
+
     if (this.stack.isPikOnTop) {
       this.token = (this.token + this.players.length - 1) % this.players.length
     } else {
@@ -79,11 +115,21 @@ export class Game extends SubscribableStore {
       this.stack.isPossibleToPutCardOnStack(card),
     )
 
-    const actions = [
-      ...possibleCards.map(c => () => {
-        this.moveCard(player, c)
-      }),
-    ]
+    if (this.isComboModeRady || this.isComboMode) {
+      const actions = possibleCards.map(card => () => this.moveCard(player, card))
+
+      if (this.isComboModeRady) {
+        actions.push(() => {
+          this.cancelComboMode()
+        })
+      }
+
+      return actions
+    }
+
+    const actions = possibleCards.map(card => () => {
+      this.moveCard(player, card)
+    })
 
     if (this.stack.isPossibleToGetCardFromStack()) {
       actions.push(() => {
@@ -110,6 +156,18 @@ export class Game extends SubscribableStore {
     const possibleCards = player.cards.filter(card =>
       this.stack.isPossibleToPutCardOnStack(card),
     )
+
+    if (
+      (this.isComboModeRady || this.isComboMode) &&
+      card.compareFigures(this.comboFigure) === 0
+    ) {
+      return true
+    }
+
+    if (this.isComboModeRady || this.isComboMode) {
+      return false
+    }
+
     if (!possibleCards.some(c => c.isEqual(card))) {
       return false
     }
@@ -126,6 +184,20 @@ export class Game extends SubscribableStore {
     if (index !== -1) {
       player.cards.splice(index, 1)
       this.stack.putCardOnStack(card)
+      if (this.isComboModeRady) {
+        this.isComboModeRady = false
+        this.isComboMode = true
+      }
+      if (this.isComboPossible) {
+        this.isComboModeRady = true
+      }
+      if (
+        !this.players[this.token].cards.some(
+          c => c.compareFigures(this.comboFigure) === 0,
+        )
+      ) {
+        this.isComboMode = false
+      }
       this.setNextPlayerToken()
       this.notify()
       this.timeout && clearTimeout(this.timeout)
@@ -133,6 +205,17 @@ export class Game extends SubscribableStore {
         this.playerPlay()
       }, 1000)
     }
+  }
+
+  cancelComboMode(): void {
+    this.isComboMode = false
+    this.isComboModeRady = false
+    this.setNextPlayerToken()
+    this.notify()
+    this.timeout && clearTimeout(this.timeout)
+    this.timeout = setTimeout(() => {
+      this.playerPlay()
+    }, 1000)
   }
 
   getFromStack(): void {

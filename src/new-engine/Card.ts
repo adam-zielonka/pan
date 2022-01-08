@@ -82,11 +82,11 @@ export class Card {
     return this.figure === card.figure && this.color === card.color
   }
 
-  compareFigures(card: Card): number {
+  compareFigures(figure: Figure): number {
     switch (true) {
-      case this.figure > card.figure:
+      case this.figure > figure:
         return 1
-      case this.figure < card.figure:
+      case this.figure < figure:
         return -1
       default:
         return 0

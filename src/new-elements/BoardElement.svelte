@@ -52,6 +52,11 @@
       </button>
     {/each}
   </div> -->
+  <div class="combo">
+    {#if $game.isComboModeRady}
+      <button on:click={() => game.cancelComboMode()}>Cancel Combo Mode</button>
+    {/if}
+  </div>
 </main>
 
 <style>

@@ -37,7 +37,7 @@ export class Stack extends Array<Card> {
       return card.isStartCard
     }
     const lastCard = this[this.length - 1]
-    return card.compareFigures(lastCard) >= 0
+    return card.compareFigures(lastCard.figure) >= 0
   }
 
   isPossibleToGetCardFromStack(): boolean {
