@@ -15,6 +15,10 @@ export class Stack extends Array<Card> {
     }
   }
 
+  get isPikOnTop(): boolean {
+    return this.length > 0 && this[this.length - 1].isPik
+  }
+
   getFromStack(): Card[] {
     return this.splice(
       this.length - this.numberOfCardsThatCanBeGetFromStack,
