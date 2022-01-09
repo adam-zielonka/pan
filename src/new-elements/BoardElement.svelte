@@ -22,19 +22,21 @@
 
 <main>
   <div class="stack">
-    <StackElement stack={$game.stack} move={() => game.getFromStack()} {receive} {send} />
+    <StackElement
+      stack={$game.stack}
+      move={() => game.players[game.token].makeAction(game, 'stack')}
+      {receive}
+      {send}
+    />
   </div>
   {#each $game.players as player}
     <div class={`player${player.idText}`}>
-      <header
-        class={`${player.id === 0 ? 'playerIDOne ' : ''}` +
-          `${player.id === $game.token ? 'token' : ''}`}
-      >
+      <header class={player.id === $game.token ? 'token' : ''}>
         #{player.idText}
       </header>
       <PlayerElement
         cards={player.cards}
-        move={card => game.moveCard(player, card)}
+        move={card => player.makeAction(game, card)}
         possible={card => game.isPossibleToMoveCard(player, card)}
         {receive}
         {send}
@@ -44,7 +46,9 @@
   {/each}
   <div class="combo">
     {#if $game.isComboModeRady && !$game.isComboMode && $game.token === 0}
-      <button on:click={() => game.cancelComboMode()}>Skip Combo</button>
+      <button on:click={() => game.players[0].makeAction(game, 'skip')}>
+        >Skip Combo</button
+      >
     {/if}
   </div>
 </main>
@@ -63,10 +67,6 @@
   .deck {
     position: absolute;
     top: -1000px;
-  }
-
-  .playerIDOne {
-    margin-bottom: 20px;
   }
 
   .token {
@@ -88,6 +88,10 @@
   .player1 {
     grid-column: 2;
     grid-row: 3;
+  }
+
+  .player1 header {
+    margin-bottom: 20px;
   }
 
   .player2 {

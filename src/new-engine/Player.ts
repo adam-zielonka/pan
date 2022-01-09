@@ -1,5 +1,5 @@
 import { Card } from './Card'
-import { Game, PossibleAction } from './Game'
+import { Game, Action, ActionName } from './Game'
 import { PlayerType } from './PlayersSelect'
 
 export abstract class Player {
@@ -16,7 +16,7 @@ export abstract class Player {
     return this.cards.length > 0
   }
 
-  abstract play(game: Game, actions: PossibleAction[]): PossibleAction | void
+  abstract play(game: Game, actions: Action[]): Action | void
 
   playWrapper(game: Game): NodeJS.Timeout | undefined {
     const possibleActions = game.getPossibleActions(this)
@@ -26,9 +26,21 @@ export abstract class Player {
 
     if (action) {
       return setTimeout(() => {
-        this.printPlayedAction(action)
-        action[1]()
+        this.action(action)
       }, 1000)
+    }
+  }
+
+  private action(action: Action): void {
+    this.printPlayedAction(action)
+    action[1]()
+  }
+
+  makeAction(game: Game, name: ActionName): void {
+    const action = game.getPossibleActions(this).find(([n]) => n === name)
+
+    if (action) {
+      this.action(action)
     }
   }
 
@@ -48,7 +60,7 @@ export abstract class Player {
     }
   }
 
-  printPossibleActions(actions: PossibleAction[]): void {
+  printPossibleActions(actions: Action[]): void {
     const log = []
     const styles = []
     for (const [name] of actions) {
@@ -69,7 +81,7 @@ export abstract class Player {
     )
   }
 
-  printPlayedAction(action: PossibleAction): void {
+  printPlayedAction(action: Action): void {
     let style = 'color: unset'
     if (action[0] === 'stack' || action[0] === 'skip') {
       style = `color: blue; background-color: white`

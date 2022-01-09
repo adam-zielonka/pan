@@ -5,7 +5,8 @@ import { Deck } from './Deck'
 import { SubscribableStore } from './utils'
 import { PlayersSelect, PlayerType } from './PlayersSelect'
 
-export type PossibleAction = [Card | 'stack' | 'skip', () => void]
+export type ActionName = Card | 'stack' | 'skip'
+export type Action = [ActionName, () => void]
 
 export class Game extends SubscribableStore {
   stack: Stack = new Stack()
@@ -94,7 +95,7 @@ export class Game extends SubscribableStore {
     this.playerPlay()
   }
 
-  setNextPlayerToken(): void {
+  private setNextPlayerToken(): void {
     if (!this.players.some(player => player.isPlaying)) {
       return
     }
@@ -114,12 +115,12 @@ export class Game extends SubscribableStore {
     }
   }
 
-  getPossibleActions(player: Player): PossibleAction[] {
+  getPossibleActions(player: Player): Action[] {
     const possibleCards = player.cards.filter(card =>
       this.isPossibleToMoveCard(player, card),
     )
 
-    const actions: PossibleAction[] = possibleCards.map(card => [
+    const actions: Action[] = possibleCards.map(card => [
       card,
       () => this.moveCard(player, card),
     ])
@@ -140,7 +141,7 @@ export class Game extends SubscribableStore {
     return actions
   }
 
-  playerPlay(): void {
+  private playerPlay(): void {
     if (this.isGameOver) {
       return
     }
@@ -178,7 +179,7 @@ export class Game extends SubscribableStore {
     return this.stack.isPossibleToGetCardFromStack()
   }
 
-  moveCard(player: Player, card: Card): void {
+  private moveCard(player: Player, card: Card): void {
     if (!this.isPossibleToMoveCard(player, card)) {
       return
     }
@@ -207,7 +208,7 @@ export class Game extends SubscribableStore {
     }
   }
 
-  cancelComboMode(): void {
+  private cancelComboMode(): void {
     this.isComboMode = false
     this.isComboModeRady = false
     this.setNextPlayerToken()
@@ -215,7 +216,7 @@ export class Game extends SubscribableStore {
     this.playerPlay()
   }
 
-  getFromStack(): void {
+  private getFromStack(): void {
     if (!this.isPossibleToGetCardFromStack()) {
       return
     }
@@ -227,7 +228,7 @@ export class Game extends SubscribableStore {
     this.playerPlay()
   }
 
-  dealingCards(): void {
+  private dealingCards(): void {
     while (this.deck.length && this.players.length) {
       for (const player of this.players) {
         if (player.type === PlayerType.None) {

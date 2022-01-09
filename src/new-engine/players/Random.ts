@@ -1,4 +1,4 @@
-import { Game, PossibleAction } from '../Game'
+import { Game, Action } from '../Game'
 import { Player } from '../Player'
 import { PlayerType } from '../PlayersSelect'
 
@@ -8,7 +8,7 @@ function getRandomElementFromArray<T>(array: T[]): T {
 
 export class Random extends Player {
   type = PlayerType.Random
-  play(game: Game, actions: PossibleAction[]): PossibleAction {
+  play(game: Game, actions: Action[]): Action {
     return getRandomElementFromArray(actions)
   }
 }
