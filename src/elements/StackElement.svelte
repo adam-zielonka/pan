@@ -2,11 +2,10 @@
   import { store } from '../engine/Store'
   import { flip } from 'svelte/animate'
   import { CrossfadeParams, TransitionConfig } from 'svelte/transition'
+  import { Card } from '../engine/Card'
+  import CardElement from './CardElement.svelte'
 
   const { game } = store
-
-  import CardElement from './CardElement.svelte'
-  import { Card } from '../engine/Card'
 
   export let stack: Card[]
 
