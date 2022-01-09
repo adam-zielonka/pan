@@ -46,7 +46,7 @@ export class Game extends SubscribableStore {
 
   get isGameOver(): boolean {
     return (
-      this.players.map(player => player.isPlaying).reduce((p, f) => (f ? ++p : p), 0) < 1
+      this.players.map(player => player.isPlaying).reduce((p, f) => (f ? ++p : p), 0) < 2
     )
   }
 
