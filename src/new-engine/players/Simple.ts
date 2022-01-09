@@ -9,6 +9,9 @@ export class Simple extends Player {
     if (firstCard && game.isPossibleToMoveCard(this, firstCard)) {
       return actions[0]
     }
+    if (actions.length > 1) {
+      return actions[actions.length - 2]
+    }
     return actions[actions.length - 1]
   }
 }

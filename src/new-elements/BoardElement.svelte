@@ -47,8 +47,8 @@
   <div class="combo">
     {#if $game.isComboModeRady && !$game.isComboMode && $game.token === 0}
       <button on:click={() => game.players[0].makeAction(game, 'skip')}>
-        >Skip Combo</button
-      >
+        Skip Combo
+      </button>
     {/if}
   </div>
 </main>
