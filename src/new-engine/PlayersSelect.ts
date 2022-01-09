@@ -18,7 +18,7 @@ export enum PlayerType {
 export class PlayersSelect extends Array<PlayerType> {
   constructor() {
     super()
-    this.push(PlayerType.MCTS, PlayerType.None, PlayerType.None, PlayerType.None)
+    this.push(PlayerType.Human, PlayerType.Simple, PlayerType.MCTS, PlayerType.AZ)
   }
 
   set = (index: number, player: PlayerType): void => {

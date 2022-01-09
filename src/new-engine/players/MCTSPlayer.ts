@@ -1,5 +1,4 @@
-import { Card } from '../Card'
-import { Deck } from '../Deck'
+import { Figure } from '../Card'
 import { Action, ActionName, Game } from '../Game'
 import { Player } from '../Player'
 import { PlayerType } from '../PlayersSelect'
@@ -11,32 +10,30 @@ class State {
 
   constructor(game: Game, public action?: ActionName) {
     this.game = new Game(game)
-    this.action = action
     this.visitCount = 0
     this.winScore = 0
   }
 
-  getAllPossibleStates(): (() => State)[] {
-    const states = []
-    for (const [actionName] of this.game.getPossibleActions(
+  getAllPossibleStates(): State[] {
+    const possibleStates: State[] = []
+    const availableActions = this.game.getPossibleActions(
       this.game.players[this.game.token],
-    )) {
-      const fun = (): State => {
-        const state = new State(this.game, actionName)
-        const player = this.game.players[this.game.token]
-        player.makeAction(this.game, actionName)
-        this.game.setNextPlayer()
-        return state
-      }
-      states.push(fun)
-    }
-    return states
+    )
+    availableActions.forEach(action => {
+      const state = new State(this.game, action[0])
+      const player = this.game.players[this.game.token]
+      player.makeAction(this.game, action[0])
+      this.game.setNextPlayer()
+      possibleStates.push(state)
+    })
+    return possibleStates
   }
 
   randomPlay(): void {
     const states = this.getAllPossibleStates()
     const random = Math.floor(Math.random() * states.length)
-    this.game = states[random]().game
+    this.game = states[random].game
+    this.game.setNextPlayer()
   }
 }
 
@@ -45,9 +42,10 @@ class Node {
   parent?: Node
   childArray: Node[]
 
-  constructor(state: State) {
+  constructor(state: State, parent?: Node, childArray?: Node[]) {
     this.state = state
-    this.childArray = []
+    this.childArray = childArray || []
+    this.parent = parent
   }
 
   getRandomChildNode(): Node {
@@ -55,14 +53,16 @@ class Node {
     return this.childArray[random]
   }
 
-  getUTC(parentVisit: number): number {
-    return UCT.uctValue(parentVisit, this.state.winScore, this.state.visitCount)
-  }
-
   getChildWithMaxScore(): Node {
     return this.childArray.reduce((a, b) => {
       return a.state.visitCount >= b.state.visitCount ? a : b
     })
+  }
+
+  clone(): Node {
+    const node = new Node(this.state)
+    node.childArray = this.childArray.map(child => child.clone())
+    return node
   }
 
   printPoints(): void {
@@ -79,9 +79,9 @@ class Node {
       }
 
       console.log(
-        `- ${Math.round((node.state.winScore * 100) / 10) / 100}/${
-          node.state.visitCount
-        } - %c ${node.state.action.toString()} `,
+        `- ${node.state.winScore}/${node.state.visitCount} - ${Math.round(
+          (node.state.winScore / node.state.visitCount) * 100,
+        )}% - %c ${node.state.action.toString()} `,
         style,
       )
     }
@@ -90,13 +90,8 @@ class Node {
 
 class Tree {
   root: Node
-
-  constructor(game: Game) {
-    this.root = new Node(new State(game))
-  }
-
-  print(): void {
-    console.log(this.root)
+  constructor(root: Node) {
+    this.root = root
   }
 }
 
@@ -111,17 +106,49 @@ class UCT {
   static findBestNodeWithUCT(node: Node): Node {
     const parentVisit = node.state.visitCount
     return node.childArray.reduce((a, b) => {
-      return a.getUTC(parentVisit) > b.getUTC(parentVisit) ? a : b
+      return this.uctValue(parentVisit, a.state.winScore, a.state.visitCount) >=
+        this.uctValue(parentVisit, b.state.winScore, b.state.visitCount)
+        ? a
+        : b
     })
   }
 }
 
 export class MCTSPlayer extends Player {
   type = PlayerType.MCTS
+  level = 3
 
-  selectPromisingNode(root: Node): Node {
-    let node = root
-    while (node.childArray.length) {
+  findNextMove(game: Game): ActionName | undefined {
+    const rootNode = new Node(new State(game))
+    const tree = new Tree(rootNode)
+
+    const actionCount = game.getPossibleActions(game.players[game.token]).length
+    let iter = 50 * actionCount
+    while (iter--) {
+      // Phase 1: Selection
+      const promisingNode = this.selectPromisingNode(rootNode)
+      // Phase 2: Expansion
+      if (!promisingNode.state.game.isGameOver) {
+        this.expandNode(promisingNode)
+      }
+      // Phase 3: Simulation
+      let nodeToExplore = promisingNode
+      if (promisingNode.childArray.length > 0) {
+        nodeToExplore = promisingNode.getRandomChildNode()
+      }
+      const playoutResult = this.simulateRandomGame(nodeToExplore)
+      // Phase 4: Update
+      this.backPropagation(nodeToExplore, playoutResult)
+    }
+
+    const winnerNode = rootNode.getChildWithMaxScore()
+    tree.root.printPoints()
+    return winnerNode.state.action
+  }
+
+  selectPromisingNode(rootNode: Node): Node {
+    let node = rootNode
+    while (node.childArray.length !== 0) {
       node = UCT.findBestNodeWithUCT(node)
     }
     return node
@@ -130,82 +157,56 @@ export class MCTSPlayer extends Player {
   expandNode(node: Node): void {
     const possibleStates = node.state.getAllPossibleStates()
     possibleStates.forEach(state => {
-      const newNode = new Node(state())
-      newNode.parent = node
+      const newNode = new Node(state, node)
       node.childArray.push(newNode)
     })
   }
 
-  maxPoints = Deck.generate().reduce((p, c) => this.formula(p, c), 0)
-
-  formula(points: number, card: Card): number {
-    return points + 15 - card.figure
-  }
-
-  percentComplete(game: Game): number {
-    const points =
-      game.players[this.id].cards.reduce((p, c) => this.formula(p, c), 0) || 0
-    return 1 - points / this.maxPoints
-  }
-
-  simulateRandomPlayOut(node: Node): number {
-    let isPlaying = node.state.game.players[this.id].isPlaying
-    let isSomeonePlaying = node.state.game.players.some(player => player.isPlaying)
-    if (!isPlaying) {
-      return isSomeonePlaying ? 10 : 0
-    }
-    const state = new State(node.state.game)
-    let counter = 100
-    while (isPlaying && --counter) {
-      state.randomPlay()
-      isPlaying = node.state.game.players[this.id].isPlaying
-    }
-    if (!counter) {
-      10 * this.percentComplete(state.game)
-      return 10 * this.percentComplete(state.game)
-    } else {
-      isSomeonePlaying = node.state.game.players.some(player => player.isPlaying)
-      return isSomeonePlaying ? 10 : 0
-    }
-  }
-
-  backPropagation(node: Node, score: number): void {
-    if (score < 0) {
-      return
-    }
-    let tempNode: Node | undefined = node
+  backPropagation(nodeToExplore: Node, playoutResult: number): void {
+    let tempNode: Node | undefined = nodeToExplore
     while (tempNode) {
       tempNode.state.visitCount++
-      tempNode.state.winScore += score
+      tempNode.state.winScore += playoutResult
       tempNode = tempNode.parent
     }
   }
 
-  getResult(game: Game): ActionName | undefined {
-    const tree = new Tree(game)
+  simulateRandomGame(node: Node): number {
+    const tempNode = node.clone()
+    const tempState = tempNode.state
+    let isPlaying = tempState.game.players[this.id].isPlaying
+    let othersPlaying = tempState.game.players
+      .filter(p => p.id !== this.id)
+      .some(player => player.isPlaying)
 
-    const actionCount = game.getPossibleActions(game.players[game.token]).length
-    let iter = 50 * actionCount
-    while (iter--) {
-      // 1. Select promising node
-      const promisingNode = this.selectPromisingNode(tree.root)
-      if (!promisingNode.state.game.isGameOver) {
-        this.expandNode(promisingNode)
-      }
-      // 2. Simulation
-      let nodeToExplore = promisingNode
-      if (promisingNode.childArray.length > 0) {
-        nodeToExplore = promisingNode.getRandomChildNode()
-      }
-      // 3. Back propagation
-      const playOutResult = this.simulateRandomPlayOut(nodeToExplore)
-      this.backPropagation(nodeToExplore, playOutResult)
+    let counter = 100
+    while (isPlaying && --counter) {
+      tempState.randomPlay()
+      isPlaying = tempState.game.players[this.id].isPlaying
+      othersPlaying = tempState.game.players
+        .filter(p => p.id !== this.id)
+        .some(player => player.isPlaying)
     }
-    tree.print()
-    const winnerNode = tree.root.getChildWithMaxScore()
-    tree.root.printPoints()
-    tree.root = winnerNode
-    return winnerNode.state.action
+
+    if ((!isPlaying && !othersPlaying) || (isPlaying && !othersPlaying)) {
+      return 0
+    }
+
+    if (!isPlaying && othersPlaying) {
+      return 1
+    }
+
+    const player = tempState.game.players[this.id]
+
+    if (player.cards.some(c => [Figure.f9, Figure.f10].includes(c.figure))) {
+      return 0
+    }
+
+    if (player.cards.some(c => [Figure.J, Figure.Q].includes(c.figure))) {
+      return 0.5
+    }
+
+    return 1
   }
 
   play(game: Game, actions: Action[]): Action {
@@ -213,7 +214,7 @@ export class MCTSPlayer extends Player {
       return actions[0]
     }
 
-    const result = this.getResult(game)
+    const result = this.findNextMove(game)
 
     if (!result) {
       return actions[0]
