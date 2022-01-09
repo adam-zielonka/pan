@@ -55,12 +55,18 @@ export abstract class Player {
     }
   }
 
+  clone(): Clone {
+    const player = new Clone(this.id)
+    player.cards = this.cards.slice()
+    return player
+  }
+
   private action(action: Action): void {
     this.printPlayedAction(action)
     action[1]()
   }
 
-  private printPossibleActions(actions: Action[]): void {
+  protected printPossibleActions(actions: Action[]): void {
     const log = []
     const styles = []
     for (const [name] of actions) {
@@ -81,7 +87,7 @@ export abstract class Player {
     )
   }
 
-  private printPlayedAction(action: Action): void {
+  protected printPlayedAction(action: Action): void {
     let style = 'color: unset'
     if (action[0] === 'stack' || action[0] === 'skip') {
       style = `color: blue; background-color: white`
@@ -95,5 +101,20 @@ export abstract class Player {
       `font-weight: normal`,
       style,
     )
+  }
+}
+
+class Clone extends Player {
+  type = PlayerType.None
+  play(): void {
+    return
+  }
+
+  protected printPlayedAction(): void {
+    // do nothing
+  }
+
+  protected printPossibleActions(): void {
+    // do nothing
   }
 }

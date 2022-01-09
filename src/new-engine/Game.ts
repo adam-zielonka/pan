@@ -20,8 +20,19 @@ export class Game extends SubscribableStore {
   isComboModeRady = false
   isComboMode = false
 
-  constructor() {
+  constructor(game?: Game) {
     super()
+
+    if (game) {
+      this.stack.push(...game.stack)
+      this.deck.push(...game.deck)
+      this.players = game.players.map(player => player.clone())
+      this.token = game.token
+      this.isComboModeRady = game.isComboModeRady
+      this.isComboMode = game.isComboMode
+
+      return
+    }
 
     this.players = this.playersSelect.getGamePlayers()
     this.deck.push(...Deck.shuffle(Deck.generate()))
@@ -196,7 +207,7 @@ export class Game extends SubscribableStore {
     this.finishTurn()
   }
 
-  private setNextPlayer(): void {
+  setNextPlayer(): void {
     if (!this.players.some(player => player.isPlaying)) {
       return
     }
@@ -218,7 +229,6 @@ export class Game extends SubscribableStore {
 
   private playerPlay(): void {
     if (this.isGameOver) {
-      console.log('Game Over')
       return
     }
     this.timeout && clearTimeout(this.timeout)
