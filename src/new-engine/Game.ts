@@ -34,7 +34,9 @@ export class Game extends SubscribableStore {
   }
 
   get isGameOver(): boolean {
-    return this.players.filter(player => player.isPlaying).length < 1
+    return (
+      this.players.map(player => player.isPlaying).reduce((p, f) => (f ? ++p : p), 0) < 1
+    )
   }
 
   get isComboPossible(): boolean {
@@ -216,6 +218,7 @@ export class Game extends SubscribableStore {
 
   private playerPlay(): void {
     if (this.isGameOver) {
+      console.log('Game Over')
       return
     }
     this.timeout && clearTimeout(this.timeout)
