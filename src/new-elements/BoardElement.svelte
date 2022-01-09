@@ -42,19 +42,9 @@
       />
     </div>
   {/each}
-  <!-- <div class="combo">
-    {#each $game.players[0].getFigureActions($game.stack.length !== 0) as figure}
-      <button
-        on:click={() => game.setComboMode(figure)}
-        disabled={!game.isComboActionAvailable(figure, $game.players[0].id)}
-      >
-        {Card.figureToString(figure)}
-      </button>
-    {/each}
-  </div> -->
   <div class="combo">
-    {#if $game.isComboModeRady}
-      <button on:click={() => game.cancelComboMode()}>Cancel Combo Mode</button>
+    {#if $game.isComboModeRady && $game.token === 0}
+      <button on:click={() => game.cancelComboMode()}>Skip Combo</button>
     {/if}
   </div>
 </main>
