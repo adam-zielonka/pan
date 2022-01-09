@@ -22,13 +22,13 @@ export abstract class Player {
     const possibleActions = game.getPossibleActions(this)
     this.printPossibleActions(possibleActions)
 
-    const action = this.play(game, possibleActions)
+    return setTimeout(() => {
+      const action = this.play(game, possibleActions)
 
-    if (action) {
-      return setTimeout(() => {
+      if (action) {
         this.action(action)
-      }, 1000)
-    }
+      }
+    }, 1000)
   }
 
   makeAction(game: Game, name: ActionName): void {

@@ -1,6 +1,7 @@
 import { Player } from './Player'
 import { AZPlayer } from './players/AZPlayer'
 import { HumanPlayer } from './players/HumanPlayer'
+import { MCTSPlayer } from './players/MCTSPlayer'
 import { NonePlayer } from './players/NonePlayer'
 import { RandomPlayer } from './players/RandomPlayer'
 import { SimplePlayer } from './players/SimplePlayer'
@@ -10,14 +11,14 @@ export enum PlayerType {
   Human = 'Human',
   Simple = 'Simple',
   Random = 'Random',
-  // MCTS = 'MCTS',
+  MCTS = 'MCTS',
   AZ = 'AZ',
 }
 
 export class PlayersSelect extends Array<PlayerType> {
   constructor() {
     super()
-    this.push(PlayerType.Human, PlayerType.Random, PlayerType.AZ, PlayerType.Simple)
+    this.push(PlayerType.MCTS, PlayerType.None, PlayerType.None, PlayerType.None)
   }
 
   set = (index: number, player: PlayerType): void => {
@@ -31,8 +32,8 @@ export class PlayersSelect extends Array<PlayerType> {
           return new SimplePlayer(index)
         case PlayerType.Random:
           return new RandomPlayer(index)
-        // case PlayerType.MCTS:
-        //   return new MCTS(index)
+        case PlayerType.MCTS:
+          return new MCTSPlayer(index)
         case PlayerType.AZ:
           return new AZPlayer(index)
         case PlayerType.Human:

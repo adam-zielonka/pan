@@ -59,11 +59,7 @@ export class AZPlayer extends Player {
       }
 
       console.log(
-        `%c#${this.idText} ${this.type}%c - ${
-          Math.round(points * 10000) / 100
-        }% - %c ${action.toString()} `,
-        `font-weight: bold`,
-        `font-weight: normal`,
+        `- ${Math.round(points * 10000) / 100}% - %c ${action.toString()} `,
         style,
       )
     }
