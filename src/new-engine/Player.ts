@@ -31,11 +31,6 @@ export abstract class Player {
     }
   }
 
-  private action(action: Action): void {
-    this.printPlayedAction(action)
-    action[1]()
-  }
-
   makeAction(game: Game, name: ActionName): void {
     const action = game.getPossibleActions(this).find(([n]) => n === name)
 
@@ -53,14 +48,19 @@ export abstract class Player {
     }
   }
 
-  pop(card: Card): Card | undefined {
+  popCard(card: Card): Card | undefined {
     const index = this.cards.findIndex(_card => card.compare(_card) === 0)
     if (index !== -1) {
       return this.cards.splice(index, 1)[0]
     }
   }
 
-  printPossibleActions(actions: Action[]): void {
+  private action(action: Action): void {
+    this.printPlayedAction(action)
+    action[1]()
+  }
+
+  private printPossibleActions(actions: Action[]): void {
     const log = []
     const styles = []
     for (const [name] of actions) {
@@ -81,7 +81,7 @@ export abstract class Player {
     )
   }
 
-  printPlayedAction(action: Action): void {
+  private printPlayedAction(action: Action): void {
     let style = 'color: unset'
     if (action[0] === 'stack' || action[0] === 'skip') {
       style = `color: blue; background-color: white`

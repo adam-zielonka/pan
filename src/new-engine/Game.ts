@@ -78,7 +78,7 @@ export class Game extends SubscribableStore {
     })
     this.players.forEach(player => {
       player.cards.slice(0).forEach(card => {
-        const c = player.pop(card)
+        const c = player.popCard(card)
         if (c) {
           this.deck.push(c)
         }
@@ -95,26 +95,6 @@ export class Game extends SubscribableStore {
     this.playerPlay()
   }
 
-  private setNextPlayerToken(): void {
-    if (!this.players.some(player => player.isPlaying)) {
-      return
-    }
-
-    if (this.isComboMode || this.isComboModeRady) {
-      return
-    }
-
-    if (this.stack.isPikOnTop) {
-      this.token = (this.token + this.players.length - 1) % this.players.length
-    } else {
-      this.token = (this.token + 1) % this.players.length
-    }
-
-    if (!this.players[this.token].isPlaying) {
-      this.setNextPlayerToken()
-    }
-  }
-
   getPossibleActions(player: Player): Action[] {
     const possibleCards = player.cards.filter(card =>
       this.isPossibleToMoveCard(player, card),
@@ -122,7 +102,7 @@ export class Game extends SubscribableStore {
 
     const actions: Action[] = possibleCards.map(card => [
       card,
-      () => this.moveCard(player, card),
+      () => this.actionMoveCard(player, card),
     ])
 
     if (this.isComboMode) {
@@ -130,23 +110,15 @@ export class Game extends SubscribableStore {
     }
 
     if (this.isComboModeRady) {
-      actions.push(['skip', () => this.cancelComboMode()])
+      actions.push(['skip', () => this.actionSkipCombo()])
       return actions
     }
 
     if (this.isPossibleToGetCardFromStack()) {
-      actions.push(['stack', () => this.getFromStack()])
+      actions.push(['stack', () => this.actionStack()])
     }
 
     return actions
-  }
-
-  private playerPlay(): void {
-    if (this.isGameOver) {
-      return
-    }
-    this.timeout && clearTimeout(this.timeout)
-    this.timeout = this.players[this.token].playWrapper(this)
   }
 
   isPossibleToMoveCard(player: Player, card: Card): boolean {
@@ -179,7 +151,7 @@ export class Game extends SubscribableStore {
     return this.stack.isPossibleToGetCardFromStack()
   }
 
-  private moveCard(player: Player, card: Card): void {
+  private actionMoveCard(player: Player, card: Card): void {
     if (!this.isPossibleToMoveCard(player, card)) {
       return
     }
@@ -202,28 +174,56 @@ export class Game extends SubscribableStore {
       ) {
         this.isComboMode = false
       }
-      this.setNextPlayerToken()
-      this.notify()
-      this.playerPlay()
+      this.finishTurn()
     }
   }
 
-  private cancelComboMode(): void {
+  private actionSkipCombo(): void {
     this.isComboMode = false
     this.isComboModeRady = false
-    this.setNextPlayerToken()
-    this.notify()
-    this.playerPlay()
+    this.finishTurn()
   }
 
-  private getFromStack(): void {
+  private actionStack(): void {
     if (!this.isPossibleToGetCardFromStack()) {
       return
     }
 
     const cards = this.stack.getFromStack()
     cards.forEach(card => this.players[this.token].addCard(card))
-    this.setNextPlayerToken()
+    this.finishTurn()
+  }
+
+  private setNextPlayer(): void {
+    if (!this.players.some(player => player.isPlaying)) {
+      return
+    }
+
+    if (this.isComboMode || this.isComboModeRady) {
+      return
+    }
+
+    if (this.stack.isPikOnTop) {
+      this.token = (this.token + this.players.length - 1) % this.players.length
+    } else {
+      this.token = (this.token + 1) % this.players.length
+    }
+
+    if (!this.players[this.token].isPlaying) {
+      this.setNextPlayer()
+    }
+  }
+
+  private playerPlay(): void {
+    if (this.isGameOver) {
+      return
+    }
+    this.timeout && clearTimeout(this.timeout)
+    this.timeout = this.players[this.token].playWrapper(this)
+  }
+
+  private finishTurn(): void {
+    this.setNextPlayer()
     this.notify()
     this.playerPlay()
   }

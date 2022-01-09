@@ -27,27 +27,21 @@ export class PlayersSelect extends Array<PlayerType> {
   }
 
   getGamePlayers = (): Player[] => {
-    return this.reduce<Player[]>((players, player, index) => {
+    return this.map((player, index) => {
       switch (player) {
         case PlayerType.Simple:
-          players.push(new Simple(index))
-          break
+          return new Simple(index)
         case PlayerType.Random:
-          players.push(new Random(index))
-          break
+          return new Random(index)
         // case PlayerType.MCTS:
-        //   players.push(new MCTS(index))
-        //   break
+        //   return new MCTS(index)
         // case PlayerType.AZ:
-        //   players.push(new PlayerAZ(index))
-        //   break
+        //   return new PlayerAZ(index)
         case PlayerType.Human:
-          players.push(new Human(index))
-          break
+          return new Human(index)
         default:
-          players.push(new None(index))
+          return new None(index)
       }
-      return players
-    }, [])
+    })
   }
 }
