@@ -1,6 +1,6 @@
-import { Color, Figure } from '../../new-engine/Card'
-import { Card } from '../../new-engine/Card'
-import { Stack } from '../../new-engine/Stack'
+import { Color, Figure } from '../../engine/Card'
+import { Card } from '../../engine/Card'
+import { Stack } from '../../engine/Stack'
 
 describe('Stack', () => {
   it('getFromStack() if stack has no card', () => {

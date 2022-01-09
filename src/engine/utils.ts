@@ -1,7 +1,21 @@
-export const printPlayer = (id: number, name: string): void => {
-  console.log(`%c#${id + 1} ${name}`, 'font-weight:bold;font-size:1.5rem;')
-}
+import autoBind from 'auto-bind'
 
-export function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms))
+export abstract class SubscribableStore {
+  subscribers: Array<(value: typeof this) => void> = []
+
+  constructor() {
+    autoBind(this)
+  }
+
+  subscribe(subscriber: (value: typeof this) => void): () => void {
+    this.subscribers.push(subscriber)
+    subscriber(this)
+    return () => {
+      this.subscribers = this.subscribers.filter(s => s !== subscriber)
+    }
+  }
+
+  notify(): void {
+    this.subscribers.forEach(s => s(this))
+  }
 }
