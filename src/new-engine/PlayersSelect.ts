@@ -17,8 +17,8 @@ export class PlayersSelect extends Array<PlayerType> {
   constructor() {
     super()
     this.push(
-      // ...[PlayerType.Human, PlayerType.Simple, PlayerType.Random, PlayerType.Simple],
-      ...[PlayerType.Human, PlayerType.None, PlayerType.None, PlayerType.None],
+      ...[PlayerType.Human, PlayerType.Simple, PlayerType.Random, PlayerType.Simple],
+      // ...[PlayerType.Human, PlayerType.None, PlayerType.None, PlayerType.None],
     )
   }
 
