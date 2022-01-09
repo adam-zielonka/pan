@@ -54,29 +54,31 @@ export abstract class Player {
     for (const [name] of actions) {
       log.push(`%c${name.toString()}`)
       if (name === 'stack' || name === 'skip') {
-        styles.push(`color: unset`)
-        continue
+        styles.push(`color: blue; background-color: white`)
+      } else {
+        styles.push(`color: ${name.colorStyle}; background-color: white`)
       }
-
-      styles.push(`color: ${name.colorStyle === 'red' ? 'red' : 'unset'}`)
     }
 
     console.log(
-      `%c#${this.idText} ${this.type}'s%c possible actions: ${log.join(' ')}`,
+      `%c#${this.idText} ${this.type}'s%c possible actions: %c ${log.join(' ')} `,
       `font-weight: bold`,
       `font-weight: normal`,
+      `background-color: white`,
       ...styles,
     )
   }
 
   printPlayedAction(action: PossibleAction): void {
     let style = 'color: unset'
-    if (action[0] !== 'stack' && action[0] !== 'skip' && action[0].colorStyle === 'red') {
-      style = 'color: red'
+    if (action[0] === 'stack' || action[0] === 'skip') {
+      style = `color: blue; background-color: white`
+    } else {
+      style = `color: ${action[0].colorStyle}; background-color: white`
     }
 
     console.log(
-      `%c#${this.idText} ${this.type}%c played %c${action[0].toString()}`,
+      `%c#${this.idText} ${this.type}%c played %c ${action[0].toString()} `,
       `font-weight: bold`,
       `font-weight: normal`,
       style,
