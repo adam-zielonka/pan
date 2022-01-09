@@ -18,15 +18,17 @@ export abstract class Player {
 
   abstract play(game: Game, actions: PossibleAction[]): PossibleAction | void
 
-  playWrapper(game: Game): void {
+  playWrapper(game: Game): NodeJS.Timeout | undefined {
     const possibleActions = game.getPossibleActions(this)
     this.printPossibleActions(possibleActions)
 
     const action = this.play(game, possibleActions)
 
     if (action) {
-      this.printPlayedAction(action)
-      action[1]()
+      return setTimeout(() => {
+        this.printPlayedAction(action)
+        action[1]()
+      }, 1000)
     }
   }
 

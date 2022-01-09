@@ -28,7 +28,7 @@ export class Game extends SubscribableStore {
     this.timeout = setTimeout(() => {
       this.dealingCards()
       this.notify()
-      this.timeout = setTimeout(() => this.playerPlay(), 2000)
+      this.playerPlay()
     }, 100)
   }
 
@@ -91,7 +91,7 @@ export class Game extends SubscribableStore {
     this.token = 0
     this.dealingCards()
     this.notify()
-    this.timeout = setTimeout(() => this.playerPlay(), 2000)
+    this.playerPlay()
   }
 
   setNextPlayerToken(): void {
@@ -129,22 +129,12 @@ export class Game extends SubscribableStore {
     }
 
     if (this.isComboModeRady) {
-      actions.push([
-        'skip',
-        () => {
-          this.cancelComboMode()
-        },
-      ])
+      actions.push(['skip', () => this.cancelComboMode()])
       return actions
     }
 
     if (this.isPossibleToGetCardFromStack()) {
-      actions.push([
-        'stack',
-        () => {
-          this.getFromStack()
-        },
-      ])
+      actions.push(['stack', () => this.getFromStack()])
     }
 
     return actions
@@ -154,8 +144,8 @@ export class Game extends SubscribableStore {
     if (this.isGameOver) {
       return
     }
-
-    this.players[this.token].playWrapper(this)
+    this.timeout && clearTimeout(this.timeout)
+    this.timeout = this.players[this.token].playWrapper(this)
   }
 
   isPossibleToMoveCard(player: Player, card: Card): boolean {
@@ -213,10 +203,7 @@ export class Game extends SubscribableStore {
       }
       this.setNextPlayerToken()
       this.notify()
-      this.timeout && clearTimeout(this.timeout)
-      this.timeout = setTimeout(() => {
-        this.playerPlay()
-      }, 1000)
+      this.playerPlay()
     }
   }
 
@@ -225,10 +212,7 @@ export class Game extends SubscribableStore {
     this.isComboModeRady = false
     this.setNextPlayerToken()
     this.notify()
-    this.timeout && clearTimeout(this.timeout)
-    this.timeout = setTimeout(() => {
-      this.playerPlay()
-    }, 1000)
+    this.playerPlay()
   }
 
   getFromStack(): void {
@@ -240,10 +224,7 @@ export class Game extends SubscribableStore {
     cards.forEach(card => this.players[this.token].addCard(card))
     this.setNextPlayerToken()
     this.notify()
-    this.timeout && clearTimeout(this.timeout)
-    this.timeout = setTimeout(() => {
-      this.playerPlay()
-    }, 1000)
+    this.playerPlay()
   }
 
   dealingCards(): void {
