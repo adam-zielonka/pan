@@ -1,5 +1,5 @@
-import { Color, Figure } from '../../new-engine/Card'
-import { Deck } from '../../new-engine/Deck'
+import { Color, Figure } from '../../engine/Card'
+import { Deck } from '../../engine/Deck'
 
 describe('Deck', () => {
   it('generate()', () => {

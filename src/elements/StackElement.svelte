@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { store } from '../store/store'
+  import { store } from '../engine/Store'
   import { flip } from 'svelte/animate'
   import { CrossfadeParams, TransitionConfig } from 'svelte/transition'
-  import { Card } from '../engine/card'
 
   const { game } = store
 
   import CardElement from './CardElement.svelte'
+  import { Card } from '../engine/Card'
 
   export let stack: Card[]
 
@@ -37,8 +37,8 @@
     >
       <CardElement
         {card}
-        click={() => move(card)}
-        possible={() => i > 0 && $game.token === 0 && i > stack.length - 4}
+        click={() => $game.token === 0 && move(card)}
+        possible={() => i > 0 && i > stack.length - 4}
       />
     </span>
   {/each}

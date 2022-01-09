@@ -1,4 +1,4 @@
-import Game from './new-elements/GameElement.svelte'
+import Game from './elements/GameElement.svelte'
 
 const app = new Game({
   target: document.body,

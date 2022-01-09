@@ -14,37 +14,6 @@ export enum Color {
   Pik,
 }
 
-export class Deck {
-  static generate(): Card[] {
-    const deck: Card[] = []
-    for (let figure = Figure.f9; figure <= Figure.A; figure++) {
-      for (let color = Color.Kier; color <= Color.Pik; color++) {
-        deck.push(new Card(figure, color))
-      }
-    }
-    return deck
-  }
-
-  static shuffle(deck: Card[]): Card[] {
-    for (let i = deck.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      ;[deck[i], deck[j]] = [deck[j], deck[i]]
-    }
-    return deck
-  }
-
-  static print(deck: Card[]): Card[] {
-    const log = []
-    const styles = []
-    for (const card of deck) {
-      log.push(`%c${card.text}`)
-      styles.push(`color: ${card && card.colorStyle}`)
-    }
-    console.log(log.join(' '), ...styles)
-    return deck
-  }
-}
-
 export class Card {
   static figureToString(figure: Figure): string {
     switch (figure) {
@@ -63,7 +32,7 @@ export class Card {
     }
   }
 
-  static colorToString(color?: Color): string {
+  static colorToString(color: Color): string {
     switch (color) {
       case Color.Karo:
         return '♦'
@@ -73,12 +42,10 @@ export class Card {
         return '♣'
       case Color.Pik:
         return '♠'
-      default:
-        return '?'
     }
   }
 
-  constructor(readonly figure: Figure, readonly color?: Color) {}
+  constructor(readonly figure: Figure, readonly color: Color) {}
 
   get colorStyle(): string {
     switch (this.color) {
@@ -88,13 +55,11 @@ export class Card {
       case Color.Trefl:
       case Color.Pik:
         return 'black'
-      default:
-        return 'green'
     }
   }
 
   get text(): string {
-    return this.color ? `${this.figureText}${this.colorText}` : this.figureText
+    return `${this.figureText}${this.colorText}`
   }
 
   get colorText(): string {
@@ -113,31 +78,37 @@ export class Card {
     return this.isEqual(new Card(Figure.f9, Color.Kier))
   }
 
+  toString(): string {
+    return this.text
+  }
+
   isEqual(card: Card): boolean {
     return this.figure === card.figure && this.color === card.color
   }
 
-  compare(card: Card): number {
-    if (this.figure < card.figure) {
-      return -1
-    } else if (this.figure > card.figure) {
-      return 1
+  compareFigures(figure: Figure): number {
+    switch (true) {
+      case this.figure > figure:
+        return 1
+      case this.figure < figure:
+        return -1
+      default:
+        return 0
     }
-    return 0
   }
 
-  compareColors(card: Card): number {
-    if (this.figure < card.figure) {
-      return -1
-    } else if (this.figure > card.figure) {
-      return 1
-    } else if (this.color && card.color) {
-      if (this.color > card.color) {
+  compare(card: Card): number {
+    switch (true) {
+      case this.figure > card.figure:
         return 1
-      } else if (this.color < card.color) {
+      case this.figure < card.figure:
         return -1
-      }
+      case this.color > card.color:
+        return 1
+      case this.color < card.color:
+        return -1
+      default:
+        return 0
     }
-    return 0
   }
 }

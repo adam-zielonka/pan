@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Card } from '../engine/card'
+  import { Card } from '../engine/Card'
 
   export let card: Card
   export let hidden = false

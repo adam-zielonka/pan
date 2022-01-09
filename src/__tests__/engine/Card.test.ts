@@ -1,4 +1,4 @@
-import { Card, Color, Figure } from '../../new-engine/Card'
+import { Card, Color, Figure } from '../../engine/Card'
 
 describe('Card', () => {
   it('figureToString()', () => {

@@ -2,8 +2,8 @@
   import { crossfade } from 'svelte/transition'
   import StackElement from './StackElement.svelte'
   import PlayerElement from './PlayerElement.svelte'
-  import { store } from '../store/store'
-  import { Card } from '../engine/card'
+  import { store } from '../engine/Store'
+  import CardElement from './CardElement.svelte'
 
   const { game } = store
 
@@ -12,22 +12,32 @@
   })
 </script>
 
+<div>
+  {#each $game.deck as card}
+    <span in:receive={{ key: card }} out:send={{ key: card }} class="deck">
+      <CardElement {card} click={() => console.log('click')} possible={() => false} />
+    </span>
+  {/each}
+</div>
+
 <main>
   <div class="stack">
-    <StackElement stack={$game.stack} move={game.getFromStack} {receive} {send} />
+    <StackElement
+      stack={$game.stack}
+      move={() => game.players[game.token].makeAction(game, 'stack')}
+      {receive}
+      {send}
+    />
   </div>
   {#each $game.players as player}
     <div class={`player${player.idText}`}>
-      <header
-        class={`${player.id === 0 ? 'playerIDOne ' : ''}` +
-          `${player.id === $game.token ? 'token' : ''}`}
-      >
-        #{player.idText}
+      <header class={player.id === $game.token ? 'token' : ''}>
+        {#if $game.token === player.id}|{/if}#{player.idText}{#if $game.token === player.id}|{/if}
       </header>
       <PlayerElement
         cards={player.cards}
-        move={game.action}
-        possible={card => game.isActionAvailable(card, player.id)}
+        move={card => player.makeAction(game, card)}
+        possible={card => game.isPossibleToMoveCard(player, card)}
         {receive}
         {send}
         hidden={player.id !== 0}
@@ -35,14 +45,11 @@
     </div>
   {/each}
   <div class="combo">
-    {#each $game.players[0].getFigureActions($game.stack.length !== 0) as figure}
-      <button
-        on:click={() => game.setComboMode(figure)}
-        disabled={!game.isComboActionAvailable(figure, $game.players[0].id)}
-      >
-        {Card.figureToString(figure)}
+    {#if $game.isComboModeRady && !$game.isComboMode && $game.token === 0}
+      <button on:click={() => game.players[0].makeAction(game, 'skip')}>
+        Skip Combo
       </button>
-    {/each}
+    {/if}
   </div>
 </main>
 
@@ -57,8 +64,9 @@
     text-align: center;
   }
 
-  .playerIDOne {
-    margin-bottom: 20px;
+  .deck {
+    position: absolute;
+    top: -1000px;
   }
 
   .token {
@@ -80,6 +88,10 @@
   .player1 {
     grid-column: 2;
     grid-row: 3;
+  }
+
+  .player1 header {
+    margin-bottom: 20px;
   }
 
   .player2 {
