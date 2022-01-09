@@ -78,6 +78,10 @@ export class Card {
     return this.isEqual(new Card(Figure.f9, Color.Kier))
   }
 
+  toString(): string {
+    return this.text
+  }
+
   isEqual(card: Card): boolean {
     return this.figure === card.figure && this.color === card.color
   }

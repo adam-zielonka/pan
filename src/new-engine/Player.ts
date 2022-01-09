@@ -1,5 +1,5 @@
 import { Card } from './Card'
-import { Game } from './Game'
+import { Game, PossibleAction } from './Game'
 import { PlayerType } from './PlayersSelect'
 
 export abstract class Player {
@@ -16,7 +16,19 @@ export abstract class Player {
     return this.cards.length > 0
   }
 
-  abstract play(game: Game): void
+  abstract play(game: Game, actions: PossibleAction[]): PossibleAction | void
+
+  playWrapper(game: Game): void {
+    const possibleActions = game.getPossibleActions(this)
+    this.printPossibleActions(possibleActions)
+
+    const action = this.play(game, possibleActions)
+
+    if (action) {
+      this.printPlayedAction(action)
+      action[1]()
+    }
+  }
 
   addCard(card: Card): void {
     const index = this.cards.findIndex(_card => card.compare(_card) === -1)
@@ -32,5 +44,17 @@ export abstract class Player {
     if (index !== -1) {
       return this.cards.splice(index, 1)[0]
     }
+  }
+
+  printPossibleActions(actions: PossibleAction[]): void {
+    console.log(
+      `#${this.idText} ${this.type}'s possible actions: ${actions
+        .map(a => a[0].toString())
+        .join(' ')}`,
+    )
+  }
+
+  printPlayedAction(action: PossibleAction): void {
+    console.log(`#${this.idText} ${this.type} played ${action[0].toString()}`)
   }
 }

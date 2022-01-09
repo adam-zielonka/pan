@@ -1,11 +1,10 @@
-import { Game } from '../Game'
+import { Game, PossibleAction } from '../Game'
 import { Player } from '../Player'
 import { PlayerType } from '../PlayersSelect'
 
 export class Simple extends Player {
   type = PlayerType.Simple
-  play(game: Game): void {
-    const possibleActions = game.getPossibleActions(this)
-    possibleActions[0]()
+  play(game: Game, actions: PossibleAction[]): PossibleAction {
+    return actions[0]
   }
 }

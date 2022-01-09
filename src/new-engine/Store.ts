@@ -13,6 +13,8 @@ export const store = new Store()
 declare global {
   interface Window {
     store: Store
+    game: Game
   }
 }
 window.store = store
+window.game = store.game

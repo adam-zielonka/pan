@@ -5,6 +5,8 @@ import { Deck } from './Deck'
 import { SubscribableStore } from './utils'
 import { PlayersSelect, PlayerType } from './PlayersSelect'
 
+export type PossibleAction = [Card | 'stack' | 'skip', () => void]
+
 export class Game extends SubscribableStore {
   stack: Stack = new Stack()
   deck: Card[] = []
@@ -65,6 +67,8 @@ export class Game extends SubscribableStore {
 
   newGame(): void {
     this.timeout && clearTimeout(this.timeout)
+    this.isComboModeRady = false
+    this.isComboMode = false
     this.stack.slice(0).forEach(card => {
       const index = this.stack.findIndex(_card => card.compare(_card) === 0)
       if (index !== -1) {
@@ -110,31 +114,37 @@ export class Game extends SubscribableStore {
     }
   }
 
-  getPossibleActions(player: Player): (() => void)[] {
+  getPossibleActions(player: Player): PossibleAction[] {
     const possibleCards = player.cards.filter(card =>
-      this.stack.isPossibleToPutCardOnStack(card),
+      this.isPossibleToMoveCard(player, card),
     )
 
-    if (this.isComboModeRady || this.isComboMode) {
-      const actions = possibleCards.map(card => () => this.moveCard(player, card))
+    const actions: PossibleAction[] = possibleCards.map(card => [
+      card,
+      () => this.moveCard(player, card),
+    ])
 
-      if (this.isComboModeRady) {
-        actions.push(() => {
-          this.cancelComboMode()
-        })
-      }
-
+    if (this.isComboMode) {
       return actions
     }
 
-    const actions = possibleCards.map(card => () => {
-      this.moveCard(player, card)
-    })
+    if (this.isComboModeRady) {
+      actions.push([
+        'skip',
+        () => {
+          this.cancelComboMode()
+        },
+      ])
+      return actions
+    }
 
-    if (this.stack.isPossibleToGetCardFromStack()) {
-      actions.push(() => {
-        this.getFromStack()
-      })
+    if (this.isPossibleToGetCardFromStack()) {
+      actions.push([
+        'stack',
+        () => {
+          this.getFromStack()
+        },
+      ])
     }
 
     return actions
@@ -145,7 +155,7 @@ export class Game extends SubscribableStore {
       return
     }
 
-    this.players[this.token].play(this)
+    this.players[this.token].playWrapper(this)
   }
 
   isPossibleToMoveCard(player: Player, card: Card): boolean {
@@ -157,14 +167,10 @@ export class Game extends SubscribableStore {
       this.stack.isPossibleToPutCardOnStack(card),
     )
 
-    if (
-      (this.isComboModeRady || this.isComboMode) &&
-      card.compareFigures(this.comboFigure) === 0
-    ) {
-      return true
-    }
-
     if (this.isComboModeRady || this.isComboMode) {
+      if (card.compareFigures(this.comboFigure) === 0) {
+        return true
+      }
       return false
     }
 
@@ -173,6 +179,13 @@ export class Game extends SubscribableStore {
     }
 
     return true
+  }
+
+  isPossibleToGetCardFromStack(): boolean {
+    if (this.isComboModeRady || this.isComboMode) {
+      return false
+    }
+    return this.stack.isPossibleToGetCardFromStack()
   }
 
   moveCard(player: Player, card: Card): void {
@@ -219,7 +232,7 @@ export class Game extends SubscribableStore {
   }
 
   getFromStack(): void {
-    if (!this.stack.isPossibleToGetCardFromStack()) {
+    if (!this.isPossibleToGetCardFromStack()) {
       return
     }
 

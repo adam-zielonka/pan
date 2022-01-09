@@ -43,7 +43,7 @@
     </div>
   {/each}
   <div class="combo">
-    {#if $game.isComboModeRady && $game.token === 0}
+    {#if $game.isComboModeRady && !$game.isComboMode && $game.token === 0}
       <button on:click={() => game.cancelComboMode()}>Skip Combo</button>
     {/if}
   </div>
