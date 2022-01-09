@@ -32,7 +32,7 @@
   {#each $game.players as player}
     <div class={`player${player.idText}`}>
       <header class={player.id === $game.token ? 'token' : ''}>
-        #{player.idText}
+        {#if $game.token === player.id}|{/if}#{player.idText}{#if $game.token === player.id}|{/if}
       </header>
       <PlayerElement
         cards={player.cards}
