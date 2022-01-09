@@ -6,7 +6,7 @@ function getRandomElementFromArray<T>(array: T[]): T {
   return array[Math.floor(Math.random() * array.length)]
 }
 
-export class Random extends Player {
+export class RandomPlayer extends Player {
   type = PlayerType.Random
   play(game: Game, actions: Action[]): Action {
     return getRandomElementFromArray(actions)

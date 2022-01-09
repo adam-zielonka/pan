@@ -11,7 +11,7 @@ type Result = {
   points: number
 }
 
-export class AZ extends Player {
+export class AZPlayer extends Player {
   type = PlayerType.AZ
   maxPoints = Deck.generate().reduce((p, c) => this.formula(p, c), 0)
 

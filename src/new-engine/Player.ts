@@ -55,8 +55,8 @@ export abstract class Player {
     }
   }
 
-  clone(): Clone {
-    const player = new Clone(this.id)
+  clone(): PlayerClone {
+    const player = new PlayerClone(this.id)
     player.cards = this.cards.slice()
     return player
   }
@@ -104,7 +104,7 @@ export abstract class Player {
   }
 }
 
-class Clone extends Player {
+class PlayerClone extends Player {
   type = PlayerType.None
   play(): void {
     return

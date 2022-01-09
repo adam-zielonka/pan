@@ -1,9 +1,9 @@
 import { Player } from './Player'
-import { AZ } from './players/AZ'
-import { Human } from './players/Human'
-import { None } from './players/None'
-import { Random } from './players/Random'
-import { Simple } from './players/Simple'
+import { AZPlayer } from './players/AZPlayer'
+import { HumanPlayer } from './players/HumanPlayer'
+import { NonePlayer } from './players/NonePlayer'
+import { RandomPlayer } from './players/RandomPlayer'
+import { SimplePlayer } from './players/SimplePlayer'
 
 export enum PlayerType {
   None = 'None',
@@ -28,17 +28,17 @@ export class PlayersSelect extends Array<PlayerType> {
     return this.map((player, index) => {
       switch (player) {
         case PlayerType.Simple:
-          return new Simple(index)
+          return new SimplePlayer(index)
         case PlayerType.Random:
-          return new Random(index)
+          return new RandomPlayer(index)
         // case PlayerType.MCTS:
         //   return new MCTS(index)
         case PlayerType.AZ:
-          return new AZ(index)
+          return new AZPlayer(index)
         case PlayerType.Human:
-          return new Human(index)
+          return new HumanPlayer(index)
         default:
-          return new None(index)
+          return new NonePlayer(index)
       }
     })
   }
