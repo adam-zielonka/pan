@@ -10,6 +10,8 @@
   const [receive, send] = crossfade({
     duration: d => Math.sqrt(d * 500),
   })
+
+  let allCardVisible = false
 </script>
 
 <div>
@@ -40,7 +42,7 @@
         possible={card => game.isPossibleToMoveCard(player, card)}
         {receive}
         {send}
-        hidden={player.id !== 0}
+        hidden={player.id !== 0 && !allCardVisible}
       />
     </div>
   {/each}
@@ -53,9 +55,23 @@
   </div>
 </main>
 
+<menu>
+  <input bind:checked={allCardVisible} type="checkbox" />
+  <br />Show<br />all<br />cards
+</menu>
+
 <style>
   div {
     padding: 10px;
+  }
+
+  menu {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0px 10px;
+    text-align: center;
+    font-size: small;
   }
 
   header {
