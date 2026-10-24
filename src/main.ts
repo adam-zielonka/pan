@@ -1,7 +1,3 @@
+import { mount } from 'svelte'
 import Game from './elements/GameElement.svelte'
-
-const app = new Game({
-  target: document.body,
-})
-
-export default app
+export default mount(Game, { target: document.body })

@@ -8,6 +8,15 @@
 </script>
 
 <div
+  role="button"
+  tabindex={possible(card) ? 0 : -1}
+  aria-disabled={!possible(card)}
+  on:keydown={event => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      if (possible(card)) click(card)
+    }
+  }}
   style={`color: ${card.colorStyle}`}
   on:click={() => {
     if (possible(card)) {
@@ -20,7 +29,7 @@
     <span>
       {card.figureText}
     </span>
-    <span />
+    <span></span>
     <span>
       {card.colorText}
     </span>
@@ -30,7 +39,7 @@
     <span>
       {card.figureText}
     </span>
-    <span />
+    <span></span>
     <span>
       {card.colorText}
     </span>

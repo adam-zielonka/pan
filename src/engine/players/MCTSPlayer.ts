@@ -1,7 +1,7 @@
 import { Figure } from '../Card'
-import { Action, ActionName, Game } from '../Game'
+import { type Action, type ActionName, Game } from '../Game'
 import { Player } from '../Player'
-import { PlayerType } from '../PlayersSelect'
+import { PlayerType } from '../PlayerType'
 
 class State {
   game: Game

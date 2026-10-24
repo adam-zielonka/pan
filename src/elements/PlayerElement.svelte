@@ -2,7 +2,7 @@
   import { Card } from '../engine/Card'
 
   import { flip } from 'svelte/animate'
-  import { CrossfadeParams, TransitionConfig } from 'svelte/transition'
+  import type { CrossfadeParams, TransitionConfig } from 'svelte/transition'
 
   import CardElement from './CardElement.svelte'
 

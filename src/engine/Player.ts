@@ -1,6 +1,6 @@
-import { Card } from './Card'
-import { Game, Action, ActionName } from './Game'
-import { PlayerType } from './PlayersSelect'
+import type { Card } from './Card'
+import type { Game, Action, ActionName } from './Game'
+import { PlayerType } from './PlayerType'
 
 export abstract class Player {
   cards: Card[] = []
@@ -18,7 +18,7 @@ export abstract class Player {
 
   abstract play(game: Game, actions: Action[]): Action | void
 
-  playWrapper(game: Game): NodeJS.Timeout | undefined {
+  playWrapper(game: Game): ReturnType<typeof setTimeout> | undefined {
     const possibleActions = game.getPossibleActions(this)
     this.printPossibleActions(possibleActions)
 
