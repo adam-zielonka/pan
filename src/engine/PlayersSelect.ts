@@ -1,4 +1,4 @@
-import { Player } from './Player'
+import type { Player } from './Player'
 import { AZPlayer } from './players/AZPlayer'
 import { HumanPlayer } from './players/HumanPlayer'
 import { MCTSPlayer } from './players/MCTSPlayer'
@@ -6,14 +6,8 @@ import { NonePlayer } from './players/NonePlayer'
 import { RandomPlayer } from './players/RandomPlayer'
 import { SimplePlayer } from './players/SimplePlayer'
 
-export enum PlayerType {
-  None = 'None',
-  Human = 'Human',
-  Simple = 'Simple',
-  Random = 'Random',
-  MCTS = 'MCTS',
-  AZ = 'AZ',
-}
+export { PlayerType } from './PlayerType'
+import { PlayerType } from './PlayerType'
 
 export class PlayersSelect extends Array<PlayerType> {
   constructor() {

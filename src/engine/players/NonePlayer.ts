@@ -1,5 +1,5 @@
 import { Player } from '../Player'
-import { PlayerType } from '../PlayersSelect'
+import { PlayerType } from '../PlayerType'
 
 export class NonePlayer extends Player {
   type = PlayerType.None

@@ -1,8 +1,8 @@
 import { Card } from '../Card'
 import { Deck } from '../Deck'
-import { Action, ActionName, Game } from '../Game'
+import { type Action, type ActionName, Game } from '../Game'
 import { Player } from '../Player'
-import { PlayerType } from '../PlayersSelect'
+import { PlayerType } from '../PlayerType'
 
 const LEVEL = 4
 

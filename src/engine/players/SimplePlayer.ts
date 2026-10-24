@@ -1,6 +1,6 @@
-import { Game, Action } from '../Game'
+import { Game, type Action } from '../Game'
 import { Player } from '../Player'
-import { PlayerType } from '../PlayersSelect'
+import { PlayerType } from '../PlayerType'
 
 export class SimplePlayer extends Player {
   type = PlayerType.Simple

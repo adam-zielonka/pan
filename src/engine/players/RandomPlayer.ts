@@ -1,6 +1,6 @@
-import { Game, Action } from '../Game'
+import { Game, type Action } from '../Game'
 import { Player } from '../Player'
-import { PlayerType } from '../PlayersSelect'
+import { PlayerType } from '../PlayerType'
 
 function getRandomElementFromArray<T>(array: T[]): T {
   return array[Math.floor(Math.random() * array.length)]

@@ -14,7 +14,7 @@ export class Game extends SubscribableStore {
   players: Player[] = []
   token = 0
 
-  timeout: NodeJS.Timeout | undefined
+  timeout: ReturnType<typeof setTimeout> | undefined
   playersSelect: PlayersSelect = new PlayersSelect()
 
   isComboModeRady = false

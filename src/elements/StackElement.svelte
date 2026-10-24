@@ -1,7 +1,7 @@
 <script lang="ts">
   import { store } from '../engine/Store'
   import { flip } from 'svelte/animate'
-  import { CrossfadeParams, TransitionConfig } from 'svelte/transition'
+  import type { CrossfadeParams, TransitionConfig } from 'svelte/transition'
   import { Card } from '../engine/Card'
   import CardElement from './CardElement.svelte'
 
