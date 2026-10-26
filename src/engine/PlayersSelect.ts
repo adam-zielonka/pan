@@ -5,11 +5,18 @@ import { MCTSPlayer } from './players/MCTSPlayer'
 import { NonePlayer } from './players/NonePlayer'
 import { RandomPlayer } from './players/RandomPlayer'
 import { SimplePlayer } from './players/SimplePlayer'
+import { TacticalPlayer } from './players/TacticalPlayer'
+import { RolloutPlayer } from './players/RolloutPlayer'
 
 export { PlayerType } from './PlayerType'
 import { PlayerType } from './PlayerType'
 
 export class PlayersSelect extends Array<PlayerType> {
+  // Array methods must not construct a fresh, prefilled player selection.
+  static get [Symbol.species](): ArrayConstructor {
+    return Array
+  }
+
   constructor() {
     super()
     this.push(PlayerType.Human, PlayerType.Simple, PlayerType.MCTS, PlayerType.AZ)
@@ -30,6 +37,10 @@ export class PlayersSelect extends Array<PlayerType> {
           return new MCTSPlayer(index)
         case PlayerType.AZ:
           return new AZPlayer(index)
+        case PlayerType.Tactical:
+          return new TacticalPlayer(index)
+        case PlayerType.Rollout:
+          return new RolloutPlayer(index)
         case PlayerType.Human:
           return new HumanPlayer(index)
         default:

@@ -13,6 +13,10 @@ export class Game extends SubscribableStore {
   deck: Card[] = []
   players: Player[] = []
   token = 0
+  readonly isSimulation: boolean
+  moveCount = 0
+  history: { player: number; action: string }[] = []
+  thinkDelay = 650
 
   timeout: ReturnType<typeof setTimeout> | undefined
   playersSelect: PlayersSelect = new PlayersSelect()
@@ -22,6 +26,7 @@ export class Game extends SubscribableStore {
 
   constructor(game?: Game) {
     super()
+    this.isSimulation = !!game
 
     if (game) {
       this.stack.push(...game.stack)
@@ -30,6 +35,7 @@ export class Game extends SubscribableStore {
       this.token = game.token
       this.isComboModeRady = game.isComboModeRady
       this.isComboMode = game.isComboMode
+      this.moveCount = game.moveCount
 
       return
     }
@@ -80,27 +86,16 @@ export class Game extends SubscribableStore {
   }
 
   newGame(): void {
+    if (this.playersSelect.filter(type => type !== PlayerType.None).length < 2) {
+      return
+    }
     this.timeout && clearTimeout(this.timeout)
     this.isComboModeRady = false
     this.isComboMode = false
-    this.stack.slice(0).forEach(card => {
-      const index = this.stack.findIndex(_card => card.compare(_card) === 0)
-      if (index !== -1) {
-        this.deck.push(this.stack.splice(index, 1)[0])
-      }
-    })
-    this.players.forEach(player => {
-      player.cards.slice(0).forEach(card => {
-        const c = player.popCard(card)
-        if (c) {
-          this.deck.push(c)
-        }
-      })
-    })
-    for (let i = this.deck.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      ;[this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]]
-    }
+    this.stack = new Stack()
+    this.deck = Deck.shuffle(Deck.generate())
+    this.moveCount = 0
+    this.history = []
     this.players = this.playersSelect.getGamePlayers()
     this.token = 0
     this.dealingCards()
@@ -109,6 +104,7 @@ export class Game extends SubscribableStore {
   }
 
   getPossibleActions(player: Player): Action[] {
+    if (this.isGameOver || player.id !== this.token || !player.isPlaying) return []
     const possibleCards = player.cards.filter(card =>
       this.isPossibleToMoveCard(player, card),
     )
@@ -135,7 +131,7 @@ export class Game extends SubscribableStore {
   }
 
   isPossibleToMoveCard(player: Player, card: Card): boolean {
-    if (player.id !== this.token) {
+    if (this.isGameOver || player.id !== this.token || !player.cards.includes(card)) {
       return false
     }
 
@@ -158,7 +154,7 @@ export class Game extends SubscribableStore {
   }
 
   isPossibleToGetCardFromStack(): boolean {
-    if (this.isComboModeRady || this.isComboMode) {
+    if (this.isGameOver || this.isComboModeRady || this.isComboMode) {
       return false
     }
     return this.stack.isPossibleToGetCardFromStack()
@@ -173,6 +169,7 @@ export class Game extends SubscribableStore {
     if (index !== -1) {
       player.cards.splice(index, 1)
       this.stack.putCardOnStack(card)
+      this.recordAction(player.id, card.text)
       if (this.isComboModeRady) {
         this.isComboModeRady = false
         this.isComboMode = true
@@ -192,6 +189,8 @@ export class Game extends SubscribableStore {
   }
 
   private actionSkipCombo(): void {
+    if (!this.isComboModeRady || this.isComboMode || this.isGameOver) return
+    this.recordAction(this.token, 'pasuje serię')
     this.isComboMode = false
     this.isComboModeRady = false
     this.finishTurn()
@@ -203,6 +202,7 @@ export class Game extends SubscribableStore {
     }
 
     const cards = this.stack.getFromStack()
+    this.recordAction(this.token, `dobiera ${cards.length}`)
     cards.forEach(card => this.players[this.token].addCard(card))
     this.finishTurn()
   }
@@ -228,7 +228,7 @@ export class Game extends SubscribableStore {
   }
 
   private playerPlay(): void {
-    if (this.isGameOver) {
+    if (this.isSimulation || this.isGameOver) {
       return
     }
     this.timeout && clearTimeout(this.timeout)
@@ -237,8 +237,15 @@ export class Game extends SubscribableStore {
 
   private finishTurn(): void {
     this.setNextPlayer()
-    this.notify()
-    this.playerPlay()
+    if (!this.isSimulation) {
+      this.notify()
+      this.playerPlay()
+    }
+  }
+
+  private recordAction(player: number, action: string): void {
+    this.moveCount++
+    if (!this.isSimulation) this.history = [...this.history.slice(-5), { player, action }]
   }
 
   private dealingCards(): void {

@@ -1,79 +1,46 @@
-import { Card } from '../Card'
-import { Deck } from '../Deck'
-import { type Action, type ActionName, Game } from '../Game'
+import { Game, type Action } from '../Game'
 import { Player } from '../Player'
 import { PlayerType } from '../PlayerType'
+import { actionKey, evaluate, tacticalScore, MoveMemory } from './search'
 
-const LEVEL = 4
-
-type Result = {
-  action: ActionName
-  points: number
-}
-
+/** MaxN: at every node the player on turn maximizes their own utility. */
 export class AZPlayer extends Player {
   type = PlayerType.AZ
-  maxPoints = Deck.generate().reduce((p, c) => this.formula(p, c), 0)
+  depth = 4
+  nodeBudget = 1400
+  private visited = 0
+  private memory = new MoveMemory()
 
-  formula(points: number, card: Card): number {
-    return points + 15 - card.figure
-  }
-
-  percentComplete(game: Game): number {
-    const points =
-      game.players[this.id].cards.reduce((p, c) => this.formula(p, c), 0) || 0
-    return 1 - points / this.maxPoints
-  }
-
-  getAllPossibleStates(game: Game, level = 0): Result[] {
-    const results: Result[] = []
-
-    for (const action of game.getPossibleActions(game.players[game.token])) {
-      const testGame = new Game(game)
-      const player = testGame.players[testGame.token]
-      player.makeAction(testGame, action[0])
-      testGame.setNextPlayer()
-
-      let percent
-      if (level === LEVEL) {
-        percent = this.percentComplete(testGame)
-      } else {
-        percent = 1 - this.getAllPossibleStates(testGame, level + 1)[0].points
-      }
-      results.push({
-        action: action[0],
-        points: percent,
-      })
+  private search(game: Game, depth: number): number[] {
+    if (!depth || game.isGameOver || this.visited >= this.nodeBudget)
+      return evaluate(game)
+    const actor = game.token
+    const actions = game
+      .getPossibleActions(game.players[actor])
+      .sort((a, b) => tacticalScore(game, b) - tacticalScore(game, a))
+    let best: number[] | undefined
+    for (const [name] of actions) {
+      if (this.visited++ >= this.nodeBudget) break
+      const child = new Game(game)
+      const action = child
+        .getPossibleActions(child.players[child.token])
+        .find(([candidate]) => actionKey(candidate) === actionKey(name))
+      action?.[1]()
+      const scores = this.search(child, depth - 1)
+      if (!best || scores[actor] > best[actor]) best = scores
     }
-
-    return results.sort((a, b) => b.points - a.points)
+    return best || evaluate(game)
   }
 
-  printResult(results: Result[]): void {
-    for (const { action, points } of results) {
-      let style
-      if (action === 'stack' || action === 'skip') {
-        style = `color: blue; background-color: white`
-      } else {
-        style = `color: ${action.colorStyle}; background-color: white`
-      }
-
-      console.log(
-        `- ${Math.round(points * 10000) / 100}% - %c ${action.toString()} `,
-        style,
-      )
-    }
-  }
-
-  play(game: Game, actions: Action[]): Action {
-    if (actions.length === 1) {
-      return actions[0]
-    }
-
-    const result = this.getAllPossibleStates(game)
-    this.printResult(result)
-
-    const bestAction = actions.find(([name]) => name === result[0].action)
-    return bestAction || actions[0]
+  play(game: Game, actions: Action[]): Action | undefined {
+    if (actions.length < 2) return actions[0]
+    // Each root candidate gets its own budget so action ordering cannot starve one.
+    const scores = actions.map(action => {
+      this.visited = 0
+      const child = new Game(game)
+      child.players[this.id].makeAction(child, action[0])
+      return this.search(child, this.depth - 1)[this.id]
+    })
+    return this.memory.choose(game, actions, scores)
   }
 }

@@ -1,64 +1,88 @@
 <script lang="ts">
-  import { Card } from '../engine/Card'
-
-  import { flip } from 'svelte/animate'
-  import type { CrossfadeParams, TransitionConfig } from 'svelte/transition'
-
+  import type { Card } from '../engine/Card'
   import CardElement from './CardElement.svelte'
 
   export let cards: Card[]
-
-  export let move: (card: Card) => void
-
-  export let possible: (card: Card) => boolean
-
+  export let move: (card: Card) => void = () => {}
+  export let possible: (card: Card) => boolean = () => false
   export let hidden = false
-
-  export let send: (
-    node: Element,
-    params: CrossfadeParams & {
-      key: Card
-    },
-  ) => () => TransitionConfig
-
-  export let receive: (
-    node: Element,
-    params: CrossfadeParams & {
-      key: Card
-    },
-  ) => () => TransitionConfig
+  export let compact = false
 </script>
 
-<div>
-  {#each cards as card (card)}
-    <span
-      animate:flip
-      in:receive={{ key: card }}
-      out:send={{ key: card }}
-      class={hidden ? 'hidden' : ''}
+<div class="hand" class:compact class:hidden style={`--count: ${cards.length}`}>
+  {#each cards as card (card.text)}
+    <span class="slot"
+      ><CardElement {card} click={move} {hidden} {possible} {compact} /></span
     >
-      <CardElement {card} click={() => move(card)} {hidden} {possible} />
-    </span>
   {/each}
-  <footer>&nbsp;</footer>
 </div>
 
 <style>
-  div {
+  .hand {
     display: flex;
-    flex-direction: row;
     justify-content: center;
+    padding: 15px 10px 5px;
+    min-height: 128px;
+    width: max-content;
+    min-width: 100%;
   }
-
-  footer {
-    width: 62px;
+  .slot {
+    flex: 0 1 48px;
+    min-width: 15px;
+    max-width: 48px;
+    position: relative;
   }
-
-  span {
-    width: 25px;
+  .slot:last-child {
+    flex: 0 0 76px;
   }
-
-  .hidden {
-    width: 5px;
+  .slot:hover,
+  .slot:focus-within {
+    z-index: 2;
+  }
+  .compact {
+    padding: 12px 3px 0;
+    min-height: 77px;
+    width: auto;
+  }
+  .compact .slot {
+    flex-basis: 22px;
+    max-width: 22px;
+    min-width: 6px;
+  }
+  .compact .slot:last-child {
+    flex: 0 0 45px;
+  }
+  .hidden .slot {
+    flex-basis: 15px;
+    max-width: 15px;
+  }
+  @media (max-width: 600px) {
+    .hand {
+      min-height: 110px;
+      padding-inline: 4px;
+    }
+    .slot {
+      flex-basis: 34px;
+      max-width: 34px;
+      min-width: 8px;
+    }
+    .slot:last-child {
+      flex-basis: 62px;
+    }
+    .compact {
+      min-height: 67px;
+    }
+    .compact .slot {
+      flex-basis: 13px;
+      max-width: 13px;
+      min-width: 3px;
+    }
+    .compact .slot:last-child {
+      flex-basis: 37px;
+    }
+    .hidden .slot {
+      flex-basis: 10px;
+      max-width: 10px;
+    }
   }
 </style>

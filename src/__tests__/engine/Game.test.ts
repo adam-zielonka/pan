@@ -7,7 +7,10 @@ it('initializes the complete game module graph and independent cloned state', ()
   try {
     const game = new Game()
     expect(Array.from(game.players, player => player.type)).toEqual([
-      PlayerType.Human, PlayerType.Simple, PlayerType.MCTS, PlayerType.AZ,
+      PlayerType.Human,
+      PlayerType.Simple,
+      PlayerType.MCTS,
+      PlayerType.AZ,
     ])
     expect(game.deck.length).toBe(24)
     const clone = new Game(game)

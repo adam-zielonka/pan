@@ -5,5 +5,6 @@ export enum PlayerType {
   Random = 'Random',
   MCTS = 'MCTS',
   AZ = 'AZ',
+  Tactical = 'Tactical',
+  Rollout = 'Rollout',
 }
-

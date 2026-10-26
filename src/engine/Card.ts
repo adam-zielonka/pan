@@ -45,7 +45,10 @@ export class Card {
     }
   }
 
-  constructor(readonly figure: Figure, readonly color: Color) {}
+  constructor(
+    readonly figure: Figure,
+    readonly color: Color,
+  ) {}
 
   get colorStyle(): string {
     switch (this.color) {
