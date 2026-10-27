@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tr, locale, setLanguage } from '../i18n'
   import BoardElement from './BoardElement.svelte'
   import { store } from '../engine/Store'
   import PlayerSelectElement from './PlayerSelectElement.svelte'
@@ -28,73 +29,85 @@
   }
 </script>
 
-<svelte:head><title>PAN — Twój stolik, Twoja strategia</title></svelte:head>
+<svelte:head><title>{$tr('PAN — Twój stolik, Twoja strategia')}</title></svelte:head>
 
 <div class="app-shell">
   <header class="app-header">
-    <a href="./" class="brand" aria-label="PAN — strona główna"
+    <a href="./" class="brand" aria-label={$tr('PAN — strona główna')}
       ><span class="brand-icon">♠</span><span
-        >PAN<small>KLASYCZNIE. PO SWOJEMU.</small></span
+        >PAN<small>{$tr('KLASYCZNIE. PO SWOJEMU.')}</small></span
       ></a
     >
-    <nav aria-label="Widok aplikacji">
+    <select
+      class="language-picker"
+      aria-label="Język / Language"
+      value={$locale}
+      on:change={event => setLanguage(event.currentTarget.value as 'pl' | 'en')}
+      ><option value="pl">Polski</option><option value="en">English</option></select
+    >
+    <nav aria-label={$tr('Widok aplikacji')}>
       <button class:selected={view === 'table'} on:click={() => (view = 'table')}
-        >Stół do gry</button
+        >{$tr('Stół do gry')}</button
       >
       <button class:selected={view === 'players'} on:click={() => (view = 'players')}
-        >Poznaj graczy <span>6</span></button
+        >{$tr('Poznaj graczy')} <span>6</span></button
       >
     </nav>
     <button
       class="rules-link"
       on:click={() => (showRules = !showRules)}
-      aria-expanded={showRules}><span>?</span> Zasady gry</button
+      aria-expanded={showRules}><span>?</span> {$tr('Zasady gry')}</button
     >
   </header>
 
   <main>
     <div class="page-heading">
       <div>
-        <div class="eyebrow">MAŁA TALIA. WIELE MOŻLIWOŚCI.</div>
-        <h1>{view === 'table' ? 'Usiądź przy stole.' : 'Każdy gra po swojemu.'}</h1>
+        <div class="eyebrow">{$tr('MAŁA TALIA. WIELE MOŻLIWOŚCI.')}</div>
+        <h1>
+          {view === 'table' ? $tr('Usiądź przy stole.') : $tr('Każdy gra po swojemu.')}
+        </h1>
         <p>
           {view === 'table'
-            ? 'Ty, 24 karty i przeciwnicy z charakterem.'
-            : 'Sześć strategii. Sześć osobowości. Wybierz swoje towarzystwo.'}
+            ? $tr('Ty, 24 karty i przeciwnicy z charakterem.')
+            : $tr('Sześć strategii. Sześć osobowości. Wybierz swoje towarzystwo.')}
         </p>
       </div>
       <button class="button primary" on:click={newGame} disabled={activeSeats < 2}
-        ><span class="shuffle-icon">⤨</span> Nowe rozdanie</button
+        ><span class="shuffle-icon">⤨</span> {$tr('Nowe rozdanie')}</button
       >
     </div>
 
     {#if showRules}
-      <section class="rules-panel" aria-label="Zasady gry">
+      <section class="rules-panel" aria-label={$tr('Zasady gry')}>
         <div class="section-heading">
-          <h2>Jak grać w Pana?</h2>
+          <h2>{$tr('Jak grać w Pana?')}</h2>
           <button
             class="close-button"
             on:click={() => (showRules = false)}
-            aria-label="Zamknij zasady">×</button
+            aria-label={$tr('Zamknij zasady')}>×</button
           >
         </div>
         <div class="rules-grid">
           <p>
-            <b>01 · Zacznij od dziewiątki</b>Talia ma 24 karty, od 9 do asa. Rozpoczyna
-            osoba z 9♥, wykładając ją na stół.
+            <b>{$tr('01 · Zacznij od dziewiątki')}</b>{$tr(
+              'Talia ma 24 karty, od 9 do asa. Rozpoczyna osoba z 9♥, wykładając ją na stół.',
+            )}
           </p>
           <p>
-            <b>02 · Równo lub wyżej</b>Zagraj kartę o tej samej lub wyższej figurze.
-            Możesz też dobrać do 3 kart ze stosu — 9♥ zostaje na stole.
+            <b>{$tr('02 · Równo lub wyżej')}</b>{$tr(
+              'Zagraj kartę o tej samej lub wyższej figurze. Możesz też dobrać do 3 kart ze stosu — 9♥ zostaje na stole.',
+            )}
           </p>
           <p>
-            <b>03 · Wykorzystaj serię</b>Po zagraniu karty możesz dołożyć trzy pozostałe
-            tej samej figury. Rozpoczętą serię trzeba dokończyć. Dla dziewiątek działa też
-            uzupełnienie parą przy dwóch kartach na stosie.
+            <b>{$tr('03 · Wykorzystaj serię')}</b>{$tr(
+              'Po zagraniu karty możesz dołożyć trzy pozostałe tej samej figury. Rozpoczętą serię trzeba dokończyć. Dla dziewiątek działa też uzupełnienie parą przy dwóch kartach na stosie.',
+            )}
           </p>
           <p>
-            <b>04 · Nie zostań ostatni</b>Pik na wierzchu oddaje ruch w lewo, pozostałe
-            kolory w prawo. Gracze bez kart odpadają. Ostatnia osoba z kartami przegrywa.
+            <b>{$tr('04 · Nie zostań ostatni')}</b>{$tr(
+              'Pik na wierzchu oddaje ruch w lewo, pozostałe kolory w prawo. Gracze bez kart odpadają. Ostatnia osoba z kartami przegrywa.',
+            )}
           </p>
         </div>
       </section>
@@ -104,35 +117,35 @@
       <div class="main-content">
         <div class:offscreen={view !== 'table'}><BoardElement {round} /></div>
         {#if view === 'players'}
-          <section class="strategy-grid" aria-label="Strategie przeciwników">
+          <section class="strategy-grid" aria-label={$tr('Strategie przeciwników')}>
             {#each bots as type}
               {@const strategy = strategies[type]}
               <article class="strategy-card">
                 <div class="strategy-top">
-                  <span class={`avatar ${strategy.color}`}>{strategy.initials}</span><span
-                    class="strategy-kind"
+                  <span class={`avatar ${strategy.color}`}>{$tr(strategy.initials)}</span
+                  ><span class="strategy-kind"
                     >{type === PlayerType.Tactical || type === PlayerType.Rollout
-                      ? 'NOWY PRZY STOLE'
-                      : 'STAŁY BYWALEC'}</span
+                      ? $tr('NOWY PRZY STOLE')
+                      : $tr('STAŁY BYWALEC')}</span
                   >
                 </div>
-                <h2>{strategy.name}</h2>
-                <span class="method">{strategy.method}</span>
-                <p>{strategy.description}</p>
-                <div class="knowledge"><span>◉</span> {strategy.information}</div>
+                <h2>{$tr(strategy.name)}</h2>
+                <span class="method">{$tr(strategy.method)}</span>
+                <p>{$tr(strategy.description)}</p>
+                <div class="knowledge"><span>◉</span> {$tr(strategy.information)}</div>
               </article>
             {/each}
           </section>
           <p class="strategy-note">
-            Algorytmy są eksperymentalne. Opisy mówią, jak wybierają ruchy — nie są
-            rankingiem siły gry. Symulacje mają ograniczoną liczbę kroków, a niedokończone
-            partie oceniają na podstawie kart pozostałych w ręce.
+            {$tr(
+              'Algorytmy są eksperymentalne. Opisy mówią, jak wybierają ruchy — nie są rankingiem siły gry. Symulacje mają ograniczoną liczbę kroków, a niedokończone partie oceniają na podstawie kart pozostałych w ręce.',
+            )}
           </p>
         {/if}
         <div class="below-table">
           <span
-            ><span class="tiny-suit">♣</span> Bez pośpiechu. Dobra partia zaczyna się od dobrego
-            ruchu.</span
+            ><span class="tiny-suit">♣</span>
+            {$tr('Bez pośpiechu. Dobra partia zaczyna się od dobrego ruchu.')}</span
           ><span>9 · 10 · J · Q · K · A</span>
         </div>
       </div>
@@ -140,47 +153,48 @@
       <aside>
         <section class="settings-panel">
           <div class="section-heading">
-            <h2>Przy Twoim stole</h2>
+            <h2>{$tr('Przy Twoim stole')}</h2>
             <span class="seat-count">{activeSeats} / 4</span>
           </div>
-          <p class="panel-intro">Dobierz przeciwników do swojego stylu.</p>
+          <p class="panel-intro">{$tr('Dobierz przeciwników do swojego stylu.')}</p>
           {#each selection as player, id}<PlayerSelectElement
               {id}
               {player}
               set={setPlayer}
             />{/each}
           <div class="pace">
-            <label for="pace">Tempo gry</label><select
+            <label for="pace">{$tr('Tempo gry')}</label><select
               id="pace"
               bind:value={game.thinkDelay}
-              ><option value={1200}>Spokojne</option><option value={650}>Normalne</option
-              ><option value={200}>Szybkie</option></select
+              ><option value={1200}>{$tr('Spokojne')}</option><option value={650}
+                >{$tr('Normalne')}</option
+              ><option value={200}>{$tr('Szybkie')}</option></select
             >
           </div>
           <div class="settings-note" class:pending={pendingChanges}>
             {activeSeats < 2
-              ? 'Wybierz co najmniej dwóch graczy.'
+              ? $tr('Wybierz co najmniej dwóch graczy.')
               : pendingChanges
-                ? 'Nowy skład czeka. Kliknij „Nowe rozdanie”, aby nim zagrać.'
-                : 'Zmiany składu zadziałają od nowego rozdania.'}
+                ? $tr('Nowy skład czeka. Kliknij „Nowe rozdanie”, aby nim zagrać.')
+                : $tr('Zmiany składu zadziałają od nowego rozdania.')}
           </div>
         </section>
 
         <section class="activity-panel">
           <div class="section-heading">
-            <h2>Ostatnie ruchy</h2>
+            <h2>{$tr('Ostatnie ruchy')}</h2>
             <span class="activity-symbol">↗</span>
           </div>
-          <div class="activity-list" aria-label="Historia ruchów">
+          <div class="activity-list" aria-label={$tr('Historia ruchów')}>
             {#if !$game.history.length}<p class="no-moves">
-                Karty rozdane. Czas na pierwszy ruch.
+                {$tr('Karty rozdane. Czas na pierwszy ruch.')}
               </p>{/if}
             {#each $game.history.slice(-4).reverse() as entry, i}
               {@const strategy = strategies[$game.players[entry.player].type]}
               <div class="activity-row" class:latest={i === 0}>
                 <span class={`activity-dot ${strategy.color}`}></span><span
-                  >{strategy.name}</span
-                ><strong>{entry.action}</strong>
+                  >{$tr(strategy.name)}</span
+                ><strong>{$tr(entry.action)}</strong>
               </div>
             {/each}
           </div>
@@ -188,8 +202,9 @@
         <div class="table-tip">
           <span>♠</span>
           <p>
-            <b>Mała karta, duża różnica.</b>Niskich figur trudniej pozbyć się pod koniec.
-            Czasem warto zagrać je od razu.
+            <b>{$tr('Mała karta, duża różnica.')}</b>{$tr(
+              'Niskich figur trudniej pozbyć się pod koniec. Czasem warto zagrać je od razu.',
+            )}
           </p>
         </div>
       </aside>
@@ -197,12 +212,25 @@
   </main>
   <footer class="app-footer">
     <span>PAN <span class="footer-suits">♠ ♥ ♣ ♦</span></span><span
-      >Klasyczna gra. Nowi przeciwnicy.</span
-    ><span>Stworzone dla przyjemności gry.</span>
+      >{$tr('Klasyczna gra. Nowi przeciwnicy.')}</span
+    ><span>{$tr('Stworzone dla przyjemności gry.')}</span>
   </footer>
 </div>
 
 <style>
+  .language-picker {
+    background: #1c2a23;
+    color: #e7e9dd;
+    border: 1px solid #738776;
+    border-radius: 6px;
+    padding: 0.5rem;
+    font: inherit;
+    max-width: 7rem;
+  }
+  .app-header {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
   @font-face {
     font-family: 'DM Sans';
     src: url('../assets/fonts/DMSans.ttf') format('truetype');

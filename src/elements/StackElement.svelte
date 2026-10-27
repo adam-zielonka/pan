@@ -1,13 +1,14 @@
 <script lang="ts">
+  import { tr } from '../i18n'
   import { store } from '../engine/Store'
   import CardElement from './CardElement.svelte'
   const { game } = store
 </script>
 
-<div class="pile" aria-label={`Stos: ${$game.stack.length} kart`}>
+<div class="pile" aria-label={$tr('Stos: {count} kart', { count: $game.stack.length })}>
   {#if !$game.stack.length}
     <div class="empty">
-      <span>9<span class="heart">♥</span></span><small>Tu zaczyna się gra</small>
+      <span>9<span class="heart">♥</span></span><small>{$tr('Tu zaczyna się gra')}</small>
     </div>
   {:else}
     {#each $game.stack.slice(-3) as card, i (card.text)}
@@ -21,7 +22,9 @@
   {/if}
 </div>
 <div class="pile-label">
-  {$game.stack.length ? `${$game.stack.length} kart na stole` : 'Czekamy na 9♥'}
+  {$game.stack.length
+    ? $tr('{count} kart na stole', { count: $game.stack.length })
+    : $tr('Czekamy na 9♥')}
 </div>
 
 <style>

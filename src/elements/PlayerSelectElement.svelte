@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tr } from '../i18n'
   import { PlayerType } from '../engine/PlayerType'
   import { strategies } from '../engine/strategies'
   export let player: PlayerType
@@ -12,19 +13,23 @@
 </script>
 
 <div class="seat-select">
-  <span class={`avatar ${strategy.color}`}>{strategy.initials}</span>
+  <span class={`avatar ${strategy.color}`}>{$tr(strategy.initials)}</span>
   <div class="select-content">
-    <label for={`seat-${id}`}>FOTEL {id + 1}{id === 0 ? ' · TWÓJ' : ''}</label>
+    <label for={`seat-${id}`}
+      >{$tr('FOTEL')} {id + 1}{id === 0 ? $tr(' · TWÓJ') : ''}</label
+    >
     <select
       id={`seat-${id}`}
       value={player}
       on:change={event => set(id, event.currentTarget.value as PlayerType)}
     >
       {#each players as type}
-        <option value={type}>{strategies[type].name} · {strategies[type].method}</option>
+        <option value={type}
+          >{$tr(strategies[type].name)} · {$tr(strategies[type].method)}</option
+        >
       {/each}
     </select>
-    <span class="information">{strategy.information}</span>
+    <span class="information">{$tr(strategy.information)}</span>
   </div>
 </div>
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tr } from '../i18n'
   import StackElement from './StackElement.svelte'
   import PlayerElement from './PlayerElement.svelte'
   import { store } from '../engine/Store'
@@ -16,31 +17,40 @@
   $: canTake = humanTurn && $game.isPossibleToGetCardFromStack()
   $: combo = $game.isComboModeRady || $game.isComboMode
   $: status = $game.deck.length
-    ? 'Rozdajemy karty…'
+    ? $tr('Rozdajemy karty…')
     : $game.isGameOver
-      ? `Koniec rozdania · ${loser?.id === 0 && me.type === PlayerType.Human ? 'zostajesz' : `${strategies[loser?.type || PlayerType.None].name} zostaje`} z kartami`
+      ? $tr('Koniec rozdania · {result}', {
+          result:
+            loser?.id === 0 && me.type === PlayerType.Human
+              ? $tr('Zostajesz z kartami')
+              : $tr('{name} zostaje z kartami', {
+                  name: $tr(strategies[loser?.type || PlayerType.None].name),
+                }),
+        })
       : humanTurn
         ? combo
-          ? 'Możesz zagrać serię'
-          : 'Twój ruch'
-        : `${current.name} wybiera ruch…`
+          ? $tr('Możesz zagrać serię')
+          : $tr('Twój ruch')
+        : $tr('{name} wybiera ruch…', { name: $tr(current.name) })
 </script>
 
-<section class="game-board" aria-label="Stół do gry">
+<section class="game-board" aria-label={$tr('Stół do gry')}>
   <div class="table-toolbar">
     <div class="round">
-      <span class="live-dot"></span> ROZDANIE {String(round).padStart(2, '0')}
+      <span class="live-dot"></span>
+      {$tr('ROZDANIE')}
+      {String(round).padStart(2, '0')}
     </div>
     <label class="reveal"
       ><input type="checkbox" bind:checked={allCardsVisible} /><span
-        >Pokaż karty rywali</span
+        >{$tr('Pokaż karty rywali')}</span
       ></label
     >
   </div>
   <div class="felt">
     <div class="table-outline"></div>
     <div class="felt-mark" aria-hidden="true">
-      P<span>A</span>N<small>KLASYCZNA GRA KARCIANA</small>
+      P<span>A</span>N<small>{$tr('KLASYCZNA GRA KARCIANA')}</small>
     </div>
     {#each $game.players.slice(1) as player}
       {@const strategy = strategies[player.type]}
@@ -50,10 +60,10 @@
           class:active={!$game.isGameOver && player.id === $game.token}
         >
           <div class="player-badge">
-            <span class={`avatar ${strategy.color}`}>{strategy.initials}</span>
+            <span class={`avatar ${strategy.color}`}>{$tr(strategy.initials)}</span>
             <div>
-              <strong>{strategy.name}</strong><span class="player-method"
-                >{strategy.method}</span
+              <strong>{$tr(strategy.name)}</strong><span class="player-method"
+                >{$tr(strategy.method)}</span
               >
             </div>
             <span class="card-count">{player.cards.length || '✓'}</span>
@@ -61,7 +71,7 @@
           {#if player.cards.length}
             <PlayerElement cards={player.cards} hidden={!allCardsVisible} compact />
           {:else if !$game.deck.length}
-            <div class="finished">Poza grą ✓</div>
+            <div class="finished">{$tr('Poza grą ✓')}</div>
           {/if}
           {#if !$game.isGameOver && player.id === $game.token}<div class="thinking">
               <i></i><i></i><i></i>
@@ -72,8 +82,8 @@
     <div class="center-stack"><StackElement /></div>
     <div class="direction">
       <span>{$game.stack.isPikOnTop ? '↶' : '↷'}</span>{$game.stack.isPikOnTop
-        ? 'Pik · ruch w lewo'
-        : 'Ruch w prawo'}
+        ? $tr('Pik · ruch w lewo')
+        : $tr('Ruch w prawo')}
     </div>
   </div>
   <div class="your-area">
@@ -81,16 +91,20 @@
       <span class:your-turn={humanTurn} class="status-dot"></span>
       <strong>{status}</strong>
       {#if !$game.isGameOver && humanTurn}<span class="turn-hint"
-          >{combo ? 'Zagraj tę samą figurę' : 'Wybierz podświetloną kartę'}</span
+          >{combo
+            ? $tr('Zagraj tę samą figurę')
+            : $tr('Wybierz podświetloną kartę')}</span
         >{/if}
-      <span class="move-count">Ruch {$game.moveCount}</span>
+      <span class="move-count">{$tr('Ruch')} {$game.moveCount}</span>
     </div>
     <div class="hand-header">
       <span
         >{me.type === PlayerType.Human
-          ? 'TWOJA RĘKA'
-          : `${strategies[me.type].name.toUpperCase()} · OBSERWUJESZ GRĘ`}</span
-      ><span>{me.cards.length} kart</span>
+          ? $tr('TWOJA RĘKA')
+          : $tr('{name} · OBSERWUJESZ GRĘ', {
+              name: $tr(strategies[me.type].name).toUpperCase(),
+            })}</span
+      ><span>{$tr('{count} kart', { count: me.cards.length })}</span>
     </div>
     <div class="your-hand">
       {#if me.cards.length}
@@ -102,8 +116,8 @@
       {:else}
         <div class="empty-hand">
           {$game.deck.length
-            ? 'Za chwilę dostaniesz karty.'
-            : 'Wszystkie karty zagrane. Dobra robota! ♡'}
+            ? $tr('Za chwilę dostaniesz karty.')
+            : $tr('Wszystkie karty zagrane. Dobra robota! ♡')}
         </div>
       {/if}
     </div>
@@ -111,19 +125,21 @@
       <span class="help-hint"
         ><span>i</span>
         {$game.isGameOver
-          ? 'Rozdaj ponownie, by zagrać jeszcze raz.'
-          : 'Pozbądź się kart. Ostatni przy stole przegrywa.'}</span
+          ? $tr('Rozdaj ponownie, by zagrać jeszcze raz.')
+          : $tr('Pozbądź się kart. Ostatni przy stole przegrywa.')}</span
       >
       <div class="action-buttons">
         {#if humanTurn && $game.isComboModeRady && !$game.isComboMode}<button
             class="button subtle small"
-            on:click={() => me.makeAction(game, 'skip')}>Pomiń serię</button
+            on:click={() => me.makeAction(game, 'skip')}>{$tr('Pomiń serię')}</button
           >{/if}
         <button
           class="button take-button small"
           disabled={!canTake}
           on:click={() => me.makeAction(game, 'stack')}
-          >Dobierz {$game.stack.numberOfCardsThatCanBeGetFromStack || ''} ze stosu
+          >{$tr('Dobierz {count} ze stosu', {
+            count: $game.stack.numberOfCardsThatCanBeGetFromStack || '',
+          })}
           <span>↓</span></button
         >
       </div>

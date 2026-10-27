@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tr } from '../i18n'
   import type { Card } from '../engine/Card'
 
   export let card: Card
@@ -17,8 +18,8 @@
   class:compact
   disabled={hidden || !possible(card)}
   aria-label={hidden
-    ? 'Zakryta karta'
-    : `${card.text}${possible(card) ? ' — zagraj' : ''}`}
+    ? $tr('Zakryta karta')
+    : `${card.text}${possible(card) ? $tr(' — zagraj') : ''}`}
   on:click={() => click(card)}
 >
   {#if hidden}
