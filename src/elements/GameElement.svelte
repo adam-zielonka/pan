@@ -38,13 +38,6 @@
         >PAN<small>{$tr('KLASYCZNIE. PO SWOJEMU.')}</small></span
       ></a
     >
-    <select
-      class="language-picker"
-      aria-label="Język / Language"
-      value={$locale}
-      on:change={event => setLanguage(event.currentTarget.value as 'pl' | 'en')}
-      ><option value="pl">Polski</option><option value="en">English</option></select
-    >
     <nav aria-label={$tr('Widok aplikacji')}>
       <button class:selected={view === 'table'} on:click={() => (view = 'table')}
         >{$tr('Stół do gry')}</button
@@ -213,24 +206,58 @@
   <footer class="app-footer">
     <span>PAN <span class="footer-suits">♠ ♥ ♣ ♦</span></span><span
       >{$tr('Klasyczna gra. Nowi przeciwnicy.')}</span
-    ><span>{$tr('Stworzone dla przyjemności gry.')}</span>
+    >
+    <div class="language-switch" role="group" aria-label="Language / Język">
+      <button
+        type="button"
+        lang="en"
+        aria-pressed={$locale === 'en'}
+        on:click={() => setLanguage('en')}>English</button
+      >
+      <span aria-hidden="true">/</span>
+      <button
+        type="button"
+        lang="pl"
+        aria-pressed={$locale === 'pl'}
+        on:click={() => setLanguage('pl')}>Polski</button
+      >
+    </div>
+    <span>{$tr('Stworzone dla przyjemności gry.')}</span>
   </footer>
 </div>
 
 <style>
-  .language-picker {
-    background: #1c2a23;
-    color: #e7e9dd;
-    border: 1px solid #738776;
-    border-radius: 6px;
-    padding: 0.5rem;
+  .language-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    color: #a7b7aa;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .language-switch button {
+    padding: 0.25rem 0;
+    border: 0;
+    background: none;
+    color: inherit;
     font: inherit;
-    max-width: 7rem;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
   }
-  .app-header {
+  .language-switch button[aria-pressed='true'] {
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .language-switch button:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 4px;
+  }
+
+  .app-footer {
     flex-wrap: wrap;
-    gap: 1rem;
   }
+
   @font-face {
     font-family: 'DM Sans';
     src: url('../assets/fonts/DMSans.ttf') format('truetype');
