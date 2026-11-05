@@ -1,5 +1,17 @@
 import { readable, derived } from 'svelte/store'
 const translations: Record<string, string> = {
+  'Wybierz gracza: {name} · fotel {seat}': 'Choose player: {name} · seat {seat}',
+  'Dodaj gracza': 'Add player',
+  'Następnie: {name}': 'Next: {name}',
+  'Nowy skład zagra od następnego rozdania.':
+    'The new line-up will play from the next deal.',
+  'Wybierz gracza · fotel {seat}': 'Choose a player · seat {seat}',
+  'Zmiana zadziała od nowego rozdania.': 'The change applies from the next deal.',
+  'Zamknij wybór gracza': 'Close player selection',
+  'Przy stole musi zostać co najmniej dwóch graczy.':
+    'At least two players must stay at the table.',
+  Wybrany: 'Selected',
+  'Obserwujesz grę': 'Watching the game',
   'Ustawienia i pomoc': 'Settings and help',
   Ustawienia: 'Settings',
   'Gracze i tempo': 'Players and pace',

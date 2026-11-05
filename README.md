@@ -3,6 +3,14 @@
 Polska gra karciana dla 2–4 osób przy jednym wirtualnym stole. Responsywny interfejs,
 wybór przeciwników, historia ruchów i tryb obserwowania rozgrywki botów.
 
+## Wybór graczy
+
+Kliknij gracza przy stole lub wolny fotel, aby otworzyć kafelki przeciwników
+z opisami ich strategii. Kliknięcie kafelka zapisuje wybór i zamyka dialog.
+Nowy skład obowiązuje od następnego rozdania; do tego czasu stół pokazuje
+obecnego gracza oraz oczekującą zmianę. Własny fotel pozwala też wybrać bota
+i obserwować grę. Przy stole musi pozostać co najmniej dwóch graczy.
+
 ## Przeciwnicy
 
 - **Felek — losowy:** wybiera równomiernie spośród dozwolonych ruchów.

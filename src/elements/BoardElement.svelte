@@ -8,6 +8,8 @@
 
   const { game } = store
   export let round = 1
+  export let selection: PlayerType[] = [...game.playersSelect]
+  export let chooseSeat: (id: number) => void = () => {}
   export let allCardsVisible = false
   export let newGame: () => void = () => game.newGame()
   $: humanTurn =
@@ -50,37 +52,68 @@
     </div>
     {#each $game.players.slice(1) as player}
       {@const strategy = strategies[player.type]}
-      {#if player.type !== PlayerType.None}
-        <div
-          class={`opponent opponent-${player.id}`}
-          class:active={!$game.isGameOver && player.id === $game.token}
+      <div
+        class={`opponent opponent-${player.id}`}
+        class:active={!$game.isGameOver && player.id === $game.token}
+      >
+        <button
+          type="button"
+          class="player-badge"
+          class:empty-seat={player.type === PlayerType.None}
+          data-seat={player.id}
+          aria-haspopup="dialog"
+          aria-label={$tr('Wybierz gracza: {name} · fotel {seat}', {
+            name: $tr(strategy.name),
+            seat: player.id + 1,
+          })}
+          aria-describedby={[
+            player.type !== PlayerType.None ? `seat-${player.id}-cards` : '',
+            player.type === PlayerType.AZ ? `seat-${player.id}-knowledge` : '',
+            selection[player.id] !== player.type ? `seat-${player.id}-next` : '',
+          ]
+            .filter(Boolean)
+            .join(' ') || undefined}
+          on:click={() => chooseSeat(player.id)}
         >
-          <div class="player-badge">
-            <span class={`avatar ${strategy.color}`} aria-hidden="true"
-              >{$tr(strategy.initials)}</span
-            >
-            <strong>{$tr(strategy.name)}</strong>
-            <span
+          <span class={`avatar ${strategy.color}`} aria-hidden="true"
+            >{$tr(strategy.initials)}</span
+          >
+          <strong
+            >{player.type === PlayerType.None
+              ? $tr('Dodaj gracza')
+              : $tr(strategy.name)}<span class="edit-mark" aria-hidden="true">⌄</span
+            ></strong
+          >
+          {#if player.type !== PlayerType.None}<span
               class="card-count"
+              id={`seat-${player.id}-cards`}
               aria-label={$tr('{count} kart', { count: player.cards.length })}
               >{player.cards.length || '✓'}</span
+            >{:else}<span class="add-mark" aria-hidden="true">+</span>{/if}
+          {#if player.type === PlayerType.AZ}
+            <span class="player-knowledge" id={`seat-${player.id}-knowledge`}
+              >{$tr('Zna wszystkie ręce')}</span
             >
-            {#if player.type === PlayerType.AZ}
-              <span class="player-knowledge">{$tr('Zna wszystkie ręce')}</span>
-            {/if}
-          </div>
-          {#if player.cards.length}
-            <div class="opponent-hand" class:concealed={!allCardsVisible}>
-              <PlayerElement cards={player.cards} hidden={!allCardsVisible} compact />
-            </div>
-          {:else if !$game.deck.length}
-            <div class="finished">{$tr('Poza grą ✓')}</div>
           {/if}
-          {#if !$game.isGameOver && player.id === $game.token}<div class="thinking">
-              <i></i><i></i><i></i>
-            </div>{/if}
-        </div>
-      {/if}
+          {#if selection[player.id] !== player.type}<span
+              class="next-player"
+              id={`seat-${player.id}-next`}
+              >{$tr('Następnie: {name}', {
+                name: $tr(strategies[selection[player.id]].name),
+              })}</span
+            >{/if}
+        </button>
+        {#if player.cards.length}
+          <div class="opponent-hand" class:concealed={!allCardsVisible}>
+            <PlayerElement cards={player.cards} hidden={!allCardsVisible} compact />
+          </div>
+        {:else if !$game.deck.length && player.type !== PlayerType.None}
+          <div class="finished">{$tr('Poza grą ✓')}</div>
+        {/if}
+        {#if !$game.isGameOver && player.id === $game.token}<div class="thinking">
+            <i></i><i></i><i></i>
+          </div>{/if}
+      </div>
     {/each}
     <div class="center-stack"><StackElement /></div>
     <div class="direction">
@@ -104,15 +137,35 @@
     </div>
     <div class="hand-header">
       <div class="hand-identity">
-        <span
-          >{me.type === PlayerType.Human
-            ? $tr('TWOJA RĘKA')
-            : $tr('{name} · OBSERWUJESZ GRĘ', {
-                name: $tr(strategies[me.type].name).toUpperCase(),
-              })}</span
+        <button
+          type="button"
+          class="own-seat"
+          data-seat="0"
+          aria-haspopup="dialog"
+          aria-label={$tr('Wybierz gracza: {name} · fotel {seat}', {
+            name: $tr(strategies[me.type].name),
+            seat: 1,
+          })}
+          aria-describedby={[
+            me.type === PlayerType.AZ ? 'seat-0-knowledge' : '',
+            selection[0] !== me.type ? 'seat-0-next' : '',
+          ]
+            .filter(Boolean)
+            .join(' ') || undefined}
+          on:click={() => chooseSeat(0)}
         >
+          {$tr(strategies[me.type].name)} <span aria-hidden="true">⌄</span>
+        </button>
+        {#if me.type !== PlayerType.Human}<span>{$tr('Obserwujesz grę')}</span>{/if}
+        {#if selection[0] !== me.type}<span class="next-player" id="seat-0-next"
+            >{$tr('Następnie: {name}', {
+              name: $tr(strategies[selection[0]].name),
+            })}</span
+          >{/if}
         {#if me.type === PlayerType.AZ}
-          <span class="player-knowledge">{$tr('Zna wszystkie ręce')}</span>
+          <span class="player-knowledge" id="seat-0-knowledge"
+            >{$tr('Zna wszystkie ręce')}</span
+          >
         {/if}
       </div>
       <span>{$tr('{count} kart', { count: me.cards.length })}</span>
@@ -263,6 +316,8 @@
     right: 22px;
   }
   .player-badge {
+    width: 100%;
+    cursor: pointer;
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
@@ -274,6 +329,44 @@
     background: #102b22d9;
     text-align: left;
     box-shadow: 0 3px 10px #0001;
+  }
+  .player-badge:hover {
+    border-color: #c2e3a8;
+    background: #193b2d;
+  }
+  .player-badge.empty-seat {
+    border-style: dashed;
+    background: #102b2255;
+  }
+  .edit-mark {
+    margin-left: 4px;
+    color: #bbcebc;
+    font-size: 12px;
+  }
+  .add-mark {
+    font-size: 20px;
+    color: #bbcebc;
+  }
+  .next-player {
+    grid-column: 1 / -1;
+    color: #efcf91;
+    font-size: 12px;
+    line-height: 17px;
+    letter-spacing: 0;
+    overflow-wrap: anywhere;
+  }
+  .own-seat {
+    min-height: 44px;
+    padding: 6px 12px;
+    border: 1px solid #9bb7a766;
+    border-radius: 8px;
+    background: #102b2277;
+    color: #e1edd9;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .own-seat:hover {
+    border-color: #c2e3a8;
   }
   .player-badge :global(.avatar) {
     width: 28px;
@@ -423,9 +516,9 @@
   .hand-header {
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
+    align-items: center;
     gap: 8px;
-    margin-top: 10px;
+    margin-top: 2px;
     color: #bdcdb4;
     font-size: 13px;
     line-height: 18px;
@@ -469,7 +562,7 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 8px;
-    padding-top: 4px;
+    padding-top: 2px;
   }
   .hand-actions .button {
     min-height: 44px;
@@ -529,6 +622,9 @@
     .opponent-3 {
       grid-column: 3;
     }
+    .edit-mark {
+      display: none;
+    }
     .player-badge {
       grid-template-columns: minmax(0, 1fr) auto;
       padding: 6px;
@@ -564,7 +660,7 @@
     }
     .turn-line {
       align-items: baseline;
-      padding: 10px 0;
+      padding: 8px 0;
       gap: 8px;
     }
     .status-dot {

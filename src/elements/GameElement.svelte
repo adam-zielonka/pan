@@ -1,8 +1,9 @@
 <script lang="ts">
+  import { tick } from 'svelte'
   import { tr, locale, setLanguage } from '../i18n'
   import BoardElement from './BoardElement.svelte'
   import { store } from '../engine/Store'
-  import PlayerSelectElement from './PlayerSelectElement.svelte'
+  import PlayerPickerDialog from './PlayerPickerDialog.svelte'
   import { PlayerType } from '../engine/PlayerType'
   import { strategies } from '../engine/strategies'
 
@@ -10,22 +11,34 @@
   let round = 1
   let settingsDialog: HTMLDialogElement
   let rulesDialog: HTMLDialogElement
+  let playerPicker: PlayerPickerDialog
+  let selectedSeat = 0
   let allCardsVisible = false
   let selection = [...game.playersSelect]
   $: activeSeats = selection.filter(type => type !== PlayerType.None).length
   $: pendingChanges = selection.some((type, id) => type !== $game.players[id]?.type)
   $: latestMove = $game.history.at(-1)
-  const bots = Object.values(PlayerType).filter(
-    type => type !== PlayerType.Human && type !== PlayerType.None,
-  )
+  async function openPlayerPicker(id: number): Promise<void> {
+    selectedSeat = id
+    await tick()
+    playerPicker.show()
+  }
 
-  function setPlayer(id: number, type: PlayerType): void {
-    game.playersSelect.set(id, type)
+  function choosePlayer(type: PlayerType): void {
+    if (selectedSeat === 0 && type === PlayerType.None) return
+    if (selectedSeat !== 0 && type === PlayerType.Human) return
+    if (
+      type === PlayerType.None &&
+      selection[selectedSeat] !== PlayerType.None &&
+      activeSeats <= 2
+    )
+      return
+    game.playersSelect.set(selectedSeat, type)
     selection = [...game.playersSelect]
   }
   function newGame(): void {
     if (activeSeats < 2) {
-      if (!settingsDialog.open) settingsDialog.showModal()
+      void openPlayerPicker(selection.findIndex(type => type === PlayerType.None))
       return
     }
     game.newGame()
@@ -44,13 +57,9 @@
       <button
         class="button subtle"
         on:click={() => settingsDialog.showModal()}
-        aria-label={pendingChanges
-          ? `${$tr('Ustawienia')} · ${$tr('Nowy skład czeka')}`
-          : $tr('Ustawienia')}
         aria-haspopup="dialog"
       >
         {$tr('Ustawienia')}
-        {#if pendingChanges}<span class="pending-dot" aria-hidden="true"></span>{/if}
       </button>
       <button
         class="button subtle"
@@ -64,7 +73,16 @@
   </header>
 
   <main>
-    <BoardElement {round} {newGame} bind:allCardsVisible />
+    {#if pendingChanges}<p class="lineup-notice" role="status">
+        {$tr('Nowy skład zagra od następnego rozdania.')}
+      </p>{/if}
+    <BoardElement
+      {round}
+      {newGame}
+      {selection}
+      chooseSeat={openPlayerPicker}
+      bind:allCardsVisible
+    />
     <details class="activity-panel">
       <summary>
         <span>{$tr('Ostatnie ruchy')}</span>
@@ -92,19 +110,14 @@
 
 <dialog bind:this={settingsDialog} aria-labelledby="settings-title">
   <div class="dialog-heading">
-    <h2 id="settings-title">{$tr('Gracze i tempo')}</h2>
+    <h2 id="settings-title">{$tr('Ustawienia')}</h2>
     <button
       class="close-button"
       on:click={() => settingsDialog.close()}
       aria-label={$tr('Zamknij ustawienia')}>×</button
     >
   </div>
-  <section aria-label={$tr('Przy Twoim stole')}>
-    {#each selection as player, id}<PlayerSelectElement
-        {id}
-        {player}
-        set={setPlayer}
-      />{/each}
+  <section aria-label={$tr('Ustawienia')}>
     <div class="setting-row">
       <label for="pace">{$tr('Tempo gry')}</label>
       <select id="pace" bind:value={game.thinkDelay}>
@@ -137,49 +150,15 @@
       </div>
     </div>
   </section>
-  <div class="settings-actions">
-    <p class:pending={pendingChanges} role="status">
-      {activeSeats < 2
-        ? $tr('Wybierz co najmniej dwóch graczy.')
-        : pendingChanges
-          ? $tr('Nowy skład czeka')
-          : $tr('Zmiany składu zadziałają od nowego rozdania.')}
-    </p>
-    {#if pendingChanges}<button
-        class="button primary"
-        disabled={activeSeats < 2}
-        on:click={newGame}>{$tr('Zastosuj i rozpocznij nowe rozdanie')}</button
-      >{/if}
-  </div>
-  <details class="players-guide">
-    <summary>{$tr('Poznaj graczy')}</summary>
-    <div class="strategy-grid">
-      {#each bots as type}
-        {@const strategy = strategies[type]}
-        <article class="strategy-card">
-          <div class="strategy-heading">
-            <span class={`avatar ${strategy.color}`} aria-hidden="true"
-              >{$tr(strategy.initials)}</span
-            >
-            <div>
-              <h3>{$tr(strategy.name)}</h3>
-              <span class="method">{$tr(strategy.method)}</span>
-            </div>
-          </div>
-          <p>{$tr(strategy.description)}</p>
-          <div class="knowledge" class:full-knowledge={type === PlayerType.AZ}>
-            {$tr(strategy.information)}
-          </div>
-        </article>
-      {/each}
-    </div>
-    <p class="strategy-note">
-      {$tr(
-        'Algorytmy są eksperymentalne. Opisy mówią, jak wybierają ruchy — nie są rankingiem siły gry. Symulacje mają ograniczoną liczbę kroków, a niedokończone partie oceniają na podstawie kart pozostałych w ręce.',
-      )}
-    </p>
-  </details>
 </dialog>
+
+<PlayerPickerDialog
+  bind:this={playerPicker}
+  seat={selectedSeat}
+  player={selection[selectedSeat]}
+  canRemove={selection[selectedSeat] === PlayerType.None || activeSeats > 2}
+  select={choosePlayer}
+/>
 
 <dialog bind:this={rulesDialog} aria-labelledby="rules-title">
   <div class="dialog-heading">
@@ -383,11 +362,11 @@
     display: flex;
     gap: 8px;
   }
-  .pending-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #dfc791;
+  .lineup-notice {
+    margin: 0 0 10px;
+    color: #efcf91;
+    font-size: 14px;
+    line-height: 1.5;
   }
   dialog {
     width: min(640px, calc(100% - 24px));
@@ -494,23 +473,6 @@
     outline-offset: 3px;
     border-radius: 4px;
   }
-  .settings-actions {
-    border-top: 1px solid var(--line);
-    padding-top: 12px;
-  }
-  .settings-actions p {
-    font-size: 13px;
-    line-height: 1.6;
-    color: #b2c0a8;
-    margin: 0;
-  }
-  .settings-actions p.pending {
-    color: #efcf91;
-  }
-  .settings-actions .button {
-    margin-top: 12px;
-    width: 100%;
-  }
   .activity-panel {
     margin-top: 10px;
     padding: 0 16px;
@@ -549,47 +511,6 @@
     border-radius: 50%;
     background: currentColor;
   }
-  .strategy-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin: 8px 0;
-  }
-  .strategy-card {
-    padding: 16px;
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    background: #23362a;
-  }
-  .strategy-heading {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-  }
-  h3 {
-    margin: 0 0 4px;
-    font-size: 18px;
-    font-weight: 550;
-  }
-  .method,
-  .knowledge {
-    font-size: 12px;
-    color: #b6c9a6;
-  }
-  .strategy-card p,
-  .strategy-note {
-    font-size: 14px;
-    line-height: 1.7;
-    color: #b2c0a8;
-  }
-  .knowledge {
-    border-top: 1px solid var(--line);
-    padding-top: 10px;
-  }
-  .full-knowledge {
-    color: #e2c9f4;
-    font-weight: 600;
-  }
   .rules-grid {
     display: grid;
     gap: 4px;
@@ -613,7 +534,7 @@
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 8px;
-      padding: 10px 2px;
+      padding: 8px 2px;
     }
     .brand {
       font-size: 24px;
@@ -635,9 +556,6 @@
     }
     dialog {
       padding: 0 16px 16px;
-    }
-    .strategy-grid {
-      grid-template-columns: 1fr;
     }
     .language-row {
       flex-wrap: wrap;
