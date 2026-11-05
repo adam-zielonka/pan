@@ -56,6 +56,7 @@
       <button
         type="button"
         class="strategy-card"
+        class:seat-option={type === PlayerType.None || type === PlayerType.Human}
         aria-pressed={player === type}
         aria-describedby={removalDisabled ? removalId : undefined}
         disabled={removalDisabled}
@@ -89,9 +90,9 @@
 
 <style>
   dialog {
-    width: min(720px, calc(100% - 24px));
+    width: min(1080px, calc(100% - 32px));
     max-height: calc(100dvh - 32px);
-    padding: 0 24px 24px;
+    padding: 0 20px 20px;
     overflow: auto;
     overscroll-behavior: contain;
     color: var(--text);
@@ -111,7 +112,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 14px 0;
+    padding: 10px 0;
     background: #1a2921;
     border-bottom: 1px solid var(--line);
   }
@@ -140,7 +141,7 @@
     background: #304333;
   }
   .dialog-description {
-    margin: 16px 0;
+    margin: 10px 0;
     color: #b2c0a8;
     font-size: 14px;
     line-height: 1.6;
@@ -153,10 +154,10 @@
   .strategy-card {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
     min-width: 0;
     min-height: 44px;
-    padding: 16px;
+    padding: 14px;
     color: var(--text);
     background: #23362a;
     border: 1px solid var(--line);
@@ -191,7 +192,7 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
   }
   .identity {
     flex: 1;
@@ -224,7 +225,7 @@
     flex: 1;
     color: #b2c0a8;
     font-size: 14px;
-    line-height: 1.7;
+    line-height: 1.5;
   }
   .knowledge {
     width: 100%;
@@ -243,6 +244,30 @@
     color: #efcf91;
     font-size: 13px;
     line-height: 1.6;
+  }
+  @media (min-width: 601px) {
+    .seat-option {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: minmax(200px, 1fr) 2fr;
+      gap: 4px 16px;
+      align-items: center;
+    }
+    .seat-option .strategy-heading {
+      grid-row: span 2;
+    }
+    .seat-option .knowledge {
+      padding-top: 0;
+      border-top: 0;
+    }
+    .seat-option .removal-explanation {
+      grid-column: 2;
+    }
+  }
+  @media (min-width: 1000px) {
+    .strategy-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
   }
   @media (max-width: 600px) {
     dialog {
