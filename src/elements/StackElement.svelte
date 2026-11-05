@@ -8,7 +8,7 @@
 <div class="pile" aria-label={$tr('Stos: {count} kart', { count: $game.stack.length })}>
   {#if !$game.stack.length}
     <div class="empty">
-      <span>9<span class="heart">♥</span></span><small>{$tr('Tu zaczyna się gra')}</small>
+      <span>9<span class="heart">♥</span></span>
     </div>
   {:else}
     {#each $game.stack.slice(-3) as card, i (card.text)}
@@ -29,16 +29,16 @@
 
 <style>
   .pile {
-    height: 128px;
-    width: 160px;
+    height: 124px;
+    width: 156px;
     position: relative;
     margin: 0 auto;
   }
   .pile-card {
     position: absolute;
-    left: calc(42px + (var(--i) - (var(--total) - 1) / 2) * 24px);
-    top: calc(7px + var(--i) * 2px);
-    transform: rotate(calc((var(--i) - (var(--total) - 1) / 2) * 10deg));
+    left: calc(40px + (var(--i) - (var(--total) - 1) / 2) * 22px);
+    top: calc(6px + var(--i) * 2px);
+    transform: rotate(calc((var(--i) - (var(--total) - 1) / 2) * 8deg));
   }
   .empty {
     height: 108px;
@@ -46,10 +46,8 @@
     border: 1px dashed #9dbeac66;
     border-radius: 8px;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 12px;
     margin: 7px auto 0;
   }
   .empty > span {
@@ -61,21 +59,17 @@
   .heart {
     color: #d69389;
   }
-  small {
-    font-size: 8px;
-    text-align: center;
-    color: #94b3a4;
-  }
   .pile-label {
-    color: #a3bfb0;
+    color: #c1d4c4;
     text-align: center;
-    font-size: 11px;
+    font-size: 13px;
+    line-height: 18px;
     letter-spacing: 0.03em;
-    margin-top: 5px;
+    margin-top: 2px;
   }
   @media (max-width: 600px) {
     .pile {
-      height: 108px;
+      height: 106px;
       width: 140px;
     }
     .pile-card {

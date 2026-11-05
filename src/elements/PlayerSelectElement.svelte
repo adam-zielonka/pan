@@ -38,7 +38,7 @@
     display: flex;
     align-items: center;
     gap: 11px;
-    padding: 17px 0;
+    padding: 12px 0;
     border-bottom: 1px solid var(--line);
   }
   .select-content {
@@ -48,19 +48,20 @@
   label {
     display: block;
     color: var(--muted);
-    font-size: 9px;
+    font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.13em;
     margin-bottom: 5px;
   }
   select {
     width: 100%;
-    padding: 3px 18px 3px 0;
+    min-height: 44px;
+    padding: 8px 18px 8px 0;
     background: transparent;
     color: var(--text);
     border: 0;
     font: inherit;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 550;
     text-overflow: ellipsis;
     cursor: pointer;
@@ -68,7 +69,7 @@
   .information {
     display: block;
     margin-top: 4px;
-    color: var(--muted);
-    font-size: 10px;
+    color: #b2c0a8;
+    font-size: 13px;
   }
 </style>

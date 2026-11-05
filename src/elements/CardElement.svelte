@@ -64,8 +64,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    font-size: 15px;
-    line-height: 17px;
+    font-size: 16px;
+    line-height: 18px;
   }
   .corner b {
     font-size: 18px;
@@ -90,7 +90,7 @@
   }
   .playable:hover,
   .playable:focus-visible {
-    transform: translateY(-12px);
+    transform: translateY(-8px);
     box-shadow:
       0 0 0 2px #bceace,
       0 12px 22px #0004;
@@ -144,11 +144,11 @@
   .compact .corner {
     top: 3px;
     left: 4px;
-    font-size: 10px;
-    line-height: 11px;
+    font-size: 12px;
+    line-height: 13px;
   }
   .compact .corner b {
-    font-size: 12px;
+    font-size: 14px;
   }
   .compact .bottom {
     inset: auto 4px 3px auto;
@@ -172,9 +172,6 @@
     }
     .suit {
       font-size: 32px;
-    }
-    .corner b {
-      font-size: 16px;
     }
   }
   @media (prefers-reduced-motion: reduce) {

@@ -1,5 +1,11 @@
 import { readable, derived } from 'svelte/store'
 const translations: Record<string, string> = {
+  'Ustawienia i pomoc': 'Settings and help',
+  Ustawienia: 'Settings',
+  'Gracze i tempo': 'Players and pace',
+  'Zamknij ustawienia': 'Close settings',
+  'Nowy skład czeka': 'New line-up ready',
+  'Zastosuj i rozpocznij nowe rozdanie': 'Apply and start a new deal',
   'PAN — Twój stolik, Twoja strategia': 'PAN — your table, your strategy',
   'PAN — klasyczna gra karciana. Wybierz przeciwników, poznaj ich strategie i zagraj przy swoim stole.':
     'PAN — a classic card game. Choose your opponents, discover their strategies and join the table.',

@@ -8,7 +8,8 @@
 
   const { game } = store
   export let round = 1
-  let allCardsVisible = false
+  export let allCardsVisible = false
+  export let newGame: () => void = () => game.newGame()
   $: humanTurn =
     !$game.isGameOver && $game.players[$game.token]?.type === PlayerType.Human
   $: current = strategies[$game.players[$game.token]?.type || PlayerType.Human]
@@ -41,11 +42,6 @@
       {$tr('ROZDANIE')}
       {String(round).padStart(2, '0')}
     </div>
-    <label class="reveal"
-      ><input type="checkbox" bind:checked={allCardsVisible} /><span
-        >{$tr('Pokaż karty rywali')}</span
-      ></label
-    >
   </div>
   <div class="felt">
     <div class="table-outline"></div>
@@ -60,16 +56,23 @@
           class:active={!$game.isGameOver && player.id === $game.token}
         >
           <div class="player-badge">
-            <span class={`avatar ${strategy.color}`}>{$tr(strategy.initials)}</span>
-            <div>
-              <strong>{$tr(strategy.name)}</strong><span class="player-method"
-                >{$tr(strategy.method)}</span
-              >
-            </div>
-            <span class="card-count">{player.cards.length || '✓'}</span>
+            <span class={`avatar ${strategy.color}`} aria-hidden="true"
+              >{$tr(strategy.initials)}</span
+            >
+            <strong>{$tr(strategy.name)}</strong>
+            <span
+              class="card-count"
+              aria-label={$tr('{count} kart', { count: player.cards.length })}
+              >{player.cards.length || '✓'}</span
+            >
+            {#if player.type === PlayerType.AZ}
+              <span class="player-knowledge">{$tr('Zna wszystkie ręce')}</span>
+            {/if}
           </div>
           {#if player.cards.length}
-            <PlayerElement cards={player.cards} hidden={!allCardsVisible} compact />
+            <div class="opponent-hand" class:concealed={!allCardsVisible}>
+              <PlayerElement cards={player.cards} hidden={!allCardsVisible} compact />
+            </div>
           {:else if !$game.deck.length}
             <div class="finished">{$tr('Poza grą ✓')}</div>
           {/if}
@@ -89,22 +92,30 @@
   <div class="your-area">
     <div class="turn-line" role="status" aria-live="polite">
       <span class:your-turn={humanTurn} class="status-dot"></span>
-      <strong>{status}</strong>
-      {#if !$game.isGameOver && humanTurn}<span class="turn-hint"
-          >{combo
-            ? $tr('Zagraj tę samą figurę')
-            : $tr('Wybierz podświetloną kartę')}</span
-        >{/if}
+      <div class="status-copy">
+        <strong>{status}</strong>
+        {#if humanTurn}<span class="turn-hint"
+            >{combo
+              ? $tr('Zagraj tę samą figurę')
+              : $tr('Wybierz podświetloną kartę')}</span
+          >{/if}
+      </div>
       <span class="move-count">{$tr('Ruch')} {$game.moveCount}</span>
     </div>
     <div class="hand-header">
-      <span
-        >{me.type === PlayerType.Human
-          ? $tr('TWOJA RĘKA')
-          : $tr('{name} · OBSERWUJESZ GRĘ', {
-              name: $tr(strategies[me.type].name).toUpperCase(),
-            })}</span
-      ><span>{$tr('{count} kart', { count: me.cards.length })}</span>
+      <div class="hand-identity">
+        <span
+          >{me.type === PlayerType.Human
+            ? $tr('TWOJA RĘKA')
+            : $tr('{name} · OBSERWUJESZ GRĘ', {
+                name: $tr(strategies[me.type].name).toUpperCase(),
+              })}</span
+        >
+        {#if me.type === PlayerType.AZ}
+          <span class="player-knowledge">{$tr('Zna wszystkie ręce')}</span>
+        {/if}
+      </div>
+      <span>{$tr('{count} kart', { count: me.cards.length })}</span>
     </div>
     <div class="your-hand">
       {#if me.cards.length}
@@ -122,33 +133,37 @@
       {/if}
     </div>
     <div class="hand-actions">
-      <span class="help-hint"
-        ><span>i</span>
-        {$game.isGameOver
-          ? $tr('Rozdaj ponownie, by zagrać jeszcze raz.')
-          : $tr('Pozbądź się kart. Ostatni przy stole przegrywa.')}</span
-      >
-      <div class="action-buttons">
-        {#if humanTurn && $game.isComboModeRady && !$game.isComboMode}<button
-            class="button subtle small"
+      {#if !$game.deck.length && $game.isGameOver}
+        <button type="button" class="button primary" on:click={newGame}
+          >{$tr('Nowe rozdanie')}</button
+        >
+      {:else}
+        {#if humanTurn && $game.isComboModeRady && !$game.isComboMode}
+          <button
+            type="button"
+            class="button subtle"
             on:click={() => me.makeAction(game, 'skip')}>{$tr('Pomiń serię')}</button
-          >{/if}
+          >
+        {/if}
         <button
-          class="button take-button small"
+          type="button"
+          class="button take-button"
           disabled={!canTake}
           on:click={() => me.makeAction(game, 'stack')}
           >{$tr('Dobierz {count} ze stosu', {
             count: $game.stack.numberOfCardsThatCanBeGetFromStack || '',
           })}
-          <span>↓</span></button
+          <span aria-hidden="true">↓</span></button
         >
-      </div>
+      {/if}
     </div>
   </div>
 </section>
 
 <style>
   .game-board {
+    min-width: 0;
+    max-width: 100%;
     border: 1px solid #3e5b4a;
     border-radius: 16px;
     overflow: hidden;
@@ -157,42 +172,29 @@
   }
   .table-toolbar {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 17px 22px;
+    min-height: 38px;
+    padding: 8px 20px;
     border-bottom: 1px solid #b9d4ba0d;
   }
   .round {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 10px;
+    font-size: 13px;
     font-weight: 600;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.08em;
     color: #bdc9ba;
   }
   .live-dot {
-    height: 5px;
-    width: 5px;
+    height: 6px;
+    width: 6px;
     border-radius: 50%;
     background: #aac598;
     box-shadow: 0 0 8px #aac59855;
   }
-  .reveal {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    color: #a8b5ad;
-    font-size: 10px;
-    cursor: pointer;
-  }
-  .reveal input {
-    accent-color: #b9d8b8;
-    width: 12px;
-    height: 12px;
-  }
   .felt {
-    height: 360px;
+    height: 332px;
     position: relative;
     background: radial-gradient(
       ellipse at 50% 20%,
@@ -212,7 +214,7 @@
   }
   .table-outline {
     position: absolute;
-    inset: 29px 38px 30px;
+    inset: 22px 28px;
     border: 1px solid #91b79020;
     border-radius: 140px;
     z-index: -1;
@@ -238,78 +240,101 @@
     display: block;
     margin-top: 8px;
     font:
-      7px system-ui,
+      9px system-ui,
       sans-serif;
-    letter-spacing: 5px;
+    letter-spacing: 4px;
   }
   .opponent {
     position: absolute;
-    width: 190px;
+    width: 180px;
+    min-width: 0;
     text-align: center;
   }
   .opponent-1 {
-    top: 125px;
-    left: 24px;
+    top: 104px;
+    left: 22px;
   }
   .opponent-2 {
-    top: 21px;
-    left: calc(50% - 95px);
+    top: 12px;
+    left: calc(50% - 90px);
   }
   .opponent-3 {
-    top: 125px;
-    right: 24px;
+    top: 104px;
+    right: 22px;
   }
   .player-badge {
-    display: inline-flex;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
-    gap: 9px;
-    padding: 8px 10px;
-    border: 1px solid #9bb7a71f;
+    gap: 4px 8px;
+    min-height: 44px;
+    padding: 6px 10px;
+    border: 1px solid #9bb7a733;
     border-radius: 10px;
-    background: #102b22b3;
+    background: #102b22d9;
     text-align: left;
     box-shadow: 0 3px 10px #0001;
   }
   .player-badge :global(.avatar) {
-    width: 31px;
-    height: 31px;
-    font-size: 10px;
-    border-radius: 9px;
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+    border-radius: 8px;
   }
-  strong {
-    font-size: 12px;
-    font-weight: 550;
+  .player-badge strong {
+    color: #e2eadb;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
   }
-  .player-method {
-    display: block;
-    font-size: 9px;
-    color: #9fb7a9;
-    margin-top: 3px;
+  .player-knowledge {
+    grid-column: 1 / -1;
+    color: #dcc9ef;
+    font-size: 13px;
+    line-height: 17px;
+    font-weight: 500;
+    letter-spacing: 0;
   }
   .card-count {
-    color: #c9d9c7;
-    font-size: 11px;
-    min-width: 22px;
+    color: #e1ecda;
+    font-size: 14px;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    min-width: 24px;
     text-align: center;
-    border-left: 1px solid #8fad981f;
-    margin-left: 4px;
+    border-left: 1px solid #8fad9844;
     padding-left: 8px;
   }
   .active .player-badge {
-    border-color: #afd29c;
-    box-shadow: 0 0 0 3px #b4d49d0d;
+    border-color: #c2e3a8;
+    box-shadow: 0 0 0 2px #b4d49d26;
+  }
+  .opponent-hand {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #789985 #173b2b;
   }
   .thinking {
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     justify-content: center;
-    gap: 3px;
-    margin-top: 7px;
+    gap: 4px;
+    padding: 3px 7px;
+    border-radius: 8px;
+    background: #173b2b;
   }
   .thinking i {
-    width: 3px;
-    height: 3px;
+    width: 4px;
+    height: 4px;
     border-radius: 50%;
-    background: #b5d1a9;
+    background: #d5edbd;
     animation: pulse 1.2s infinite;
   }
   .thinking i:nth-child(2) {
@@ -320,134 +345,149 @@
   }
   .center-stack {
     position: absolute;
-    top: 166px;
+    top: 156px;
     left: 50%;
     transform: translateX(-50%);
   }
   .direction {
     position: absolute;
-    bottom: 18px;
+    bottom: 8px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 7px;
-    color: #8eb09c;
-    font-size: 9px;
+    color: #c1d4c4;
+    font-size: 13px;
+    line-height: 22px;
     white-space: nowrap;
   }
   .direction > span {
-    font-size: 21px;
+    font-size: 22px;
   }
   .finished {
-    color: #bdd0b1;
-    font-size: 10px;
-    padding: 16px 0;
+    color: #cbdcbe;
+    font-size: 13px;
+    line-height: 18px;
+    padding: 12px 0;
   }
   .your-area {
-    padding: 0 22px 18px;
+    min-width: 0;
+    padding: 0 20px 14px;
     background: linear-gradient(#1b3027, #192b24);
     border-top: 1px solid #a0c6a52b;
   }
   .turn-line {
-    display: flex;
+    display: grid;
+    grid-template-columns: 6px minmax(0, 1fr) auto;
     align-items: center;
-    gap: 8px;
-    padding: 17px 0;
-    border-bottom: 1px solid #bdd3b311;
+    gap: 9px;
+    padding: 11px 0;
+    border-bottom: 1px solid #bdd3b326;
   }
   .status-dot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
     background: #8c9d93;
-    flex-shrink: 0;
   }
   .your-turn {
     background: #c9e4a1;
     box-shadow: 0 0 0 4px #c9e4a112;
   }
-  .turn-line strong {
-    color: #dbe7d4;
-    font-size: 12px;
+  .status-copy {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 2px 12px;
+    min-width: 0;
+    line-height: 20px;
+  }
+  .status-copy strong {
+    color: #e1edd9;
+    font-size: 14px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
   }
   .turn-hint {
-    color: #899f90;
-    font-size: 10px;
+    color: #bbcebc;
+    font-size: 13px;
   }
   .move-count {
-    margin-left: auto;
-    color: #90a293;
-    font-size: 10px;
+    color: #b8cbb8;
+    font-size: 13px;
     white-space: nowrap;
+    font-variant-numeric: tabular-nums;
   }
   .hand-header {
     display: flex;
     justify-content: space-between;
-    margin-top: 17px;
-    font-size: 9px;
-    font-weight: 550;
-    letter-spacing: 0.12em;
-    color: #93a88e;
+    align-items: baseline;
+    gap: 8px;
+    margin-top: 10px;
+    color: #bdcdb4;
+    font-size: 13px;
+    line-height: 18px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+  .hand-identity {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 10px;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
   .hand-header > span:last-child {
+    flex-shrink: 0;
     letter-spacing: 0;
-    font-weight: 400;
+    font-weight: 500;
   }
   .your-hand {
+    min-width: 0;
     max-width: 100%;
     overflow-x: auto;
-    padding: 0 0 8px;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #789985 #192b24;
+    padding-bottom: 4px;
   }
   .empty-hand {
     text-align: center;
     display: grid;
     align-content: center;
-    height: 128px;
+    min-height: 128px;
     color: #c8d7b9;
-    font-size: 13px;
+    font-size: 14px;
+    line-height: 20px;
   }
   .hand-actions {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    padding-top: 4px;
   }
-  .help-hint {
-    color: #91a391;
-    font-size: 9px;
-    display: flex;
-    align-items: center;
-    gap: 7px;
-  }
-  .help-hint > span {
-    display: grid;
-    place-items: center;
-    width: 13px;
-    height: 13px;
-    border: 1px solid #91a39166;
-    border-radius: 50%;
-    font:
-      italic 10px Georgia,
-      serif;
-    flex-shrink: 0;
-  }
-  .action-buttons {
-    display: flex;
-    align-items: center;
-    gap: 7px;
+  .hand-actions .button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 10px 14px;
+    font-size: 14px;
+    line-height: 20px;
   }
   .take-button {
-    border: 1px solid #8baf8555;
+    border: 1px solid #8baf8580;
     background: #c0d7aa0b;
-    color: #d7e7cc;
-    white-space: nowrap;
+    color: #e2eedb;
   }
   .take-button span {
-    margin-left: 10px;
+    margin-left: 4px;
   }
   .take-button:disabled {
-    opacity: 0.35;
+    opacity: 0.5;
     cursor: default;
   }
   @keyframes pulse {
@@ -455,115 +495,96 @@
       opacity: 0.25;
     }
   }
-  @media (max-width: 1100px) {
+  @media (max-width: 760px) {
+    .table-toolbar {
+      min-height: 36px;
+      padding: 7px 12px;
+    }
+    .felt {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      height: auto;
+      padding: 8px 10px 6px;
+    }
+    .table-outline {
+      inset: 18px 8px;
+      border-radius: 70px;
+    }
+    .opponent-hand.concealed {
+      display: none;
+    }
     .opponent {
-      width: 155px;
+      position: relative;
+      inset: auto;
+      width: auto;
+      grid-row: 1;
     }
     .opponent-1 {
-      left: 10px;
-    }
-    .opponent-3 {
-      right: 10px;
+      grid-column: 1;
     }
     .opponent-2 {
-      left: calc(50% - 77.5px);
+      grid-column: 2;
     }
-    .turn-hint {
+    .opponent-3 {
+      grid-column: 3;
+    }
+    .player-badge {
+      grid-template-columns: minmax(0, 1fr) auto;
+      padding: 6px;
+      gap: 4px;
+      border-radius: 8px;
+    }
+    .player-badge :global(.avatar) {
       display: none;
+    }
+    .card-count {
+      min-width: 20px;
+      padding-left: 4px;
+    }
+    .center-stack {
+      position: static;
+      transform: none;
+      grid-column: 1 / -1;
+      grid-row: 2;
+      min-width: 0;
+    }
+    .direction {
+      position: static;
+      transform: none;
+      grid-column: 1 / -1;
+      grid-row: 3;
+    }
+    .your-area {
+      padding: 0 12px 12px;
+    }
+    .status-copy {
+      display: grid;
+      gap: 1px;
+    }
+    .turn-line {
+      align-items: baseline;
+      padding: 10px 0;
+      gap: 8px;
+    }
+    .status-dot {
+      align-self: start;
+      margin-top: 7px;
+    }
+    .hand-header {
+      letter-spacing: 0.02em;
+    }
+    .hand-actions .button {
+      padding-inline: 10px;
+    }
+    .felt-mark {
+      top: 55%;
+      font-size: 70px;
     }
   }
   @media (max-width: 600px) {
-    .table-toolbar {
-      padding: 14px;
-    }
-    .round {
-      font-size: 9px;
-    }
-    .reveal {
-      font-size: 9px;
-    }
-    .felt {
-      height: 345px;
-    }
-    .table-outline {
-      inset: 26px 10px;
-      border-radius: 100px;
-    }
-    .opponent {
-      width: 118px;
-    }
-    .opponent-1 {
-      left: 4px;
-      top: 137px;
-    }
-    .opponent-3 {
-      right: 4px;
-      top: 137px;
-    }
-    .opponent-2 {
-      left: calc(50% - 59px);
-      top: 15px;
-    }
-    .player-badge {
-      padding: 6px;
-      gap: 5px;
-    }
-    .player-badge :global(.avatar) {
-      width: 24px;
-      height: 27px;
-      font-size: 8px;
-      border-radius: 6px;
-    }
-    .player-badge strong {
-      font-size: 10px;
-    }
-    .player-method {
-      font-size: 7px;
-      max-width: 64px;
-    }
-    .card-count {
-      margin: 0;
-      padding-left: 5px;
-      min-width: 15px;
-      font-size: 9px;
-    }
-    .center-stack {
-      top: 180px;
-    }
-    .direction {
-      bottom: 8px;
-      font-size: 8px;
-    }
-    .direction > span {
-      font-size: 17px;
-    }
-    .your-area {
-      padding: 0 13px 13px;
-    }
-    .turn-line {
-      gap: 7px;
-      padding: 14px 0;
-    }
-    .turn-line strong {
-      font-size: 10px;
-    }
-    .move-count {
-      font-size: 9px;
-    }
-    .hand-actions {
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .help-hint {
-      order: 2;
-      font-size: 8px;
-    }
-    .hand-header {
-      margin-top: 13px;
-    }
-    .felt-mark {
-      top: 45%;
-      font-size: 70px;
+    .empty-hand {
+      min-height: 110px;
     }
   }
   @media (prefers-reduced-motion: reduce) {

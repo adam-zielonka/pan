@@ -8,11 +8,13 @@
 
   const { game } = store
   let round = 1
-  let view: 'table' | 'players' = 'table'
-  let showRules = false
+  let settingsDialog: HTMLDialogElement
+  let rulesDialog: HTMLDialogElement
+  let allCardsVisible = false
   let selection = [...game.playersSelect]
   $: activeSeats = selection.filter(type => type !== PlayerType.None).length
   $: pendingChanges = selection.some((type, id) => type !== $game.players[id]?.type)
+  $: latestMove = $game.history.at(-1)
   const bots = Object.values(PlayerType).filter(
     type => type !== PlayerType.Human && type !== PlayerType.None,
   )
@@ -22,10 +24,14 @@
     selection = [...game.playersSelect]
   }
   function newGame(): void {
-    if (activeSeats < 2) return
+    if (activeSeats < 2) {
+      if (!settingsDialog.open) settingsDialog.showModal()
+      return
+    }
     game.newGame()
     round++
-    view = 'table'
+    settingsDialog.close()
+    rulesDialog.close()
   }
 </script>
 
@@ -33,231 +39,182 @@
 
 <div class="app-shell">
   <header class="app-header">
-    <a href="./" class="brand" aria-label={$tr('PAN — strona główna')}
-      ><span class="brand-icon">♠</span><span
-        >PAN<small>{$tr('KLASYCZNIE. PO SWOJEMU.')}</small></span
-      ></a
-    >
-    <nav aria-label={$tr('Widok aplikacji')}>
-      <button class:selected={view === 'table'} on:click={() => (view = 'table')}
-        >{$tr('Stół do gry')}</button
+    <h1 class="brand"><span class="brand-icon" aria-hidden="true">♠</span>PAN</h1>
+    <nav aria-label={$tr('Ustawienia i pomoc')}>
+      <button
+        class="button subtle"
+        on:click={() => settingsDialog.showModal()}
+        aria-label={pendingChanges
+          ? `${$tr('Ustawienia')} · ${$tr('Nowy skład czeka')}`
+          : $tr('Ustawienia')}
+        aria-haspopup="dialog"
       >
-      <button class:selected={view === 'players'} on:click={() => (view = 'players')}
-        >{$tr('Poznaj graczy')} <span>6</span></button
+        {$tr('Ustawienia')}
+        {#if pendingChanges}<span class="pending-dot" aria-hidden="true"></span>{/if}
+      </button>
+      <button
+        class="button subtle"
+        on:click={() => rulesDialog.showModal()}
+        aria-haspopup="dialog">{$tr('Zasady gry')}</button
       >
     </nav>
-    <button
-      class="rules-link"
-      on:click={() => (showRules = !showRules)}
-      aria-expanded={showRules}><span>?</span> {$tr('Zasady gry')}</button
+    <button class="button primary new-deal" on:click={newGame}
+      >{$tr('Nowe rozdanie')}</button
     >
   </header>
 
   <main>
-    <div class="page-heading">
-      <div>
-        <div class="eyebrow">{$tr('MAŁA TALIA. WIELE MOŻLIWOŚCI.')}</div>
-        <h1>
-          {view === 'table' ? $tr('Usiądź przy stole.') : $tr('Każdy gra po swojemu.')}
-        </h1>
-        <p>
-          {view === 'table'
-            ? $tr('Ty, 24 karty i przeciwnicy z charakterem.')
-            : $tr('Sześć strategii. Sześć osobowości. Wybierz swoje towarzystwo.')}
-        </p>
+    <BoardElement {round} {newGame} bind:allCardsVisible />
+    <details class="activity-panel">
+      <summary>
+        <span>{$tr('Ostatnie ruchy')}</span>
+        {#if latestMove}<span class="latest-move"
+            >{$tr(strategies[$game.players[latestMove.player].type].name)} · {$tr(
+              latestMove.action,
+            )}</span
+          >{/if}
+      </summary>
+      <div class="activity-list" aria-label={$tr('Historia ruchów')}>
+        {#if !$game.history.length}<p>
+            {$tr('Karty rozdane. Czas na pierwszy ruch.')}
+          </p>{/if}
+        {#each $game.history.slice(-4).reverse() as entry, i}
+          {@const strategy = strategies[$game.players[entry.player].type]}
+          <div class="activity-row" class:latest={i === 0}>
+            <span class={`activity-dot ${strategy.color}`} aria-hidden="true"></span>
+            <span>{$tr(strategy.name)}</span><strong>{$tr(entry.action)}</strong>
+          </div>
+        {/each}
       </div>
-      <button class="button primary" on:click={newGame} disabled={activeSeats < 2}
-        ><span class="shuffle-icon">⤨</span> {$tr('Nowe rozdanie')}</button
-      >
-    </div>
-
-    {#if showRules}
-      <section class="rules-panel" aria-label={$tr('Zasady gry')}>
-        <div class="section-heading">
-          <h2>{$tr('Jak grać w Pana?')}</h2>
-          <button
-            class="close-button"
-            on:click={() => (showRules = false)}
-            aria-label={$tr('Zamknij zasady')}>×</button
-          >
-        </div>
-        <div class="rules-grid">
-          <p>
-            <b>{$tr('01 · Zacznij od dziewiątki')}</b>{$tr(
-              'Talia ma 24 karty, od 9 do asa. Rozpoczyna osoba z 9♥, wykładając ją na stół.',
-            )}
-          </p>
-          <p>
-            <b>{$tr('02 · Równo lub wyżej')}</b>{$tr(
-              'Zagraj kartę o tej samej lub wyższej figurze. Możesz też dobrać do 3 kart ze stosu — 9♥ zostaje na stole.',
-            )}
-          </p>
-          <p>
-            <b>{$tr('03 · Wykorzystaj serię')}</b>{$tr(
-              'Po zagraniu karty możesz dołożyć trzy pozostałe tej samej figury. Rozpoczętą serię trzeba dokończyć. Dla dziewiątek działa też uzupełnienie parą przy dwóch kartach na stosie.',
-            )}
-          </p>
-          <p>
-            <b>{$tr('04 · Nie zostań ostatni')}</b>{$tr(
-              'Pik na wierzchu oddaje ruch w lewo, pozostałe kolory w prawo. Gracze bez kart odpadają. Ostatnia osoba z kartami przegrywa.',
-            )}
-          </p>
-        </div>
-      </section>
-    {/if}
-
-    <div class="content-layout">
-      <div class="main-content">
-        <div class:offscreen={view !== 'table'}><BoardElement {round} /></div>
-        {#if view === 'players'}
-          <section class="strategy-grid" aria-label={$tr('Strategie przeciwników')}>
-            {#each bots as type}
-              {@const strategy = strategies[type]}
-              <article class="strategy-card">
-                <div class="strategy-top">
-                  <span class={`avatar ${strategy.color}`}>{$tr(strategy.initials)}</span
-                  ><span class="strategy-kind"
-                    >{type === PlayerType.Tactical || type === PlayerType.Rollout
-                      ? $tr('NOWY PRZY STOLE')
-                      : $tr('STAŁY BYWALEC')}</span
-                  >
-                </div>
-                <h2>{$tr(strategy.name)}</h2>
-                <span class="method">{$tr(strategy.method)}</span>
-                <p>{$tr(strategy.description)}</p>
-                <div class="knowledge"><span>◉</span> {$tr(strategy.information)}</div>
-              </article>
-            {/each}
-          </section>
-          <p class="strategy-note">
-            {$tr(
-              'Algorytmy są eksperymentalne. Opisy mówią, jak wybierają ruchy — nie są rankingiem siły gry. Symulacje mają ograniczoną liczbę kroków, a niedokończone partie oceniają na podstawie kart pozostałych w ręce.',
-            )}
-          </p>
-        {/if}
-        <div class="below-table">
-          <span
-            ><span class="tiny-suit">♣</span>
-            {$tr('Bez pośpiechu. Dobra partia zaczyna się od dobrego ruchu.')}</span
-          ><span>9 · 10 · J · Q · K · A</span>
-        </div>
-      </div>
-
-      <aside>
-        <section class="settings-panel">
-          <div class="section-heading">
-            <h2>{$tr('Przy Twoim stole')}</h2>
-            <span class="seat-count">{activeSeats} / 4</span>
-          </div>
-          <p class="panel-intro">{$tr('Dobierz przeciwników do swojego stylu.')}</p>
-          {#each selection as player, id}<PlayerSelectElement
-              {id}
-              {player}
-              set={setPlayer}
-            />{/each}
-          <div class="pace">
-            <label for="pace">{$tr('Tempo gry')}</label><select
-              id="pace"
-              bind:value={game.thinkDelay}
-              ><option value={1200}>{$tr('Spokojne')}</option><option value={650}
-                >{$tr('Normalne')}</option
-              ><option value={200}>{$tr('Szybkie')}</option></select
-            >
-          </div>
-          <div class="settings-note" class:pending={pendingChanges}>
-            {activeSeats < 2
-              ? $tr('Wybierz co najmniej dwóch graczy.')
-              : pendingChanges
-                ? $tr('Nowy skład czeka. Kliknij „Nowe rozdanie”, aby nim zagrać.')
-                : $tr('Zmiany składu zadziałają od nowego rozdania.')}
-          </div>
-        </section>
-
-        <section class="activity-panel">
-          <div class="section-heading">
-            <h2>{$tr('Ostatnie ruchy')}</h2>
-            <span class="activity-symbol">↗</span>
-          </div>
-          <div class="activity-list" aria-label={$tr('Historia ruchów')}>
-            {#if !$game.history.length}<p class="no-moves">
-                {$tr('Karty rozdane. Czas na pierwszy ruch.')}
-              </p>{/if}
-            {#each $game.history.slice(-4).reverse() as entry, i}
-              {@const strategy = strategies[$game.players[entry.player].type]}
-              <div class="activity-row" class:latest={i === 0}>
-                <span class={`activity-dot ${strategy.color}`}></span><span
-                  >{$tr(strategy.name)}</span
-                ><strong>{$tr(entry.action)}</strong>
-              </div>
-            {/each}
-          </div>
-        </section>
-        <div class="table-tip">
-          <span>♠</span>
-          <p>
-            <b>{$tr('Mała karta, duża różnica.')}</b>{$tr(
-              'Niskich figur trudniej pozbyć się pod koniec. Czasem warto zagrać je od razu.',
-            )}
-          </p>
-        </div>
-      </aside>
-    </div>
+    </details>
   </main>
-  <footer class="app-footer">
-    <span>PAN <span class="footer-suits">♠ ♥ ♣ ♦</span></span><span
-      >{$tr('Klasyczna gra. Nowi przeciwnicy.')}</span
-    >
-    <div class="language-switch" role="group" aria-label="Language / Język">
-      <button
-        type="button"
-        lang="en"
-        aria-pressed={$locale === 'en'}
-        on:click={() => setLanguage('en')}>English</button
-      >
-      <span aria-hidden="true">/</span>
-      <button
-        type="button"
-        lang="pl"
-        aria-pressed={$locale === 'pl'}
-        on:click={() => setLanguage('pl')}>Polski</button
-      >
-    </div>
-    <span>{$tr('Stworzone dla przyjemności gry.')}</span>
-  </footer>
 </div>
 
+<dialog bind:this={settingsDialog} aria-labelledby="settings-title">
+  <div class="dialog-heading">
+    <h2 id="settings-title">{$tr('Gracze i tempo')}</h2>
+    <button
+      class="close-button"
+      on:click={() => settingsDialog.close()}
+      aria-label={$tr('Zamknij ustawienia')}>×</button
+    >
+  </div>
+  <section aria-label={$tr('Przy Twoim stole')}>
+    {#each selection as player, id}<PlayerSelectElement
+        {id}
+        {player}
+        set={setPlayer}
+      />{/each}
+    <div class="setting-row">
+      <label for="pace">{$tr('Tempo gry')}</label>
+      <select id="pace" bind:value={game.thinkDelay}>
+        <option value={1200}>{$tr('Spokojne')}</option>
+        <option value={650}>{$tr('Normalne')}</option>
+        <option value={200}>{$tr('Szybkie')}</option>
+      </select>
+    </div>
+    <label class="reveal setting-row"
+      ><span>{$tr('Pokaż karty rywali')}</span><input
+        type="checkbox"
+        bind:checked={allCardsVisible}
+      /></label
+    >
+    <div class="setting-row language-row">
+      <span id="language-label">Language / Język</span>
+      <div class="language-switch" role="group" aria-labelledby="language-label">
+        <button
+          type="button"
+          lang="pl"
+          aria-pressed={$locale === 'pl'}
+          on:click={() => setLanguage('pl')}>Polski</button
+        >
+        <button
+          type="button"
+          lang="en"
+          aria-pressed={$locale === 'en'}
+          on:click={() => setLanguage('en')}>English</button
+        >
+      </div>
+    </div>
+  </section>
+  <div class="settings-actions">
+    <p class:pending={pendingChanges} role="status">
+      {activeSeats < 2
+        ? $tr('Wybierz co najmniej dwóch graczy.')
+        : pendingChanges
+          ? $tr('Nowy skład czeka')
+          : $tr('Zmiany składu zadziałają od nowego rozdania.')}
+    </p>
+    {#if pendingChanges}<button
+        class="button primary"
+        disabled={activeSeats < 2}
+        on:click={newGame}>{$tr('Zastosuj i rozpocznij nowe rozdanie')}</button
+      >{/if}
+  </div>
+  <details class="players-guide">
+    <summary>{$tr('Poznaj graczy')}</summary>
+    <div class="strategy-grid">
+      {#each bots as type}
+        {@const strategy = strategies[type]}
+        <article class="strategy-card">
+          <div class="strategy-heading">
+            <span class={`avatar ${strategy.color}`} aria-hidden="true"
+              >{$tr(strategy.initials)}</span
+            >
+            <div>
+              <h3>{$tr(strategy.name)}</h3>
+              <span class="method">{$tr(strategy.method)}</span>
+            </div>
+          </div>
+          <p>{$tr(strategy.description)}</p>
+          <div class="knowledge" class:full-knowledge={type === PlayerType.AZ}>
+            {$tr(strategy.information)}
+          </div>
+        </article>
+      {/each}
+    </div>
+    <p class="strategy-note">
+      {$tr(
+        'Algorytmy są eksperymentalne. Opisy mówią, jak wybierają ruchy — nie są rankingiem siły gry. Symulacje mają ograniczoną liczbę kroków, a niedokończone partie oceniają na podstawie kart pozostałych w ręce.',
+      )}
+    </p>
+  </details>
+</dialog>
+
+<dialog bind:this={rulesDialog} aria-labelledby="rules-title">
+  <div class="dialog-heading">
+    <h2 id="rules-title">{$tr('Jak grać w Pana?')}</h2>
+    <button
+      class="close-button"
+      on:click={() => rulesDialog.close()}
+      aria-label={$tr('Zamknij zasady')}>×</button
+    >
+  </div>
+  <div class="rules-grid">
+    <p>
+      <b>{$tr('01 · Zacznij od dziewiątki')}</b>{$tr(
+        'Talia ma 24 karty, od 9 do asa. Rozpoczyna osoba z 9♥, wykładając ją na stół.',
+      )}
+    </p>
+    <p>
+      <b>{$tr('02 · Równo lub wyżej')}</b>{$tr(
+        'Zagraj kartę o tej samej lub wyższej figurze. Możesz też dobrać do 3 kart ze stosu — 9♥ zostaje na stole.',
+      )}
+    </p>
+    <p>
+      <b>{$tr('03 · Wykorzystaj serię')}</b>{$tr(
+        'Po zagraniu karty możesz dołożyć trzy pozostałe tej samej figury. Rozpoczętą serię trzeba dokończyć. Dla dziewiątek działa też uzupełnienie parą przy dwóch kartach na stosie.',
+      )}
+    </p>
+    <p>
+      <b>{$tr('04 · Nie zostań ostatni')}</b>{$tr(
+        'Pik na wierzchu oddaje ruch w lewo, pozostałe kolory w prawo. Gracze bez kart odpadają. Ostatnia osoba z kartami przegrywa.',
+      )}
+    </p>
+  </div>
+</dialog>
+
 <style>
-  .language-switch {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4em;
-    color: #a7b7aa;
-    font-size: 11px;
-    white-space: nowrap;
-  }
-  .language-switch button {
-    padding: 0.25rem 0;
-    border: 0;
-    background: none;
-    color: inherit;
-    font: inherit;
-    cursor: pointer;
-    text-decoration: underline;
-    text-underline-offset: 0.2em;
-  }
-  .language-switch button[aria-pressed='true'] {
-    font-weight: 600;
-    text-decoration: none;
-  }
-  .language-switch button:focus-visible {
-    outline: 2px solid currentColor;
-    outline-offset: 4px;
-  }
-
-  .app-footer {
-    flex-wrap: wrap;
-  }
-
   @font-face {
     font-family: 'DM Sans';
     src: url('../assets/fonts/DMSans.ttf') format('truetype');
@@ -349,9 +306,10 @@
     color: #aab6af;
   }
   :global(.button) {
+    min-height: 44px;
     border-radius: 7px;
     padding: 11px 17px;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 600;
     display: inline-flex;
     align-items: center;
@@ -379,7 +337,7 @@
     cursor: default;
   }
   :global(.button.small) {
-    font-size: 10px;
+    font-size: 13px;
     padding: 9px 11px;
   }
   :global(.button.subtle) {
@@ -387,557 +345,310 @@
     border: 1px solid #8baf8544;
     color: #cadac2;
   }
+
   .app-shell {
-    max-width: 1440px;
+    max-width: 1120px;
     margin: 0 auto;
-    padding: 0 42px;
+    padding: 0 24px 20px;
   }
   .app-header {
-    height: 100px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 25px;
-    border-bottom: 1px solid var(--line);
+    gap: 12px;
+    padding: 14px 0;
   }
   .brand {
     display: flex;
-    gap: 12px;
     align-items: center;
+    gap: 12px;
+    margin: 0 auto 0 0;
     color: #f0eddb;
-    text-decoration: none;
-  }
-  .brand-icon {
-    width: 36px;
-    height: 46px;
-    display: grid;
-    place-items: center;
-    border: 1px solid #b9c6a7;
-    border-radius: 6px;
     font:
-      30px Georgia,
-      serif;
-    transform: rotate(-9deg);
-    background: #b9c6a708;
-  }
-  .brand > span:last-child {
-    font:
-      29px Georgia,
+      28px Georgia,
       serif;
     letter-spacing: 5px;
   }
-  .brand small {
-    display: block;
-    margin-top: 6px;
-    font:
-      7px system-ui,
-      sans-serif;
-    letter-spacing: 1.7px;
-    color: #9eaf94;
+  .brand-icon {
+    display: grid;
+    place-items: center;
+    width: 29px;
+    height: 38px;
+    border: 1px solid #b9c6a7;
+    border-radius: 5px;
+    transform: rotate(-9deg);
+    font-size: 25px;
+    letter-spacing: 0;
   }
   nav {
     display: flex;
-    gap: 5px;
-    background: #0b15114d;
-    padding: 5px;
-    border: 1px solid var(--line);
-    border-radius: 9px;
+    gap: 8px;
   }
-  nav button {
-    border: 0;
-    border-radius: 6px;
-    background: transparent;
-    color: #8f9f92;
-    padding: 10px 18px;
-    font-size: 11px;
-    cursor: pointer;
-  }
-  nav button.selected {
-    background: #304333;
-    color: #d7e1c7;
-    box-shadow: 0 1px 3px #0002;
-  }
-  nav button > span {
-    margin-left: 5px;
-    opacity: 0.65;
-    font-size: 9px;
-  }
-  .rules-link {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    padding: 5px 0;
-    border: 0;
-    background: transparent;
-    font-size: 11px;
-    color: #b0bdab;
-    cursor: pointer;
-  }
-  .rules-link > span {
-    border: 1px solid #8a9b7f;
-    width: 16px;
-    height: 16px;
+  .pending-dot {
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
-    font-size: 10px;
-    display: grid;
-    place-items: center;
+    background: #dfc791;
   }
-  .page-heading {
+  dialog {
+    width: min(640px, calc(100% - 24px));
+    max-height: calc(100dvh - 32px);
+    padding: 0 24px 20px;
+    color: var(--text);
+    background: #1a2921;
+    border: 1px solid #60785c;
+    border-radius: 16px;
+    box-shadow: 0 20px 80px #0006;
+    overscroll-behavior: contain;
+  }
+  dialog::backdrop {
+    background: #07110dd9;
+  }
+  :global(body:has(dialog[open])) {
+    overflow: hidden;
+  }
+  .dialog-heading {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #1a2921;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
-    padding: 34px 0 27px;
-  }
-  .eyebrow {
-    font-size: 8px;
-    letter-spacing: 2px;
-    font-weight: 650;
-    color: #a4b594;
-    margin-bottom: 10px;
-  }
-  h1 {
-    font:
-      37px/1.2 Georgia,
-      'Times New Roman',
-      serif;
-    letter-spacing: -1px;
-    margin: 0;
-    color: #ececde;
-    font-weight: 400;
-  }
-  .page-heading p {
-    color: #93a38f;
-    font-size: 12px;
-    margin: 10px 0 0;
-  }
-  .shuffle-icon {
-    font-size: 20px;
-    line-height: 14px;
-  }
-  .content-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 276px;
-    gap: 23px;
-    align-items: start;
-  }
-  .main-content {
-    min-width: 0;
-  }
-  .offscreen {
-    display: none;
-  }
-  aside {
-    display: flex;
-    flex-direction: column;
-    gap: 17px;
-  }
-  .settings-panel,
-  .activity-panel {
-    background: #1a2720;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 20px;
-  }
-  .section-heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
   }
   h2 {
-    margin: 0;
-    font-size: 13px;
+    font-size: 19px;
     font-weight: 550;
-    color: #dce3d1;
+    margin: 0;
   }
-  .seat-count {
-    color: #9dad91;
-    font-size: 9px;
-    border: 1px solid #aab99826;
-    padding: 4px 6px;
-    border-radius: 4px;
+  .close-button {
+    display: grid;
+    place-items: center;
+    min-width: 44px;
+    min-height: 44px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: transparent;
+    font-size: 26px;
+    cursor: pointer;
   }
-  .panel-intro {
-    color: #899b88;
-    font-size: 10px;
-    line-height: 1.6;
-    margin: 7px 0 1px;
-  }
-  .pace {
+  .setting-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 19px 0 14px;
+    gap: 16px;
+    min-height: 60px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14px;
   }
-  .pace label {
-    font-size: 10px;
-    color: #a1b096;
+  select {
+    min-height: 44px;
+    padding: 8px;
+    border: 1px solid #637b5b;
+    border-radius: 6px;
+    background: #14231a;
+    color: var(--text);
+    max-width: 55%;
   }
-  .pace select {
-    padding: 7px 8px;
-    border-radius: 5px;
-    background: #111d16;
-    border: 1px solid #9db18c2b;
-    color: #c8d4bb;
-    font-size: 10px;
+  .reveal {
+    cursor: pointer;
   }
-  .settings-note {
-    font-size: 9px;
-    color: #8f9e88;
-    line-height: 1.7;
-    padding: 10px 12px;
-    background: #a9c18a08;
-    border-radius: 5px;
+  .reveal input {
+    width: 22px;
+    height: 22px;
+    accent-color: #c5dda9;
+    margin: 11px;
   }
-  .pending {
-    color: #dfc791;
-    background: #dfc7910c;
+  .language-switch {
+    display: flex;
+    gap: 4px;
+  }
+  .language-switch button {
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .language-switch button[aria-pressed='true'] {
+    border-color: #829576;
+    background: #304333;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  summary {
+    min-height: 44px;
+    padding: 13px 0;
+    cursor: pointer;
+    font-size: 14px;
+    color: #cadac2;
+  }
+  summary:focus-visible {
+    outline: 2px solid #c5dda9;
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  .settings-actions {
+    border-top: 1px solid var(--line);
+    padding-top: 12px;
+  }
+  .settings-actions p {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #b2c0a8;
+    margin: 0;
+  }
+  .settings-actions p.pending {
+    color: #efcf91;
+  }
+  .settings-actions .button {
+    margin-top: 12px;
+    width: 100%;
   }
   .activity-panel {
-    padding-block: 18px;
+    margin-top: 10px;
+    padding: 0 16px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
   }
-  .activity-symbol {
-    color: #99ac8a;
-    font-size: 15px;
+  .latest-move {
+    float: right;
+    color: #b2c0a8;
   }
   .activity-list {
-    margin-top: 12px;
+    padding-bottom: 12px;
+  }
+  .activity-list p {
+    font-size: 13px;
+    color: #b2c0a8;
   }
   .activity-row {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     padding: 8px 0;
-    color: #94a28c;
-    font-size: 10px;
+    font-size: 14px;
+    color: #b2c0a8;
   }
   .activity-row strong {
-    font-weight: 500;
-    color: #b4c0a7;
     margin-left: auto;
+    font-weight: 500;
   }
-  .latest {
-    color: #d5dfc6;
-  }
-  .latest strong {
-    color: #d5dfc6;
+  .activity-row.latest {
+    color: var(--text);
   }
   .activity-dot {
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     background: currentColor;
-  }
-  .no-moves {
-    font-size: 10px;
-    color: #8f9e88;
-    line-height: 1.8;
-    margin: 15px 0 2px;
-  }
-  .table-tip {
-    display: flex;
-    gap: 12px;
-    padding: 1px 9px;
-  }
-  .table-tip > span {
-    color: #a3b18a;
-    font:
-      22px Georgia,
-      serif;
-    padding-top: 3px;
-  }
-  .table-tip p {
-    color: #81927f;
-    font-size: 10px;
-    line-height: 1.8;
-    margin: 0;
-  }
-  .table-tip b {
-    display: block;
-    color: #adbda1;
-    font-weight: 500;
-  }
-  .below-table {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 18px 2px;
-    font-size: 9px;
-    color: #82927e;
-  }
-  .below-table > span:last-child {
-    color: #a0ae92;
-    letter-spacing: 2px;
-    white-space: nowrap;
-  }
-  .tiny-suit {
-    color: #a1b38c;
-    padding-right: 4px;
-  }
-  .app-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-    border-top: 1px solid var(--line);
-    padding: 22px 0 26px;
-    margin-top: 13px;
-    color: #7b8c77;
-    font-size: 9px;
-  }
-  .app-footer > span:first-child {
-    color: #acb79e;
-    letter-spacing: 3px;
-    font:
-      13px Georgia,
-      serif;
-  }
-  .footer-suits {
-    margin-left: 14px;
-    color: #7f9278;
-    font-size: 11px;
-    letter-spacing: 6px;
-  }
-  .rules-panel {
-    padding: 21px;
-    border: 1px solid #a0b58c33;
-    border-radius: 10px;
-    margin-bottom: 24px;
-    background: #1c2c22;
-  }
-  .rules-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px 30px;
-  }
-  .rules-grid p {
-    color: #a0b297;
-    font-size: 11px;
-    line-height: 1.8;
-    margin-bottom: 0;
-  }
-  .rules-grid b {
-    display: block;
-    color: #d4dfc4;
-    font-weight: 550;
-    margin-bottom: 5px;
-  }
-  .close-button {
-    background: transparent;
-    border: 0;
-    padding: 0 5px;
-    font-size: 22px;
-    color: #a9ba9b;
-    cursor: pointer;
   }
   .strategy-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 15px;
+    gap: 12px;
+    margin: 8px 0;
   }
   .strategy-card {
-    padding: 22px;
-    background: linear-gradient(130deg, #25382a, #1b2a20);
-    border: 1px solid #afc59726;
-    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #23362a;
   }
-  .strategy-top {
+  .strategy-heading {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
     gap: 10px;
+    align-items: center;
   }
-  .strategy-kind {
-    color: #8c9e80;
-    font-size: 7px;
-    letter-spacing: 1px;
+  h3 {
+    margin: 0 0 4px;
+    font-size: 18px;
+    font-weight: 550;
   }
-  .strategy-card h2 {
-    font:
-      28px Georgia,
-      serif;
-    margin: 19px 0 6px;
+  .method,
+  .knowledge {
+    font-size: 12px;
+    color: #b6c9a6;
   }
-  .method {
-    color: #bbcca9;
-    font-size: 11px;
-  }
-  .strategy-card p {
-    color: #9caf92;
-    font-size: 11px;
-    line-height: 1.9;
-    margin: 15px 0;
-    min-height: 63px;
+  .strategy-card p,
+  .strategy-note {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #b2c0a8;
   }
   .knowledge {
     border-top: 1px solid var(--line);
-    padding-top: 12px;
-    color: #a0b68f;
-    font-size: 9px;
+    padding-top: 10px;
   }
-  .knowledge > span {
-    margin-right: 5px;
+  .full-knowledge {
+    color: #e2c9f4;
+    font-weight: 600;
   }
-  .strategy-note {
-    font-size: 10px;
-    line-height: 1.9;
-    color: #8b9e81;
-    margin: 18px 3px;
+  .rules-grid {
+    display: grid;
+    gap: 4px;
   }
-  @media (min-width: 1400px) {
-    .content-layout {
-      grid-template-columns: minmax(0, 1fr) 300px;
-      gap: 28px;
-    }
+  .rules-grid p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #c0ceb6;
+    margin: 14px 0 0;
   }
-  @media (max-width: 1100px) {
-    .app-shell {
-      padding: 0 25px;
-    }
-    .content-layout {
-      grid-template-columns: minmax(0, 1fr) 245px;
-      gap: 18px;
-    }
-    .settings-panel,
-    .activity-panel {
-      padding: 16px;
-    }
-    .below-table > span:last-child {
-      display: none;
-    }
-  }
-  @media (max-width: 900px) {
-    .content-layout {
-      grid-template-columns: minmax(0, 1fr);
-    }
-    aside {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-    }
-    .table-tip {
-      align-self: start;
-    }
-    .settings-panel {
-      grid-row: span 2;
-    }
-    .app-header {
-      height: 86px;
-    }
-    nav button {
-      padding: 9px 12px;
-    }
+  .rules-grid b {
+    display: block;
+    color: var(--text);
+    margin-bottom: 5px;
   }
   @media (max-width: 600px) {
     .app-shell {
-      padding: 0 14px;
+      padding: 0 10px 14px;
     }
     .app-header {
-      height: auto;
-      padding: 20px 0 16px;
-      flex-wrap: wrap;
-      gap: 20px 10px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      padding: 10px 2px;
     }
-    .brand > span:last-child {
+    .brand {
       font-size: 24px;
     }
-    .brand small {
-      font-size: 6px;
-    }
     .brand-icon {
-      width: 29px;
-      height: 38px;
-      font-size: 25px;
+      width: 24px;
+      height: 32px;
+      font-size: 21px;
+    }
+    .new-deal {
+      grid-column: 2;
+      grid-row: 1;
     }
     nav {
-      order: 3;
-      width: 100%;
+      grid-column: 1 / -1;
     }
-    nav button {
+    nav .button {
       flex: 1;
-      font-size: 11px;
     }
-    .rules-link {
-      font-size: 10px;
-    }
-    .page-heading {
-      padding: 25px 0 22px;
-      gap: 10px;
-      align-items: center;
-    }
-    .eyebrow {
-      font-size: 6px;
-      letter-spacing: 1.2px;
-      margin-bottom: 9px;
-    }
-    h1 {
-      font-size: 27px;
-      letter-spacing: -0.7px;
-    }
-    .page-heading p {
-      font-size: 10px;
-      max-width: 180px;
-      line-height: 1.7;
-      margin-top: 8px;
-    }
-    .page-heading .button {
-      font-size: 9px;
-      padding: 10px;
-      white-space: nowrap;
-    }
-    .shuffle-icon {
-      font-size: 17px;
-    }
-    aside {
-      grid-template-columns: 1fr;
-    }
-    .settings-panel {
-      grid-row: auto;
-    }
-    .table-tip {
-      padding: 5px 10px 12px;
-    }
-    .below-table {
-      font-size: 8px;
-      line-height: 1.7;
-    }
-    .app-footer {
-      flex-wrap: wrap;
-      margin-top: 5px;
-      font-size: 8px;
-    }
-    .app-footer > span:last-child {
-      display: none;
-    }
-    .footer-suits {
-      margin-left: 6px;
-      letter-spacing: 3px;
-    }
-    .rules-grid {
-      grid-template-columns: 1fr;
-      gap: 4px;
+    dialog {
+      padding: 0 16px 16px;
     }
     .strategy-grid {
-      gap: 10px;
+      grid-template-columns: 1fr;
     }
-    .strategy-card {
-      padding: 15px;
+    .language-row {
+      flex-wrap: wrap;
+      gap: 0 8px;
+      padding: 8px 0;
     }
-    .strategy-card p {
-      font-size: 10px;
-      line-height: 1.8;
-    }
-    .strategy-kind {
-      display: none;
-    }
-    .knowledge {
-      font-size: 8px;
-      line-height: 1.6;
-    }
-    .strategy-card h2 {
-      font-size: 25px;
-    }
-    .method {
-      font-size: 10px;
+    .latest-move {
+      max-width: 50%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
   @media (prefers-reduced-motion: reduce) {
