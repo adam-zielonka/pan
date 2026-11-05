@@ -1,5 +1,11 @@
 import { readable, derived } from 'svelte/store'
 const translations: Record<string, string> = {
+  'Rozdaj karty': 'Deal cards',
+  PRZYGOTOWANIE: 'SETUP',
+  'Wybierz graczy i rozdaj karty.': 'Choose players and deal the cards.',
+  'Kliknij miejsce przy stole, aby wybrać gracza.':
+    'Click a seat at the table to choose a player.',
+  'Kliknij kafelek, aby wybrać gracza.': 'Click a tile to choose a player.',
   'Wybierz gracza: {name} · fotel {seat}': 'Choose player: {name} · seat {seat}',
   'Dodaj gracza': 'Add player',
   'Następnie: {name}': 'Next: {name}',

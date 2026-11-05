@@ -7,8 +7,8 @@ wybór przeciwników, historia ruchów i tryb obserwowania rozgrywki botów.
 
 Kliknij gracza przy stole lub wolny fotel, aby otworzyć kafelki przeciwników
 z opisami ich strategii. Kliknięcie kafelka zapisuje wybór i zamyka dialog.
-Nowy skład obowiązuje od następnego rozdania; do tego czasu stół pokazuje
-obecnego gracza oraz oczekującą zmianę. Własny fotel pozwala też wybrać bota
+Skład wybierasz przed rozpoczęciem rozdania. Przycisk „Rozdaj karty” rozpoczyna
+grę i blokuje zmianę graczy. „Nowe rozdanie” wraca do przygotowania stołu. Własny fotel pozwala też wybrać bota
 i obserwować grę. Przy stole musi pozostać co najmniej dwóch graczy.
 
 ## Przeciwnicy

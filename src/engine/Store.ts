@@ -4,7 +4,7 @@ class Store {
   game: Game
 
   constructor() {
-    this.game = new Game()
+    this.game = new Game(undefined, { autoStart: false })
   }
 }
 

@@ -8,41 +8,44 @@
 
   const { game } = store
   export let round = 1
-  export let selection: PlayerType[] = [...game.playersSelect]
+  export let isSetup = false
+  export let startGame: () => void = () => game.newGame()
   export let chooseSeat: (id: number) => void = () => {}
   export let allCardsVisible = false
   export let newGame: () => void = () => game.newGame()
   $: humanTurn =
-    !$game.isGameOver && $game.players[$game.token]?.type === PlayerType.Human
+    !isSetup && !$game.isGameOver && $game.players[$game.token]?.type === PlayerType.Human
   $: current = strategies[$game.players[$game.token]?.type || PlayerType.Human]
   $: me = $game.players[0]
   $: loser = $game.players.find(player => player.isPlaying)
   $: canTake = humanTurn && $game.isPossibleToGetCardFromStack()
   $: combo = $game.isComboModeRady || $game.isComboMode
-  $: status = $game.deck.length
-    ? $tr('Rozdajemy karty…')
-    : $game.isGameOver
-      ? $tr('Koniec rozdania · {result}', {
-          result:
-            loser?.id === 0 && me.type === PlayerType.Human
-              ? $tr('Zostajesz z kartami')
-              : $tr('{name} zostaje z kartami', {
-                  name: $tr(strategies[loser?.type || PlayerType.None].name),
-                }),
-        })
-      : humanTurn
-        ? combo
-          ? $tr('Możesz zagrać serię')
-          : $tr('Twój ruch')
-        : $tr('{name} wybiera ruch…', { name: $tr(current.name) })
+  $: status = isSetup
+    ? $tr('Wybierz graczy i rozdaj karty.')
+    : $game.deck.length
+      ? $tr('Rozdajemy karty…')
+      : $game.isGameOver
+        ? $tr('Koniec rozdania · {result}', {
+            result:
+              loser?.id === 0 && me.type === PlayerType.Human
+                ? $tr('Zostajesz z kartami')
+                : $tr('{name} zostaje z kartami', {
+                    name: $tr(strategies[loser?.type || PlayerType.None].name),
+                  }),
+          })
+        : humanTurn
+          ? combo
+            ? $tr('Możesz zagrać serię')
+            : $tr('Twój ruch')
+          : $tr('{name} wybiera ruch…', { name: $tr(current.name) })
 </script>
 
 <section class="game-board" aria-label={$tr('Stół do gry')}>
   <div class="table-toolbar">
     <div class="round">
       <span class="live-dot"></span>
-      {$tr('ROZDANIE')}
-      {String(round).padStart(2, '0')}
+      {#if isSetup}{$tr('PRZYGOTOWANIE')}{:else}{$tr('ROZDANIE')}
+        {String(round).padStart(2, '0')}{/if}
     </div>
   </div>
   <div class="felt">
@@ -54,22 +57,24 @@
       {@const strategy = strategies[player.type]}
       <div
         class={`opponent opponent-${player.id}`}
-        class:active={!$game.isGameOver && player.id === $game.token}
+        class:active={!isSetup && !$game.isGameOver && player.id === $game.token}
       >
         <button
           type="button"
           class="player-badge"
           class:empty-seat={player.type === PlayerType.None}
           data-seat={player.id}
-          aria-haspopup="dialog"
-          aria-label={$tr('Wybierz gracza: {name} · fotel {seat}', {
-            name: $tr(strategy.name),
-            seat: player.id + 1,
-          })}
+          disabled={!isSetup}
+          aria-haspopup={isSetup ? 'dialog' : undefined}
+          aria-label={isSetup
+            ? $tr('Wybierz gracza: {name} · fotel {seat}', {
+                name: $tr(strategy.name),
+                seat: player.id + 1,
+              })
+            : $tr(strategy.name)}
           aria-describedby={[
-            player.type !== PlayerType.None ? `seat-${player.id}-cards` : '',
+            !isSetup && player.type !== PlayerType.None ? `seat-${player.id}-cards` : '',
             player.type === PlayerType.AZ ? `seat-${player.id}-knowledge` : '',
-            selection[player.id] !== player.type ? `seat-${player.id}-next` : '',
           ]
             .filter(Boolean)
             .join(' ') || undefined}
@@ -80,47 +85,48 @@
           >
           <strong
             >{player.type === PlayerType.None
-              ? $tr('Dodaj gracza')
-              : $tr(strategy.name)}<span class="edit-mark" aria-hidden="true">⌄</span
-            ></strong
+              ? $tr(isSetup ? 'Dodaj gracza' : 'Wolne miejsce')
+              : $tr(strategy.name)}</strong
           >
-          {#if player.type !== PlayerType.None}<span
+          {#if !isSetup && player.type !== PlayerType.None}<span
               class="card-count"
               id={`seat-${player.id}-cards`}
               aria-label={$tr('{count} kart', { count: player.cards.length })}
               >{player.cards.length || '✓'}</span
-            >{:else}<span class="add-mark" aria-hidden="true">+</span>{/if}
+            >{:else if isSetup && player.type === PlayerType.None}<span
+              class="add-mark"
+              aria-hidden="true">+</span
+            >{/if}
           {#if player.type === PlayerType.AZ}
             <span class="player-knowledge" id={`seat-${player.id}-knowledge`}
               >{$tr('Zna wszystkie ręce')}</span
             >
           {/if}
-          {#if selection[player.id] !== player.type}<span
-              class="next-player"
-              id={`seat-${player.id}-next`}
-              >{$tr('Następnie: {name}', {
-                name: $tr(strategies[selection[player.id]].name),
-              })}</span
-            >{/if}
         </button>
         {#if player.cards.length}
           <div class="opponent-hand" class:concealed={!allCardsVisible}>
             <PlayerElement cards={player.cards} hidden={!allCardsVisible} compact />
           </div>
-        {:else if !$game.deck.length && player.type !== PlayerType.None}
+        {:else if !isSetup && !$game.deck.length && player.type !== PlayerType.None}
           <div class="finished">{$tr('Poza grą ✓')}</div>
         {/if}
-        {#if !$game.isGameOver && player.id === $game.token}<div class="thinking">
+        {#if !isSetup && !$game.isGameOver && player.id === $game.token}<div
+            class="thinking"
+          >
             <i></i><i></i><i></i>
           </div>{/if}
       </div>
     {/each}
-    <div class="center-stack"><StackElement /></div>
-    <div class="direction">
-      <span>{$game.stack.isPikOnTop ? '↶' : '↷'}</span>{$game.stack.isPikOnTop
-        ? $tr('Pik · ruch w lewo')
-        : $tr('Ruch w prawo')}
+    <div class="center-stack">
+      {#if isSetup}<p class="setup-prompt">
+          {$tr('Kliknij miejsce przy stole, aby wybrać gracza.')}
+        </p>{:else}<StackElement />{/if}
     </div>
+    {#if !isSetup}<div class="direction">
+        <span>{$game.stack.isPikOnTop ? '↶' : '↷'}</span>{$game.stack.isPikOnTop
+          ? $tr('Pik · ruch w lewo')
+          : $tr('Ruch w prawo')}
+      </div>{/if}
   </div>
   <div class="your-area">
     <div class="turn-line" role="status" aria-live="polite">
@@ -133,7 +139,7 @@
               : $tr('Wybierz podświetloną kartę')}</span
           >{/if}
       </div>
-      <span class="move-count">{$tr('Ruch')} {$game.moveCount}</span>
+      {#if !isSetup}<span class="move-count">{$tr('Ruch')} {$game.moveCount}</span>{/if}
     </div>
     <div class="hand-header">
       <div class="hand-identity">
@@ -141,26 +147,22 @@
           type="button"
           class="own-seat"
           data-seat="0"
-          aria-haspopup="dialog"
-          aria-label={$tr('Wybierz gracza: {name} · fotel {seat}', {
-            name: $tr(strategies[me.type].name),
-            seat: 1,
-          })}
-          aria-describedby={[
-            me.type === PlayerType.AZ ? 'seat-0-knowledge' : '',
-            selection[0] !== me.type ? 'seat-0-next' : '',
-          ]
+          disabled={!isSetup}
+          aria-haspopup={isSetup ? 'dialog' : undefined}
+          aria-label={isSetup
+            ? $tr('Wybierz gracza: {name} · fotel {seat}', {
+                name: $tr(strategies[me.type].name),
+                seat: 1,
+              })
+            : $tr(strategies[me.type].name)}
+          aria-describedby={[me.type === PlayerType.AZ ? 'seat-0-knowledge' : '']
             .filter(Boolean)
             .join(' ') || undefined}
           on:click={() => chooseSeat(0)}
         >
-          {$tr(strategies[me.type].name)} <span aria-hidden="true">⌄</span>
+          {$tr(strategies[me.type].name)}
         </button>
-        {#if me.type !== PlayerType.Human}<span>{$tr('Obserwujesz grę')}</span>{/if}
-        {#if selection[0] !== me.type}<span class="next-player" id="seat-0-next"
-            >{$tr('Następnie: {name}', {
-              name: $tr(strategies[selection[0]].name),
-            })}</span
+        {#if !isSetup && me.type !== PlayerType.Human}<span>{$tr('Obserwujesz grę')}</span
           >{/if}
         {#if me.type === PlayerType.AZ}
           <span class="player-knowledge" id="seat-0-knowledge"
@@ -168,7 +170,7 @@
           >
         {/if}
       </div>
-      <span>{$tr('{count} kart', { count: me.cards.length })}</span>
+      {#if !isSetup}<span>{$tr('{count} kart', { count: me.cards.length })}</span>{/if}
     </div>
     <div class="your-hand">
       {#if me.cards.length}
@@ -177,7 +179,7 @@
           move={card => me.makeAction(game, card)}
           possible={card => humanTurn && game.isPossibleToMoveCard(me, card)}
         />
-      {:else}
+      {:else if !isSetup}
         <div class="empty-hand">
           {$game.deck.length
             ? $tr('Za chwilę dostaniesz karty.')
@@ -186,7 +188,10 @@
       {/if}
     </div>
     <div class="hand-actions">
-      {#if !$game.deck.length && $game.isGameOver}
+      {#if isSetup}<button type="button" class="button primary" on:click={startGame}
+          >{$tr('Rozdaj karty')}</button
+        >
+      {:else if !$game.deck.length && $game.isGameOver}
         <button type="button" class="button primary" on:click={newGame}
           >{$tr('Nowe rozdanie')}</button
         >
@@ -330,30 +335,31 @@
     text-align: left;
     box-shadow: 0 3px 10px #0001;
   }
-  .player-badge:hover {
+  .player-badge:not(:disabled):hover {
     border-color: #c2e3a8;
     background: #193b2d;
+  }
+  .player-badge:disabled,
+  .own-seat:disabled {
+    cursor: default;
+    opacity: 1;
+  }
+  .setup-prompt {
+    width: 220px;
+    max-width: 100%;
+    margin: 0 auto;
+    color: #c1d4c4;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.6;
   }
   .player-badge.empty-seat {
     border-style: dashed;
     background: #102b2255;
   }
-  .edit-mark {
-    margin-left: 4px;
-    color: #bbcebc;
-    font-size: 12px;
-  }
   .add-mark {
     font-size: 20px;
     color: #bbcebc;
-  }
-  .next-player {
-    grid-column: 1 / -1;
-    color: #efcf91;
-    font-size: 12px;
-    line-height: 17px;
-    letter-spacing: 0;
-    overflow-wrap: anywhere;
   }
   .own-seat {
     min-height: 44px;
@@ -365,7 +371,7 @@
     font-weight: 600;
     cursor: pointer;
   }
-  .own-seat:hover {
+  .own-seat:not(:disabled):hover {
     border-color: #c2e3a8;
   }
   .player-badge :global(.avatar) {
@@ -621,9 +627,6 @@
     }
     .opponent-3 {
       grid-column: 3;
-    }
-    .edit-mark {
-      display: none;
     }
     .player-badge {
       grid-template-columns: minmax(0, 1fr) auto;

@@ -3,6 +3,7 @@
   import { PlayerType } from '../engine/PlayerType'
   import { strategies } from '../engine/strategies'
 
+  export let enabled = true
   export let seat = 0
   export let player: PlayerType = PlayerType.Human
   export let canRemove = true
@@ -18,11 +19,17 @@
   $: removalId = `player-picker-removal-${seat}`
 
   export function show(): void {
+    if (!enabled) return
     if (!dialog.open) dialog.showModal()
     dialog.scrollTop = 0
   }
 
+  export function close(): void {
+    dialog.close()
+  }
+
   function choose(type: PlayerType): void {
+    if (!enabled) return
     if (type === PlayerType.None && !canRemove) return
     select(type)
     dialog.close()
@@ -40,7 +47,7 @@
     >
   </div>
   <p class="dialog-description" id={descriptionId}>
-    {$tr('Zmiana zadziała od nowego rozdania.')}
+    {$tr('Kliknij kafelek, aby wybrać gracza.')}
   </p>
   <div class="strategy-grid">
     {#each players as type (type)}

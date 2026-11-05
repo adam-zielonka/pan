@@ -24,7 +24,7 @@ export class Game extends SubscribableStore {
   isComboModeRady = false
   isComboMode = false
 
-  constructor(game?: Game) {
+  constructor(game?: Game, options: { autoStart?: boolean } = {}) {
     super()
     this.isSimulation = !!game
 
@@ -40,8 +40,11 @@ export class Game extends SubscribableStore {
       return
     }
 
-    this.players = this.playersSelect.getGamePlayers()
-    this.deck.push(...Deck.shuffle(Deck.generate()))
+    this.resetGame()
+
+    if (options.autoStart === false) {
+      return
+    }
 
     this.timeout = setTimeout(() => {
       this.dealingCards()
@@ -89,7 +92,22 @@ export class Game extends SubscribableStore {
     if (this.playersSelect.filter(type => type !== PlayerType.None).length < 2) {
       return
     }
-    this.timeout && clearTimeout(this.timeout)
+    this.resetGame()
+    this.dealingCards()
+    this.notify()
+    this.playerPlay()
+  }
+
+  prepareGame(): void {
+    this.resetGame()
+    this.notify()
+  }
+
+  private resetGame(): void {
+    if (this.timeout !== undefined) {
+      clearTimeout(this.timeout)
+    }
+    this.timeout = undefined
     this.isComboModeRady = false
     this.isComboMode = false
     this.stack = new Stack()
@@ -98,9 +116,6 @@ export class Game extends SubscribableStore {
     this.history = []
     this.players = this.playersSelect.getGamePlayers()
     this.token = 0
-    this.dealingCards()
-    this.notify()
-    this.playerPlay()
   }
 
   getPossibleActions(player: Player): Action[] {

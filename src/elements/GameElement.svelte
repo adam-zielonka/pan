@@ -8,7 +8,8 @@
   import { strategies } from '../engine/strategies'
 
   const { game } = store
-  let round = 1
+  let round = 0
+  let isSetup = true
   let settingsDialog: HTMLDialogElement
   let rulesDialog: HTMLDialogElement
   let playerPicker: PlayerPickerDialog
@@ -16,15 +17,16 @@
   let allCardsVisible = false
   let selection = [...game.playersSelect]
   $: activeSeats = selection.filter(type => type !== PlayerType.None).length
-  $: pendingChanges = selection.some((type, id) => type !== $game.players[id]?.type)
   $: latestMove = $game.history.at(-1)
   async function openPlayerPicker(id: number): Promise<void> {
+    if (!isSetup) return
     selectedSeat = id
     await tick()
-    playerPicker.show()
+    if (isSetup) playerPicker.show()
   }
 
   function choosePlayer(type: PlayerType): void {
+    if (!isSetup) return
     if (selectedSeat === 0 && type === PlayerType.None) return
     if (selectedSeat !== 0 && type === PlayerType.Human) return
     if (
@@ -35,14 +37,19 @@
       return
     game.playersSelect.set(selectedSeat, type)
     selection = [...game.playersSelect]
+    game.prepareGame()
   }
-  function newGame(): void {
-    if (activeSeats < 2) {
-      void openPlayerPicker(selection.findIndex(type => type === PlayerType.None))
-      return
-    }
-    game.newGame()
+  function startGame(): void {
+    if (!isSetup || activeSeats < 2) return
+    playerPicker.close()
+    isSetup = false
     round++
+    game.newGame()
+  }
+
+  function prepareNextRound(): void {
+    game.prepareGame()
+    isSetup = true
     settingsDialog.close()
     rulesDialog.close()
   }
@@ -67,44 +74,44 @@
         aria-haspopup="dialog">{$tr('Zasady gry')}</button
       >
     </nav>
-    <button class="button primary new-deal" on:click={newGame}
-      >{$tr('Nowe rozdanie')}</button
+    <button
+      class="button primary new-deal"
+      on:click={isSetup ? startGame : prepareNextRound}
+      >{isSetup ? $tr('Rozdaj karty') : $tr('Nowe rozdanie')}</button
     >
   </header>
 
   <main>
-    {#if pendingChanges}<p class="lineup-notice" role="status">
-        {$tr('Nowy skład zagra od następnego rozdania.')}
-      </p>{/if}
     <BoardElement
       {round}
-      {newGame}
-      {selection}
+      {isSetup}
+      {startGame}
+      newGame={prepareNextRound}
       chooseSeat={openPlayerPicker}
       bind:allCardsVisible
     />
-    <details class="activity-panel">
-      <summary>
-        <span>{$tr('Ostatnie ruchy')}</span>
-        {#if latestMove}<span class="latest-move"
-            >{$tr(strategies[$game.players[latestMove.player].type].name)} · {$tr(
-              latestMove.action,
-            )}</span
-          >{/if}
-      </summary>
-      <div class="activity-list" aria-label={$tr('Historia ruchów')}>
-        {#if !$game.history.length}<p>
-            {$tr('Karty rozdane. Czas na pierwszy ruch.')}
-          </p>{/if}
-        {#each $game.history.slice(-4).reverse() as entry, i}
-          {@const strategy = strategies[$game.players[entry.player].type]}
-          <div class="activity-row" class:latest={i === 0}>
-            <span class={`activity-dot ${strategy.color}`} aria-hidden="true"></span>
-            <span>{$tr(strategy.name)}</span><strong>{$tr(entry.action)}</strong>
-          </div>
-        {/each}
-      </div>
-    </details>
+    {#if !isSetup}<details class="activity-panel">
+        <summary>
+          <span>{$tr('Ostatnie ruchy')}</span>
+          {#if latestMove}<span class="latest-move"
+              >{$tr(strategies[$game.players[latestMove.player].type].name)} · {$tr(
+                latestMove.action,
+              )}</span
+            >{/if}
+        </summary>
+        <div class="activity-list" aria-label={$tr('Historia ruchów')}>
+          {#if !$game.history.length}<p>
+              {$tr('Karty rozdane. Czas na pierwszy ruch.')}
+            </p>{/if}
+          {#each $game.history.slice(-4).reverse() as entry, i}
+            {@const strategy = strategies[$game.players[entry.player].type]}
+            <div class="activity-row" class:latest={i === 0}>
+              <span class={`activity-dot ${strategy.color}`} aria-hidden="true"></span>
+              <span>{$tr(strategy.name)}</span><strong>{$tr(entry.action)}</strong>
+            </div>
+          {/each}
+        </div>
+      </details>{/if}
   </main>
 </div>
 
@@ -118,13 +125,17 @@
     >
   </div>
   <section aria-label={$tr('Ustawienia')}>
-    <div class="setting-row">
-      <label for="pace">{$tr('Tempo gry')}</label>
-      <select id="pace" bind:value={game.thinkDelay}>
-        <option value={1200}>{$tr('Spokojne')}</option>
-        <option value={650}>{$tr('Normalne')}</option>
-        <option value={200}>{$tr('Szybkie')}</option>
-      </select>
+    <div class="setting-row pace-row">
+      <span id="pace-label">{$tr('Tempo gry')}</span>
+      <div class="pace-options" role="group" aria-labelledby="pace-label">
+        {#each [{ value: 1200, label: 'Spokojne' }, { value: 650, label: 'Normalne' }, { value: 200, label: 'Szybkie' }] as pace}
+          <button
+            type="button"
+            aria-pressed={game.thinkDelay === pace.value}
+            on:click={() => (game.thinkDelay = pace.value)}>{$tr(pace.label)}</button
+          >
+        {/each}
+      </div>
     </div>
     <label class="reveal setting-row"
       ><span>{$tr('Pokaż karty rywali')}</span><input
@@ -154,6 +165,7 @@
 
 <PlayerPickerDialog
   bind:this={playerPicker}
+  enabled={isSetup}
   seat={selectedSeat}
   player={selection[selectedSeat]}
   canRemove={selection[selectedSeat] === PlayerType.None || activeSeats > 2}
@@ -362,12 +374,6 @@
     display: flex;
     gap: 8px;
   }
-  .lineup-notice {
-    margin: 0 0 10px;
-    color: #efcf91;
-    font-size: 14px;
-    line-height: 1.5;
-  }
   dialog {
     width: min(640px, calc(100% - 24px));
     max-height: calc(100dvh - 32px);
@@ -422,14 +428,36 @@
     border-bottom: 1px solid var(--line);
     font-size: 14px;
   }
-  select {
+  .pace-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 14px 0;
+  }
+  .pace-options {
+    display: flex;
+    gap: 6px;
+  }
+  .pace-options button {
+    flex: 1;
+    min-width: 0;
     min-height: 44px;
-    padding: 8px;
+    padding: 8px 6px;
     border: 1px solid #637b5b;
-    border-radius: 6px;
-    background: #14231a;
-    color: var(--text);
-    max-width: 55%;
+    border-radius: 7px;
+    background: transparent;
+    color: #c8d4bb;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .pace-options button[aria-pressed='true'] {
+    background: #d1dfb4;
+    color: #233629;
+    border-color: #d1dfb4;
+    font-weight: 650;
+  }
+  .pace-options button:not([aria-pressed='true']):hover {
+    background: #304333;
   }
   .reveal {
     cursor: pointer;
