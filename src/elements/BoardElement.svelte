@@ -129,48 +129,60 @@
       </div>{/if}
   </div>
   <div class="your-area">
-    <div class="turn-line" role="status" aria-live="polite">
-      <span class:your-turn={humanTurn} class="status-dot"></span>
-      <div class="status-copy">
-        <strong>{status}</strong>
-        {#if humanTurn}<span class="turn-hint"
-            >{combo
-              ? $tr('Zagraj tę samą figurę')
-              : $tr('Wybierz podświetloną kartę')}</span
-          >{/if}
+    <div class="turn-line">
+      <div class="turn-status" role="status" aria-live="polite">
+        <span class:your-turn={humanTurn} class="status-dot"></span>
+        <div class="status-copy">
+          <strong>{status}</strong>
+          {#if humanTurn}<span class="turn-hint"
+              >{combo
+                ? $tr('Zagraj tę samą figurę')
+                : $tr('Wybierz podświetloną kartę')}</span
+            >{/if}
+        </div>
       </div>
-      {#if !isSetup}<span class="move-count">{$tr('Ruch')} {$game.moveCount}</span>{/if}
-    </div>
-    <div class="hand-header">
-      <div class="hand-identity">
-        <button
-          type="button"
-          class="own-seat"
-          data-seat="0"
-          disabled={!isSetup}
-          aria-haspopup={isSetup ? 'dialog' : undefined}
-          aria-label={isSetup
-            ? $tr('Wybierz gracza: {name} · fotel {seat}', {
-                name: $tr(strategies[me.type].name),
-                seat: 1,
-              })
-            : $tr(strategies[me.type].name)}
-          aria-describedby={[me.type === PlayerType.AZ ? 'seat-0-knowledge' : '']
-            .filter(Boolean)
-            .join(' ') || undefined}
-          on:click={() => chooseSeat(0)}
+      <button
+        type="button"
+        class="player-badge own-seat"
+        class:current-turn={!isSetup && !$game.isGameOver && $game.token === 0}
+        data-seat="0"
+        disabled={!isSetup}
+        aria-haspopup={isSetup ? 'dialog' : undefined}
+        aria-label={isSetup
+          ? $tr('Wybierz gracza: {name} · fotel {seat}', {
+              name: $tr(strategies[me.type].name),
+              seat: 1,
+            })
+          : $tr(strategies[me.type].name)}
+        aria-describedby={[
+          !isSetup ? 'seat-0-cards' : '',
+          me.type === PlayerType.AZ ? 'seat-0-knowledge' : '',
+          !isSetup && me.type !== PlayerType.Human ? 'seat-0-observing' : '',
+        ]
+          .filter(Boolean)
+          .join(' ') || undefined}
+        on:click={() => chooseSeat(0)}
+      >
+        <span class={`avatar ${strategies[me.type].color}`} aria-hidden="true"
+          >{$tr(strategies[me.type].initials)}</span
         >
-          {$tr(strategies[me.type].name)}
-        </button>
-        {#if !isSetup && me.type !== PlayerType.Human}<span>{$tr('Obserwujesz grę')}</span
+        <strong>{$tr(strategies[me.type].name)}</strong>
+        {#if !isSetup}<span
+            class="card-count"
+            id="seat-0-cards"
+            aria-label={$tr('{count} kart', { count: me.cards.length })}
+            >{me.cards.length}</span
           >{/if}
-        {#if me.type === PlayerType.AZ}
-          <span class="player-knowledge" id="seat-0-knowledge"
-            >{$tr('Zna wszystkie ręce')}</span
-          >
-        {/if}
-      </div>
-      {#if !isSetup}<span>{$tr('{count} kart', { count: me.cards.length })}</span>{/if}
+        {#if !isSetup && me.type !== PlayerType.Human}<span
+            class="seat-context"
+            id="seat-0-observing">{$tr('Obserwujesz grę')}</span
+          >{/if}
+        {#if me.type === PlayerType.AZ}<span
+            class="player-knowledge"
+            id="seat-0-knowledge">{$tr('Zna wszystkie ręce')}</span
+          >{/if}
+      </button>
+      {#if !isSetup}<span class="move-count">{$tr('Ruch')} {$game.moveCount}</span>{/if}
     </div>
     <div class="your-hand">
       {#if me.cards.length}
@@ -339,8 +351,7 @@
     border-color: #c2e3a8;
     background: #193b2d;
   }
-  .player-badge:disabled,
-  .own-seat:disabled {
+  .player-badge:disabled {
     cursor: default;
     opacity: 1;
   }
@@ -362,17 +373,23 @@
     color: #bbcebc;
   }
   .own-seat {
-    min-height: 44px;
-    padding: 6px 12px;
-    border: 1px solid #9bb7a766;
-    border-radius: 8px;
-    background: #102b2277;
-    color: #e1edd9;
-    font-weight: 600;
-    cursor: pointer;
+    width: 180px;
+    background: #33563d;
+    border-color: #94b681;
   }
   .own-seat:not(:disabled):hover {
-    border-color: #c2e3a8;
+    background: #3c6345;
+    border-color: #d5edbd;
+  }
+  .own-seat.current-turn {
+    border-color: #d5edbd;
+    box-shadow: 0 0 0 2px #b4d49d40;
+  }
+  .seat-context {
+    grid-column: 1 / -1;
+    color: #d3e3c4;
+    font-size: 12px;
+    line-height: 17px;
   }
   .player-badge :global(.avatar) {
     width: 28px;
@@ -479,15 +496,22 @@
   }
   .turn-line {
     display: grid;
-    grid-template-columns: 6px minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: center;
     gap: 9px;
     padding: 11px 0;
     border-bottom: 1px solid #bdd3b326;
   }
+  .turn-status {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+  }
   .status-dot {
     width: 6px;
     height: 6px;
+    flex-shrink: 0;
     border-radius: 50%;
     background: #8c9d93;
   }
@@ -514,35 +538,11 @@
     font-size: 13px;
   }
   .move-count {
+    justify-self: end;
     color: #b8cbb8;
     font-size: 13px;
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
-  }
-  .hand-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    margin-top: 2px;
-    color: #bdcdb4;
-    font-size: 13px;
-    line-height: 18px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-  }
-  .hand-identity {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 2px 10px;
-    min-width: 0;
-    overflow-wrap: anywhere;
-  }
-  .hand-header > span:last-child {
-    flex-shrink: 0;
-    letter-spacing: 0;
-    font-weight: 500;
   }
   .your-hand {
     min-width: 0;
@@ -662,16 +662,21 @@
       gap: 1px;
     }
     .turn-line {
-      align-items: baseline;
+      grid-template-columns: minmax(0, 1fr) 120px auto;
+      align-items: center;
       padding: 8px 0;
+      gap: 8px;
+    }
+    .own-seat {
+      width: 120px;
+    }
+    .turn-status {
+      align-items: flex-start;
       gap: 8px;
     }
     .status-dot {
       align-self: start;
       margin-top: 7px;
-    }
-    .hand-header {
-      letter-spacing: 0.02em;
     }
     .hand-actions .button {
       padding-inline: 10px;
