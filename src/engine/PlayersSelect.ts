@@ -19,7 +19,14 @@ export class PlayersSelect extends Array<PlayerType> {
 
   constructor() {
     super()
-    this.push(PlayerType.Human, PlayerType.Simple, PlayerType.MCTS, PlayerType.AZ)
+    this.push(
+      PlayerType.Human,
+      PlayerType.Simple,
+      PlayerType.MCTS,
+      PlayerType.AZ,
+      PlayerType.None,
+      PlayerType.None,
+    )
   }
 
   set = (index: number, player: PlayerType): void => {

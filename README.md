@@ -1,6 +1,6 @@
 # PAN
 
-Polska gra karciana dla 2–4 osób przy jednym wirtualnym stole. Responsywny interfejs,
+Polska gra karciana dla 2–6 osób przy jednym wirtualnym stole. Responsywny interfejs,
 wybór przeciwników, historia ruchów i tryb obserwowania rozgrywki botów.
 
 ## Wybór graczy
@@ -10,6 +10,8 @@ z opisami ich strategii. Kliknięcie kafelka zapisuje wybór i zamyka dialog.
 Skład wybierasz przed rozpoczęciem rozdania. Przycisk „Rozdaj karty” rozpoczyna
 grę i blokuje zmianę graczy. „Nowe rozdanie” wraca do przygotowania stołu. Własny fotel pozwala też wybrać bota
 i obserwować grę. Przy stole musi pozostać co najmniej dwóch graczy.
+Domyślnie grają cztery osoby, a dwa dodatkowe fotele są puste. Aby zagrać
+w pięć lub sześć osób, przed rozdaniem wybierz przeciwników dla wolnych miejsc.
 
 ## Przeciwnicy
 

@@ -264,7 +264,12 @@
     box-shadow: 0 0 8px #aac59855;
   }
   .felt {
-    height: 332px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: auto minmax(152px, 1fr) auto;
+    gap: 14px 16px;
+    min-height: 332px;
+    padding: 14px 20px 8px;
     position: relative;
     background: radial-gradient(
       ellipse at 50% 20%,
@@ -315,22 +320,32 @@
     letter-spacing: 4px;
   }
   .opponent {
-    position: absolute;
-    width: 180px;
+    position: relative;
+    width: min(180px, 100%);
     min-width: 0;
+    justify-self: center;
+    align-self: start;
     text-align: center;
   }
   .opponent-1 {
-    top: 104px;
-    left: 22px;
+    grid-row: 2;
+    grid-column: 1;
   }
   .opponent-2 {
-    top: 12px;
-    left: calc(50% - 90px);
+    grid-row: 1;
+    grid-column: 1;
   }
   .opponent-3 {
-    top: 104px;
-    right: 22px;
+    grid-row: 1;
+    grid-column: 2;
+  }
+  .opponent-4 {
+    grid-row: 1;
+    grid-column: 3;
+  }
+  .opponent-5 {
+    grid-row: 2;
+    grid-column: 3;
   }
   .player-badge {
     width: 100%;
@@ -460,16 +475,14 @@
     animation-delay: 0.4s;
   }
   .center-stack {
-    position: absolute;
-    top: 156px;
-    left: 50%;
-    transform: translateX(-50%);
+    grid-row: 2;
+    grid-column: 2;
+    min-width: 0;
+    align-self: center;
   }
   .direction {
-    position: absolute;
-    bottom: 8px;
-    left: 50%;
-    transform: translateX(-50%);
+    grid-row: 3;
+    grid-column: 1 / -1;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -600,10 +613,9 @@
       padding: 7px 12px;
     }
     .felt {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-rows: auto auto auto auto;
       gap: 6px;
-      height: auto;
+      min-height: 0;
       padding: 8px 10px 6px;
     }
     .table-outline {
@@ -612,21 +624,6 @@
     }
     .opponent-hand.concealed {
       display: none;
-    }
-    .opponent {
-      position: relative;
-      inset: auto;
-      width: auto;
-      grid-row: 1;
-    }
-    .opponent-1 {
-      grid-column: 1;
-    }
-    .opponent-2 {
-      grid-column: 2;
-    }
-    .opponent-3 {
-      grid-column: 3;
     }
     .player-badge {
       grid-template-columns: minmax(0, 1fr) auto;
@@ -642,17 +639,11 @@
       padding-left: 4px;
     }
     .center-stack {
-      position: static;
-      transform: none;
-      grid-column: 1 / -1;
-      grid-row: 2;
-      min-width: 0;
-    }
-    .direction {
-      position: static;
-      transform: none;
       grid-column: 1 / -1;
       grid-row: 3;
+    }
+    .direction {
+      grid-row: 4;
     }
     .your-area {
       padding: 0 12px 12px;

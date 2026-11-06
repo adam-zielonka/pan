@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, it, expect, vi } from 'vitest'
 import { Deck } from '../../engine/Deck'
+import { Card, Color, Figure } from '../../engine/Card'
 import { Game } from '../../engine/Game'
 import { PlayerType } from '../../engine/PlayerType'
 
@@ -37,6 +38,8 @@ it('initializes the complete game module graph and independent cloned state', ()
     PlayerType.Simple,
     PlayerType.MCTS,
     PlayerType.AZ,
+    PlayerType.None,
+    PlayerType.None,
   ])
   expect(game.deck.length).toBe(24)
   const clone = new Game(game)
@@ -62,7 +65,7 @@ it.each([undefined, {}, { autoStart: true }])('autostarts with options %j', opti
 
   vi.advanceTimersByTime(1)
   expect(game.deck).toHaveLength(0)
-  expect(game.players.map(player => player.cards.length)).toEqual([6, 6, 6, 6])
+  expect(game.players.map(player => player.cards.length)).toEqual([6, 6, 6, 6, 0, 0])
   expect(notify).toHaveBeenCalledExactlyOnceWith(game)
 })
 
@@ -81,6 +84,8 @@ it('keeps autoStart:false ready without dealing, playing or notifying after time
     PlayerType.Simple,
     PlayerType.MCTS,
     PlayerType.AZ,
+    PlayerType.None,
+    PlayerType.None,
   ])
   expectPrepared(game)
   vi.advanceTimersByTime(60_000)
@@ -123,12 +128,79 @@ it('starts a prepared game with the selected players and only notifies after dea
       .sort(),
   )
   expect(notify).toHaveBeenCalledExactlyOnceWith(game)
-  expect(notify.mock.results[0].value).toEqual([12, 0, 12, 0])
+  expect(notify.mock.results[0].value).toEqual([12, 0, 12, 0, 0, 0])
   expect(game.history).toEqual([])
   expect(game.moveCount).toBe(0)
   expect(game.timeout).toBeUndefined()
   expect(vi.getTimerCount()).toBe(0)
 })
+
+it.each([
+  { seats: [0, 1, 2, 3, 5], counts: [5, 5, 5, 5, 0, 4] },
+  { seats: [0, 1, 2, 3, 4, 5], counts: [4, 4, 4, 4, 4, 4] },
+])('deals one complete deck to active seats $seats', ({ seats, counts }) => {
+  const game = new Game(undefined, { autoStart: false })
+  game.playersSelect.fill(PlayerType.None)
+  for (const seat of seats) game.playersSelect.set(seat, PlayerType.Human)
+
+  game.newGame()
+
+  expect(game.deck).toHaveLength(0)
+  expect(game.players.map(player => player.cards.length)).toEqual(counts)
+  expect(
+    game.players
+      .flatMap(player => player.cards)
+      .map(card => card.text)
+      .sort(),
+  ).toEqual(
+    Deck.generate()
+      .map(card => card.text)
+      .sort(),
+  )
+  expect(game.players[game.token].cards.some(card => card.isStartCard)).toBe(true)
+  expect(vi.getTimerCount()).toBe(0)
+
+  game.prepareGame()
+
+  expectPrepared(game)
+  expect(
+    game.players.filter(player => player.type !== PlayerType.None).map(p => p.id),
+  ).toEqual(seats)
+})
+
+it.each([
+  { color: Color.Kier, order: [1, 2, 3, 4, 5, 0], sparseOrder: [4, 5, 0] },
+  { color: Color.Pik, order: [5, 4, 3, 2, 1, 0], sparseOrder: [5, 4, 0] },
+])(
+  'cycles through six seats in the direction of $color, skipping empty seats',
+  ({ color, order, sparseOrder }) => {
+    const game = new Game(undefined, { autoStart: false })
+    game.playersSelect.fill(PlayerType.Human)
+    game.newGame()
+    game.token = 0
+    game.stack.push(new Card(Figure.f9, color))
+
+    for (const seat of order) {
+      game.setNextPlayer()
+      expect(game.token).toBe(seat)
+    }
+
+    for (const seat of [1, 2, 3]) game.players[seat].cards = []
+    for (const seat of sparseOrder) {
+      game.setNextPlayer()
+      expect(game.token).toBe(seat)
+    }
+    expect(game.isGameOver).toBe(false)
+
+    game.players[4].cards = []
+    game.setNextPlayer()
+    expect(game.token).toBe(5)
+    expect(game.isGameOver).toBe(false)
+
+    game.players[0].cards = []
+    expect(game.isGameOver).toBe(true)
+  },
+)
 
 it('rejects starting with fewer than two selected players without notifying or scheduling', () => {
   const game = new Game(undefined, { autoStart: false })
@@ -173,7 +245,7 @@ it('prepareGame cancels the initial dealing timeout and notifies the prepared se
   expectPrepared(game)
   expect(game.players).not.toBe(oldPlayers)
   expect(game.players.map(player => player.type)).toEqual([...selection])
-  expect(game.players.map(player => player.id)).toEqual([0, 1, 2, 3])
+  expect(game.players.map(player => player.id)).toEqual([0, 1, 2, 3, 4, 5])
   expect(game.playersSelect).toBe(selection)
   expect(game.thinkDelay).toBe(1800)
   expect(notify).toHaveBeenCalledExactlyOnceWith(game)
