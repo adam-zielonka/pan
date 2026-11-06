@@ -2,6 +2,7 @@
   import { tr } from '../i18n'
   import { PlayerType } from '../engine/PlayerType'
   import { strategies } from '../engine/strategies'
+  import PlayerAvatar from './PlayerAvatar.svelte'
 
   export let enabled = true
   export let seat = 0
@@ -63,9 +64,7 @@
         on:click={() => choose(type)}
       >
         <span class="strategy-heading">
-          <span class={`avatar ${strategy.color}`} aria-hidden="true"
-            >{$tr(strategy.initials)}</span
-          >
+          <PlayerAvatar {type} />
           <span class="identity">
             <span class="name">{$tr(strategy.name)}</span>
             <span class="method">{$tr(strategy.method)}</span>

@@ -83,7 +83,6 @@ const translations: Record<string, string> = {
   'Stworzone dla przyjemności gry.': 'Made for the joy of playing.',
   Ty: 'You',
   Gracz: 'Player',
-  TY: 'YOU',
   'Twoje karty': 'Your cards',
   'Twój fotel przy stole. Podświetlone karty możesz teraz zagrać.':
     'Your seat at the table. You can play the highlighted cards now.',

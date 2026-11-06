@@ -256,18 +256,6 @@
     background: #1c2a23;
     color: var(--text);
   }
-  :global(.avatar) {
-    width: 39px;
-    height: 41px;
-    display: grid;
-    place-items: center;
-    flex-shrink: 0;
-    border: 1px solid #ffffff0d;
-    border-radius: 11px;
-    font-size: 12px;
-    font-weight: 650;
-    letter-spacing: 0.03em;
-  }
   :global(.mint) {
     background: #b6d5b51c;
     color: #c2dcb5;

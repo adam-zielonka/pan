@@ -6,7 +6,6 @@ export const strategies: Record<
     name: string
     method: string
     description: string
-    initials: string
     color: string
     information: string
   }
@@ -14,7 +13,6 @@ export const strategies: Record<
   [PlayerType.Human]: {
     name: 'Ty',
     method: 'Gracz',
-    initials: 'TY',
     color: 'mint',
     information: 'Twoje karty',
     description: 'Twój fotel przy stole. Podświetlone karty możesz teraz zagrać.',
@@ -22,7 +20,6 @@ export const strategies: Record<
   [PlayerType.None]: {
     name: 'Wolne miejsce',
     method: 'Bez gracza',
-    initials: '—',
     color: 'gray',
     information: 'Nie gra',
     description: 'Wyłącz ten fotel. Do rozdania potrzeba co najmniej dwóch graczy.',
@@ -30,7 +27,6 @@ export const strategies: Record<
   [PlayerType.Random]: {
     name: 'Felek',
     method: 'Losowy',
-    initials: 'FE',
     color: 'rose',
     information: 'Bez podglądania',
     description:
@@ -39,7 +35,6 @@ export const strategies: Record<
   [PlayerType.Simple]: {
     name: 'Bolek',
     method: 'Zachłanny',
-    initials: 'BO',
     color: 'amber',
     information: 'Bez podglądania',
     description:
@@ -48,7 +43,6 @@ export const strategies: Record<
   [PlayerType.MCTS]: {
     name: 'Monte',
     method: 'Drzewo Monte Carlo',
-    initials: 'MO',
     color: 'blue',
     information: 'Losuje nieznane ręce',
     description:
@@ -57,7 +51,6 @@ export const strategies: Record<
   [PlayerType.AZ]: {
     name: 'Ada',
     method: 'MaxN · 4 ruchy',
-    initials: 'AD',
     color: 'lilac',
     information: 'Zna wszystkie ręce',
     description:
@@ -66,7 +59,6 @@ export const strategies: Record<
   [PlayerType.Tactical]: {
     name: 'Tosia',
     method: 'Taktyczna',
-    initials: 'TO',
     color: 'mint',
     information: 'Bez podglądania',
     description:
@@ -75,7 +67,6 @@ export const strategies: Record<
   [PlayerType.Rollout]: {
     name: 'Bruno',
     method: 'Symulacje Monte Carlo',
-    initials: 'BR',
     color: 'orange',
     information: 'Losuje nieznane ręce',
     description:

@@ -2,6 +2,7 @@
   import { tr } from '../i18n'
   import StackElement from './StackElement.svelte'
   import PlayerElement from './PlayerElement.svelte'
+  import PlayerAvatar from './PlayerAvatar.svelte'
   import { store } from '../engine/Store'
   import { PlayerType } from '../engine/PlayerType'
   import { strategies } from '../engine/strategies'
@@ -80,9 +81,7 @@
             .join(' ') || undefined}
           on:click={() => chooseSeat(player.id)}
         >
-          <span class={`avatar ${strategy.color}`} aria-hidden="true"
-            >{$tr(strategy.initials)}</span
-          >
+          <PlayerAvatar type={player.type} />
           <strong
             >{player.type === PlayerType.None
               ? $tr(isSetup ? 'Dodaj gracza' : 'Wolne miejsce')
@@ -166,9 +165,7 @@
           .join(' ') || undefined}
         on:click={() => chooseSeat(0)}
       >
-        <span class={`avatar ${strategies[me.type].color}`} aria-hidden="true"
-          >{$tr(strategies[me.type].initials)}</span
-        >
+        <PlayerAvatar type={me.type} />
         <strong>{$tr(strategies[me.type].name)}</strong>
         {#if !isSetup}<span
             class="card-count"
@@ -412,7 +409,6 @@
   .player-badge :global(.avatar) {
     width: 28px;
     height: 28px;
-    font-size: 11px;
     border-radius: 8px;
   }
   .player-badge strong {
@@ -643,7 +639,13 @@
       border-radius: 8px;
     }
     .player-badge :global(.avatar) {
-      display: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+    }
+    .player-badge strong {
+      grid-column: 1 / -1;
+      grid-row: 2;
     }
     .card-count {
       min-width: 20px;
