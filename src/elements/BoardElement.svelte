@@ -88,14 +88,17 @@
               ? $tr(isSetup ? 'Dodaj gracza' : 'Wolne miejsce')
               : $tr(strategy.name)}</strong
           >
-          {#if !isSetup && player.type !== PlayerType.None}<span
+          {#if player.type !== PlayerType.None}<span
               class="card-count"
+              class:placeholder={isSetup}
               id={`seat-${player.id}-cards`}
-              aria-label={$tr('{count} kart', { count: player.cards.length })}
+              aria-hidden={isSetup ? true : undefined}
+              aria-label={isSetup
+                ? undefined
+                : $tr('{count} kart', { count: player.cards.length })}
               >{player.cards.length || '✓'}</span
-            >{:else if isSetup && player.type === PlayerType.None}<span
-              class="add-mark"
-              aria-hidden="true">+</span
+            >{:else}<span class="add-mark" class:placeholder={!isSetup} aria-hidden="true"
+              >+</span
             >{/if}
           {#if player.type === PlayerType.AZ}
             <span class="player-knowledge" id={`seat-${player.id}-knowledge`}
@@ -103,13 +106,13 @@
             >
           {/if}
         </button>
-        {#if player.cards.length}
-          <div class="opponent-hand" class:concealed={!allCardsVisible}>
+        <div class="opponent-hand" class:concealed={!allCardsVisible}>
+          {#if player.cards.length}
             <PlayerElement cards={player.cards} hidden={!allCardsVisible} compact />
-          </div>
-        {:else if !isSetup && !$game.deck.length && player.type !== PlayerType.None}
-          <div class="finished">{$tr('Poza grą ✓')}</div>
-        {/if}
+          {:else if !isSetup && !$game.deck.length && player.type !== PlayerType.None}
+            <div class="finished">{$tr('Poza grą ✓')}</div>
+          {/if}
+        </div>
         {#if !isSetup && !$game.isGameOver && player.id === $game.token}<div
             class="thinking"
           >
@@ -437,11 +440,16 @@
     border-left: 1px solid #8fad9844;
     padding-left: 8px;
   }
+  .placeholder {
+    visibility: hidden;
+  }
   .active .player-badge {
     border-color: #c2e3a8;
     box-shadow: 0 0 0 2px #b4d49d26;
   }
   .opponent-hand {
+    /* Reserve the hand and scrollbar space before dealing so seats stay put. */
+    height: 82px;
     min-width: 0;
     max-width: 100%;
     overflow-x: auto;
@@ -623,6 +631,9 @@
       border-radius: 70px;
     }
     .opponent-hand.concealed {
+      height: 42px;
+    }
+    .opponent-hand.concealed :global(.hand) {
       display: none;
     }
     .player-badge {
@@ -678,6 +689,9 @@
     }
   }
   @media (max-width: 600px) {
+    .opponent-hand {
+      height: 71px;
+    }
     .empty-hand {
       min-height: 110px;
     }

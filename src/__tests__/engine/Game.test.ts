@@ -36,10 +36,10 @@ it('initializes the complete game module graph and independent cloned state', ()
   expect(Array.from(game.players, player => player.type)).toEqual([
     PlayerType.Human,
     PlayerType.Simple,
+    PlayerType.None,
     PlayerType.MCTS,
+    PlayerType.None,
     PlayerType.AZ,
-    PlayerType.None,
-    PlayerType.None,
   ])
   expect(game.deck.length).toBe(24)
   const clone = new Game(game)
@@ -65,7 +65,7 @@ it.each([undefined, {}, { autoStart: true }])('autostarts with options %j', opti
 
   vi.advanceTimersByTime(1)
   expect(game.deck).toHaveLength(0)
-  expect(game.players.map(player => player.cards.length)).toEqual([6, 6, 6, 6, 0, 0])
+  expect(game.players.map(player => player.cards.length)).toEqual([6, 6, 0, 6, 0, 6])
   expect(notify).toHaveBeenCalledExactlyOnceWith(game)
 })
 
@@ -82,10 +82,10 @@ it('keeps autoStart:false ready without dealing, playing or notifying after time
   expect(game.players.map(player => player.type)).toEqual([
     PlayerType.Human,
     PlayerType.Simple,
+    PlayerType.None,
     PlayerType.MCTS,
+    PlayerType.None,
     PlayerType.AZ,
-    PlayerType.None,
-    PlayerType.None,
   ])
   expectPrepared(game)
   vi.advanceTimersByTime(60_000)
@@ -102,10 +102,12 @@ it('starts a prepared game with the selected players and only notifies after dea
   game.thinkDelay = 1200
   game.playersSelect.splice(
     0,
-    4,
+    game.playersSelect.length,
     PlayerType.Human,
     PlayerType.None,
     PlayerType.Human,
+    PlayerType.None,
+    PlayerType.None,
     PlayerType.None,
   )
   const notify = vi.fn((value: Game) => value.players.map(player => player.cards.length))

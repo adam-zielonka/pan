@@ -28,7 +28,17 @@ afterEach(() => {
 
 function fixture(): Game {
   const live = new Game()
-  clearTimeout(live.timeout)
+  live.playersSelect.splice(
+    0,
+    live.playersSelect.length,
+    PlayerType.Human,
+    PlayerType.Simple,
+    PlayerType.MCTS,
+    PlayerType.AZ,
+    PlayerType.None,
+    PlayerType.None,
+  )
+  live.prepareGame()
   const game = new Game(live)
   game.deck = []
   game.token = 0
@@ -134,6 +144,7 @@ describe('isolated simulations and rules', () => {
 
   it('restarts with exactly one complete deck and rejects fewer than two players', () => {
     const game = fixture()
+    game.playersSelect.fill(PlayerType.None)
     game.playersSelect.set(0, PlayerType.Human)
     game.playersSelect.set(1, PlayerType.Simple)
     game.playersSelect.set(2, PlayerType.None)
@@ -235,7 +246,7 @@ describe('strategies', () => {
       initial.playersSelect = new PlayersSelect()
       initial.playersSelect.splice(
         0,
-        4,
+        initial.playersSelect.length,
         PlayerType.Tactical,
         PlayerType.MCTS,
         PlayerType.Rollout,

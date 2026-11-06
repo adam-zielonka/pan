@@ -22,10 +22,10 @@ export class PlayersSelect extends Array<PlayerType> {
     this.push(
       PlayerType.Human,
       PlayerType.Simple,
+      PlayerType.None,
       PlayerType.MCTS,
+      PlayerType.None,
       PlayerType.AZ,
-      PlayerType.None,
-      PlayerType.None,
     )
   }
 

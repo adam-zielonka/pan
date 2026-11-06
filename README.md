@@ -10,7 +10,7 @@ z opisami ich strategii. Kliknięcie kafelka zapisuje wybór i zamyka dialog.
 Skład wybierasz przed rozpoczęciem rozdania. Przycisk „Rozdaj karty” rozpoczyna
 grę i blokuje zmianę graczy. „Nowe rozdanie” wraca do przygotowania stołu. Własny fotel pozwala też wybrać bota
 i obserwować grę. Przy stole musi pozostać co najmniej dwóch graczy.
-Domyślnie grają cztery osoby, a dwa dodatkowe fotele są puste. Aby zagrać
+Domyślnie grają cztery osoby, a fotele 3 i 5 są puste. Aby zagrać
 w pięć lub sześć osób, przed rozdaniem wybierz przeciwników dla wolnych miejsc.
 
 ## Przeciwnicy
