@@ -60,36 +60,47 @@
 <div class="app-shell">
   <header class="app-header">
     <h1 class="brand"><span class="brand-icon" aria-hidden="true">♠</span>PAN</h1>
+    <button
+      class="button primary new-deal"
+      on:click={isSetup ? startGame : prepareNextRound}
+    >
+      <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="8" y="3" width="12" height="18" rx="2" />
+        <path d="M5 18H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h1m7 6h4m-4 4h4" />
+      </svg>
+      {isSetup ? $tr('Rozdaj karty') : $tr('Nowe rozdanie')}
+    </button>
     <nav aria-label={$tr('Ustawienia i pomoc')}>
       <button
         class="button subtle"
         on:click={() => settingsDialog.showModal()}
         aria-haspopup="dialog"
       >
+        <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 6h4m4 0h10M3 12h10m4 0h4M3 18h4m4 0h10" />
+          <circle cx="9" cy="6" r="2" />
+          <circle cx="15" cy="12" r="2" />
+          <circle cx="9" cy="18" r="2" />
+        </svg>
         {$tr('Ustawienia')}
       </button>
       <button
         class="button subtle"
         on:click={() => rulesDialog.showModal()}
-        aria-haspopup="dialog">{$tr('Zasady gry')}</button
+        aria-haspopup="dialog"
       >
+        <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M12 5c-3-2-6-2-10-1v15c4-1 7-1 10 1 3-2 6-2 10-1V4c-4-1-7-1-10 1Zm0 0v15"
+          />
+        </svg>
+        {$tr('Zasady gry')}
+      </button>
     </nav>
-    <button
-      class="button primary new-deal"
-      on:click={isSetup ? startGame : prepareNextRound}
-      >{isSetup ? $tr('Rozdaj karty') : $tr('Nowe rozdanie')}</button
-    >
   </header>
 
   <main>
-    <BoardElement
-      {round}
-      {isSetup}
-      {startGame}
-      newGame={prepareNextRound}
-      chooseSeat={openPlayerPicker}
-      bind:allCardsVisible
-    />
+    <BoardElement {round} {isSetup} chooseSeat={openPlayerPicker} bind:allCardsVisible />
     {#if !isSetup}<details class="activity-panel">
         <summary>
           <span>{$tr('Ostatnie ruchy')}</span>
@@ -360,7 +371,18 @@
   }
   nav {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
+  }
+  .button-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
   dialog {
     width: min(640px, calc(100% - 24px));
@@ -416,17 +438,20 @@
     border-bottom: 1px solid var(--line);
     font-size: 14px;
   }
-  .pace-row {
+  .pace-row,
+  .language-row {
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
     padding: 14px 0;
   }
-  .pace-options {
+  .pace-options,
+  .language-switch {
     display: flex;
     gap: 6px;
   }
-  .pace-options button {
+  .pace-options button,
+  .language-switch button {
     flex: 1;
     min-width: 0;
     min-height: 44px;
@@ -438,13 +463,15 @@
     font-size: 14px;
     cursor: pointer;
   }
-  .pace-options button[aria-pressed='true'] {
+  .pace-options button[aria-pressed='true'],
+  .language-switch button[aria-pressed='true'] {
     background: #d1dfb4;
     color: #233629;
     border-color: #d1dfb4;
     font-weight: 650;
   }
-  .pace-options button:not([aria-pressed='true']):hover {
+  .pace-options button:not([aria-pressed='true']):hover,
+  .language-switch button:not([aria-pressed='true']):hover {
     background: #304333;
   }
   .reveal {
@@ -455,27 +482,6 @@
     height: 22px;
     accent-color: #c5dda9;
     margin: 11px;
-  }
-  .language-switch {
-    display: flex;
-    gap: 4px;
-  }
-  .language-switch button {
-    min-height: 44px;
-    padding: 8px 12px;
-    border: 1px solid transparent;
-    border-radius: 6px;
-    background: transparent;
-    cursor: pointer;
-    font-size: 14px;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-  .language-switch button[aria-pressed='true'] {
-    border-color: #829576;
-    background: #304333;
-    font-weight: 600;
-    text-decoration: none;
   }
   summary {
     min-height: 44px;
@@ -566,17 +572,11 @@
     }
     nav {
       grid-column: 1 / -1;
-    }
-    nav .button {
-      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     dialog {
       padding: 0 16px 16px;
-    }
-    .language-row {
-      flex-wrap: wrap;
-      gap: 0 8px;
-      padding: 8px 0;
     }
     .latest-move {
       max-width: 50%;

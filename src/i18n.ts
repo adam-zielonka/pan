@@ -104,6 +104,7 @@ const translations: Record<string, string> = {
     'Builds a move tree using UCT. Across 180 trials, samples possible opponent hands and simulates how the game continues.',
   'MaxN · 4 ruchy': 'MaxN · 4 moves',
   'Zna wszystkie ręce': 'Knows all hands',
+  'Znam wszystkie ręce': 'I know all hands',
   'Analizuje do 4 ruchów naprzód, zakładając, że każdy gra na swoją korzyść. Unika powtarzania ruchów. Wariant eksperymentalny z pełną wiedzą o kartach.':
     'Looks up to 4 moves ahead, assuming each player acts in their own interest. Avoids repeating moves. An experimental variant with full knowledge of all cards.',
   Taktyczna: 'Tactical',
